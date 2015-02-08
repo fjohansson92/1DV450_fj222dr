@@ -63,8 +63,8 @@ class UsersControllerTest < ActionController::TestCase
 			post :create, user: {email: "a@b.c",name: "Foo Bar", password: "Password", password_confirmation: "Password"} 
 		end
 
-		#TODO: Update test with template
-		#assert_template 
+		user = User.find_by_email("a@b.c")
+		assert_redirected_to user
 		
 		
 		#TODO: Update test check if logged in
