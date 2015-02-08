@@ -13,10 +13,26 @@ class UsersControllerTest < ActionController::TestCase
   	assert_template layout: "layouts/application"
 
   	assert_select "#users" do 
-		  assert_select "li", 50
+		  assert_select "li", 51
 		end
   	
 		#TODO test that user is admin  	
+
+	end
+
+
+
+	# Show user tests
+
+	test "should show user" do
+		get :show, {id: 1} 
+		assert_response :success
+
+		assert_template :show
+  	assert_template layout: "layouts/application"
+
+  	assert_not_nil assigns(:filip)
+
 
 	end
 

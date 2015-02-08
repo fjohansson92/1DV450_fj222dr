@@ -4,7 +4,10 @@
 # model remove the '{}' from the fixture names and add the columns immediately
 # below each fixture, per the syntax in the comments below
 
-
+filip:
+  name: Filip Johansson
+  email: abc@b.c
+  password_digest: <%= BCrypt::Password.create("unencrypted_password")%>
 
 <% 50.times do |n| %>
 user_nr_<%= n %>:
