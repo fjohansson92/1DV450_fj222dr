@@ -12,9 +12,9 @@ class UsersControllerTest < ActionController::TestCase
 		assert_template :index
   	assert_template layout: "layouts/application"
 
-  	#assert_select "#users" do 
-		 # assert_select "li", 30
-		#end
+  	assert_select "#users" do 
+		  assert_select "li", 50
+		end
   	
 		#TODO test that user is admin  	
 
