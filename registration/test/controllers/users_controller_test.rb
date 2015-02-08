@@ -86,6 +86,64 @@ class UsersControllerTest < ActionController::TestCase
 
 
 
+	# Edit user tests
+
+	test "should get edit" do
+		get :edit, {id: users(:filip).id}
+		assert_response :success
+
+		assert_template :edit
+  	assert_template layout: "layouts/application"
+	end
+
+
+	
+	# Update user tests
+	
+	test "should update user" do
+
+		user = users(:filip)
+
+		get :edit, {id: user.id}
+		
+		email = "new@mail.com"
+		name = "new name"
+
+
+		patch	:update, user: {email: email, name: name } 
+
+		assert_redirected_to user
+
+		#TODO: Check for message
+
+		assert_equal @user.email, email
+		assert_equal @user.name,  name
+
+		patch	:update, user: {email: email, name: name, password: "NewPassword", password_confirmation: "NewPassword" } 
+
+		assert_redirected_to user
+
+		#TODO: Check for message
+
+	end	
+
+	test "should fail to update user" do
+
+		user = users(:filip)
+
+		get :edit, {id: user.id}
+
+		patch	:update, user: {email: "", name: "Namn", } 
+
+		assert_template :edit
+  	assert_template layout: "layouts/application"
+
+  	#TODO: check for message
+	end
+	 
+
+
+
 	# Destroy user tests
 	
 	test "should remove user" do
@@ -100,7 +158,6 @@ class UsersControllerTest < ActionController::TestCase
 		assert_redirected_to users_path
 
 		#TODO: assert message
-
 
 	end
 	
