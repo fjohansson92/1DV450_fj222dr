@@ -31,9 +31,8 @@ class UsersControllerTest < ActionController::TestCase
 		assert_template :show
   	assert_template layout: "layouts/application"
 
-  	assert_not_nil assigns(:filip)
-
-
+  	assert_not_nil assigns(:user)
+  	assert_equal assigns(:user), users(:filip)
 	end
 
 

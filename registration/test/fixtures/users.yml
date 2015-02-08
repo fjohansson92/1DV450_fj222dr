@@ -5,6 +5,7 @@
 # below each fixture, per the syntax in the comments below
 
 filip:
+  id: 1
   name: Filip Johansson
   email: abc@b.c
   password_digest: <%= BCrypt::Password.create("unencrypted_password")%>
