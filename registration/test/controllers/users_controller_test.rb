@@ -3,12 +3,27 @@ require 'test_helper'
 class UsersControllerTest < ActionController::TestCase
 
 
+	# Index user tests
 
+	test "should list all users" do
+		get :index
+		assert_response :success
+
+		assert_template :index
+  	assert_template layout: "layouts/application"
+
+  	#assert_select "#users" do 
+		 # assert_select "li", 30
+		#end
+  	
+		#TODO test that user is admin  	
+
+	end
 
 
 
 	# New user tests
-
+ 
 	test "should get new" do
 		get :new
 		assert_response :success
