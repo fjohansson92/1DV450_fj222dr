@@ -110,16 +110,18 @@ class UsersControllerTest < ActionController::TestCase
 		name = "new name"
 
 
-		patch	:update, user: {email: email, name: name } 
+		patch	:update, {id: user.id, user: {id: user.id, email: email, name: name }} 
 
 		assert_redirected_to user
 
 		#TODO: Check for message
 
-		assert_equal @user.email, email
-		assert_equal @user.name,  name
+		user.reload		
 
-		patch	:update, user: {email: email, name: name, password: "NewPassword", password_confirmation: "NewPassword" } 
+		assert_equal user.email, email
+		assert_equal user.name,  name
+
+		patch	:update, {id: user.id, user: { email: email, name: name, password: "NewPassword", password_confirmation: "NewPassword" }}
 
 		assert_redirected_to user
 
@@ -133,7 +135,7 @@ class UsersControllerTest < ActionController::TestCase
 
 		get :edit, {id: user.id}
 
-		patch	:update, user: {email: "", name: "Namn", } 
+		patch	:update, {id: user.id, user: {id: user.id, email: "", name: "Namn", }} 
 
 		assert_template :edit
   	assert_template layout: "layouts/application"

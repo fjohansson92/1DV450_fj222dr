@@ -1,5 +1,5 @@
 <h1><%= @user.name %> (<%= @user.email %>)</h1>
 <%= link_to "Ta bort användare", @user, method: :delete, data: {confirm: "Är du säker på att du vill ta bort användaren?"} %>
-
+<%= link_to "Redigera användare", edit_user_path(@user) %>
 
 <h3>Api-nycklar:</h3>
