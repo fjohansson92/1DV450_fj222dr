@@ -94,9 +94,12 @@ class UsersControllerTest < ActionController::TestCase
 		#Test if autherized
 		
 		assert_difference 'User.count', -1 do
-			delete user_path(users(:baduser))
+			delete :destroy, {id: users(:baduser).id}
 		end
 
+		assert_redirected_to users_path
+
+		#TODO: assert message
 
 
 	end
