@@ -13,7 +13,7 @@ class UsersControllerTest < ActionController::TestCase
   	assert_template layout: "layouts/application"
 
   	assert_select "#users" do 
-		  assert_select "li", 51
+		  assert_select "li", 52
 		end
   	
 		#TODO test that user is admin  	
@@ -86,4 +86,19 @@ class UsersControllerTest < ActionController::TestCase
 
 
 
+	# Destroy user tests
+	
+	test "should remove user" do
+
+		#TODO: Log in as admin
+		#Test if autherized
+		
+		assert_difference 'User.count', -1 do
+			delete user_path(users(:baduser))
+		end
+
+
+
+	end
+	
 end

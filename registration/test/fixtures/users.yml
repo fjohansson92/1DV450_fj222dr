@@ -10,6 +10,14 @@ filip:
   email: abc@b.c
   password_digest: <%= BCrypt::Password.create("unencrypted_password")%>
 
+baduser:
+  id: 2
+  name: Bad user
+  email: toRemove@b.c
+  password_digest: <%= BCrypt::Password.create("unencrypted_password")%>
+
+
+
 <% 50.times do |n| %>
 user_nr_<%= n %>:
   name:  <%= "Username#{n}" %>
