@@ -4,9 +4,9 @@ class CreateApikeys < ActiveRecord::Migration
 
       t.string :key
       t.string :domain
-      t.boolean :valid, :default => true, index: true
+      t.boolean :revoked, :default => false
 
-      t.belongs_to :user
+      t.belongs_to :user, index: true
 
       t.timestamps null: false
     end
