@@ -3,10 +3,12 @@ require 'test_helper'
 class ApikeyTest < ActiveSupport::TestCase
 
 	def setup
-		@apikey = Apikey.new(key: "temprandomstring", domain: "http://localhost:3000")
+		user = User.new(email: "a@b.c",name: "Foo Bar", password: "Password", password_confirmation: "Password")
+		user.save
+		@apikey = user.apikeys.create(key: "temprandomstring", domain: "http://localhost:3000")
 	end
 
-	test "should be valid default apikey" do
+	test "should be valid apikey" do
 		assert @apikey.valid?
 	end
 
@@ -47,7 +49,7 @@ class ApikeyTest < ActiveSupport::TestCase
   end
 
 
-  test "domain should be valid" do
+  test "domain should not be valid" do
   	@apikey.domain = "Not a valid domain"
   	assert_not @apikey.valid?
   end
