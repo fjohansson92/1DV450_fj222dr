@@ -11,7 +11,18 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150209163945) do
+ActiveRecord::Schema.define(version: 20150209174503) do
+
+  create_table "apikeys", force: :cascade do |t|
+    t.string   "key"
+    t.string   "domain"
+    t.boolean  "valid",      default: true
+    t.integer  "user_id"
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+  end
+
+  add_index "apikeys", ["valid"], name: "index_apikeys_on_valid"
 
   create_table "users", force: :cascade do |t|
     t.string   "email"
