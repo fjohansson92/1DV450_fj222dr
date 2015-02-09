@@ -22,7 +22,7 @@ class UsersControllerTest < ActionController::TestCase
   		assert_template layout: "layouts/application"
 
   		assert_select "#users" do 
-		  assert_select "li", 53
+		  assert_select "li", 54
 		end
 	end
 
@@ -156,7 +156,7 @@ class UsersControllerTest < ActionController::TestCase
 
 
 	test "should fail to edit when wrong user" do
-		log_in_as @user
+		log_in_as @non_admin_user
 		get :edit, { id: @wrong_user.id }
 		#TODO: Check for message
 		assert_redirected_to root_path	
@@ -168,28 +168,28 @@ class UsersControllerTest < ActionController::TestCase
 	
 	test "should update user" do
 
-		log_in_as @user
+		log_in_as @non_admin_user
 
-		get :edit, {id: @user.id}
+		get :edit, {id: @non_admin_user.id}
 		
 		email = "new@mail.com"
 		name = "new name"
 
 
-		patch :update, {id: @user.id, user: { email: email, name: name }} 
+		patch :update, {id: @non_admin_user.id, user: { email: email, name: name }} 
 
-		assert_redirected_to @user
+		assert_redirected_to @non_admin_user
 
 		#TODO: Check for message
 
-		@user.reload		
+		@non_admin_user.reload		
 
-		assert_equal @user.email, email
-		assert_equal @user.name,  name
+		assert_equal @non_admin_user.email, email
+		assert_equal @non_admin_user.name,  name
 
-		patch :update, {id: @user.id, user: { email: email, name: name, password: "NewPassword", password_confirmation: "NewPassword" }}
+		patch :update, {id: @non_admin_user.id, user: { email: email, name: name, password: "NewPassword", password_confirmation: "NewPassword" }}
 
-		assert_redirected_to @user
+		assert_redirected_to @non_admin_user
 
 		#TODO: Check for message
 
@@ -198,9 +198,11 @@ class UsersControllerTest < ActionController::TestCase
 
 	test "should fail to update user" do
 
-		get :edit, {id: @user.id}
+		log_in_as @non_admin_user
 
-		patch :update, {id: @user.id, user: {id: @user.id, email: "", name: "Namn", }} 
+		get :edit, {id: @non_admin_user.id}
+
+		patch :update, {id: @non_admin_user.id, user: {id: @non_admin_user.id, email: "", name: "Namn", }} 
 
 		assert_template :edit
 	  	assert_template layout: "layouts/application"
