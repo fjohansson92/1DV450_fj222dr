@@ -67,7 +67,7 @@ class UsersControllerTest < ActionController::TestCase
 		assert_redirected_to user
 		
 		
-		#TODO: Update test check if logged in
+		assert is_logged_in?
 
 		#TODO: assert_equal "Du är nu registrerad!", flash[:success]
 	end

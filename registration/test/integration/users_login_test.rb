@@ -18,23 +18,27 @@ class UsersLoginTest < ActionDispatch::IntegrationTest
 		
 		assert_select "a[href=?]", logout_path
 
-		#TODO: Check if logged in 
-		
+		assert is_logged_in?
 
 		# Logout
 		delete logout_path
 		assert_redirected_to login_path
+		follow_redirect!
+
+		assert_select "a[href=?]", login_path
 
 		#TODO: Check for message
 
-		#TODO: Check if logged out
+		assert_not is_logged_in?
 	end
 
 	test "login should fail" do
 		get login_path
-		assert_template 'session/new'
+		assert_template :new
 		post login_path, session: { email: "not a user", password: "password"}
-		assert_template 'session/new'
+		assert_template :new
+
+		assert_not is_logged_in?
 
 		#TODO: Check for message
 		
