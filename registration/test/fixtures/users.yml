@@ -16,6 +16,18 @@ baduser:
   email: toRemove@b.c
   password_digest: <%= BCrypt::Password.create("unencrypted_password")%>
 
+wrong_user:
+  id: 3
+  name: Wrong user
+  email: wrong@b.c
+  password_digest: <%= BCrypt::Password.create("unencrypted_password")%>
+
+non_admin_user:
+  id: 4
+  name: Other user
+  email: other@b.c
+  password_digest: <%= BCrypt::Password.create("unencrypted_password")%>
+
 
 
 <% 50.times do |n| %>

@@ -2,22 +2,43 @@ require 'test_helper'
 
 class UsersControllerTest < ActionController::TestCase
 
+	def setup 
+		@user = users(:filip)
+		@wrong_user = users(:wrong_user)
+		@non_admin_user = users(:non_admin_user)
+	end
+
 
 	# Index user tests
 
 	test "should list all users" do
+		
+		log_in_as @user
+
 		get :index
 		assert_response :success
 
 		assert_template :index
-  	assert_template layout: "layouts/application"
+  		assert_template layout: "layouts/application"
 
-  	assert_select "#users" do 
-		  assert_select "li", 52
+  		assert_select "#users" do 
+		  assert_select "li", 53
 		end
-  	
-		#TODO test that user is admin  	
+	end
 
+
+	test "should fail to list users when not logged in" do
+		get :index
+		assert_redirected_to login_path	
+	end
+
+
+	test "should fail to list users when not admin" do
+
+		log_in_as @wrong_user
+
+		get :index
+		assert_redirected_to root_path	
 	end
 
 
@@ -25,14 +46,40 @@ class UsersControllerTest < ActionController::TestCase
 	# Show user tests
 
 	test "should show user" do
-		get :show, {id: 1} 
+
+		log_in_as @non_admin_user
+
+		get :show, {id: @non_admin_user.id} 
 		assert_response :success
 
 		assert_template :show
-  	assert_template layout: "layouts/application"
+	  	assert_template layout: "layouts/application"
 
-  	assert_not_nil assigns(:user)
-  	assert_equal assigns(:user), users(:filip)
+	  	assert_not_nil assigns(:user)
+	  	assert_equal assigns(:user), @non_admin_user
+	end
+
+
+	test "should fail to show when not logged in" do
+		get :show, {id: @user.id}
+		#TODO: Check for message
+		assert_redirected_to login_path		
+	end
+
+
+	test "should fail to show when wrong user" do
+		log_in_as @non_admin_user
+		get :show, { id: @wrong_user.id }
+		#TODO: Check for message
+		assert_redirected_to root_path	
+	end
+
+
+	test "should show other user when admin" do 
+		log_in_as @user
+
+		get :show, {id: @non_admin_user.id} 
+		assert_response :success
 	end
 
 
@@ -44,10 +91,11 @@ class UsersControllerTest < ActionController::TestCase
 		assert_response :success
 
 		assert_template :new
-  	assert_template layout: "layouts/application"
+  		assert_template layout: "layouts/application"
 
-  	#TODO assert_select 'title', "Registrering"
+  		#TODO assert_select 'title', "Registrering"
 	end
+
 
 	test "should route to user form" do
 		assert_recognizes({controller: 'users', action: 'new'}, '/signup')
@@ -89,11 +137,29 @@ class UsersControllerTest < ActionController::TestCase
 	# Edit user tests
 
 	test "should get edit" do
-		get :edit, {id: users(:filip).id}
+
+		log_in_as @non_admin_user
+
+		get :edit, {id: @non_admin_user.id}
 		assert_response :success
 
 		assert_template :edit
-  	assert_template layout: "layouts/application"
+  		assert_template layout: "layouts/application"
+	end
+
+
+	test "should fail to edit when not logged in" do
+		get :edit, {id: @user.id}
+		#TODO: Check for message
+		assert_redirected_to login_path		
+	end
+
+
+	test "should fail to edit when wrong user" do
+		log_in_as @user
+		get :edit, { id: @wrong_user.id }
+		#TODO: Check for message
+		assert_redirected_to root_path	
 	end
 
 
@@ -102,47 +168,60 @@ class UsersControllerTest < ActionController::TestCase
 	
 	test "should update user" do
 
-		user = users(:filip)
+		log_in_as @user
 
-		get :edit, {id: user.id}
+		get :edit, {id: @user.id}
 		
 		email = "new@mail.com"
 		name = "new name"
 
 
-		patch	:update, {id: user.id, user: {id: user.id, email: email, name: name }} 
+		patch :update, {id: @user.id, user: { email: email, name: name }} 
 
-		assert_redirected_to user
+		assert_redirected_to @user
 
 		#TODO: Check for message
 
-		user.reload		
+		@user.reload		
 
-		assert_equal user.email, email
-		assert_equal user.name,  name
+		assert_equal @user.email, email
+		assert_equal @user.name,  name
 
-		patch	:update, {id: user.id, user: { email: email, name: name, password: "NewPassword", password_confirmation: "NewPassword" }}
+		patch :update, {id: @user.id, user: { email: email, name: name, password: "NewPassword", password_confirmation: "NewPassword" }}
 
-		assert_redirected_to user
+		assert_redirected_to @user
 
 		#TODO: Check for message
 
 	end	
 
+
 	test "should fail to update user" do
 
-		user = users(:filip)
+		get :edit, {id: @user.id}
 
-		get :edit, {id: user.id}
-
-		patch	:update, {id: user.id, user: {id: user.id, email: "", name: "Namn", }} 
+		patch :update, {id: @user.id, user: {id: @user.id, email: "", name: "Namn", }} 
 
 		assert_template :edit
-  	assert_template layout: "layouts/application"
+	  	assert_template layout: "layouts/application"
 
-  	#TODO: check for message
+	  	#TODO: check for message
 	end
 	 
+
+	test "should fail to update when not logged in" do
+		patch :update, {id: @user.id, user: { email: @user.email, name: @user.name }} 
+		#TODO: Check for message
+		assert_redirected_to login_path		
+	end
+
+
+	test "should fail to update when wrong user" do
+		log_in_as @non_admin_user
+		patch :update, {id: @wrong_user.id, user: { email: @non_admin_user.email, name: @non_admin_user.name }} 
+		#TODO: Check for message
+		assert_redirected_to root_path
+	end
 
 
 
@@ -150,8 +229,7 @@ class UsersControllerTest < ActionController::TestCase
 	
 	test "should remove user" do
 
-		#TODO: Log in as admin
-		#Test if autherized
+		log_in_as @user
 		
 		assert_difference 'User.count', -1 do
 			delete :destroy, {id: users(:baduser).id}
@@ -160,7 +238,25 @@ class UsersControllerTest < ActionController::TestCase
 		assert_redirected_to users_path
 
 		#TODO: assert message
+	end
 
+
+	test "should fail to remove user when not logged in" do
+		assert_no_difference 'User.count' do
+			delete :destroy, {id: users(:baduser).id}
+		end
+		assert_redirected_to login_path	
+	end
+
+
+	test "should fail to remove user when not admin" do
+
+		log_in_as @wrong_user
+
+		assert_no_difference 'User.count' do
+			delete :destroy, {id: users(:baduser).id}
+		end
+		assert_redirected_to root_path	
 	end
 	
 end
