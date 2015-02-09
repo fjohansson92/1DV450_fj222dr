@@ -9,6 +9,7 @@ filip:
   name: Filip Johansson
   email: abc@b.c
   password_digest: <%= BCrypt::Password.create("unencrypted_password")%>
+  admin: true
 
 baduser:
   id: 2
