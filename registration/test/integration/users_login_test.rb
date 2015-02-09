@@ -2,23 +2,26 @@ require 'test_helper'
 
 class UsersLoginTest < ActionDispatch::IntegrationTest
 
+	def setup
+		@user = users(:filip)
+	end
+
+
 	test "login and logout should succeed" do
 
 		# Login
-
-		user = users(:filip)
-
 		get login_path
-		post login_path, session: { email: user.email, password: 'unencrypted_password'}
-		assert_redirected_to user
+		post login_path, session: { email: @user.email, password: 'unencrypted_password'}
+		assert_redirected_to @user
 		follow_redirect!
 
 		assert_template 'users/show'
 		#TODO: Check for message
-		
 		assert_select "a[href=?]", logout_path
 
 		assert is_logged_in?
+
+
 
 		# Logout
 		delete logout_path
@@ -26,7 +29,17 @@ class UsersLoginTest < ActionDispatch::IntegrationTest
 		follow_redirect!
 
 		assert_select "a[href=?]", login_path
+		#TODO: Check for message
 
+		assert_not is_logged_in?
+
+
+		# Logout while logged out
+		delete logout_path
+		assert_redirected_to login_path
+		follow_redirect!
+
+		assert_select "a[href=?]", login_path
 		#TODO: Check for message
 
 		assert_not is_logged_in?
@@ -48,6 +61,14 @@ class UsersLoginTest < ActionDispatch::IntegrationTest
 	
 	end	
 
+	test "login with remembering user" do
+		log_in_as @user
+		assert_not_nil cookies['remember_token']
+	end
 
+	test "login without remembering user" do
+		log_in_as @user, remember_me: '0'
+		assert_nil cookies['remember_token']
+	end
 
 end
