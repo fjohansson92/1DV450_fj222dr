@@ -20,6 +20,7 @@ class UsersController < ApplicationController
 		@user = User.new(user_params)
 		if @user.save
 			log_in @user
+			flash[:success] = "Du är nu registrerad!"
 			redirect_to @user
 		else 
 			render 'new'
@@ -33,6 +34,7 @@ class UsersController < ApplicationController
 	def update
 		@user = User.find(params[:id])
 		if @user.update_attributes(user_params)
+			flash[:success] = "Redigeringen lyckades!"
 			redirect_to @user
 		else 
 			render 'edit'
@@ -41,6 +43,7 @@ class UsersController < ApplicationController
 
 
 	def destroy
+		flash[:success] = "Användaren har tagits bort!"
 		User.find(params[:id]).destroy
 		redirect_to users_path
 	end	

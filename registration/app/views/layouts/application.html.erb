@@ -15,6 +15,14 @@
 	<%= link_to "Logga in", login_path %>
 <% end %>
 
+<% flash.each do |message_type, message| %>
+	<%= message %>
+<% end %>
+
+
+
+
+
 <%= yield %>
 
 </body>

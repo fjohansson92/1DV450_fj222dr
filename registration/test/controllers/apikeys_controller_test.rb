@@ -265,7 +265,7 @@ class ApikeysControllerTest < ActionController::TestCase
 
 		@revoked_apikey.reload		
 
-		assert_equal "Du kan inte redigerad en ogiltlig API-nyckel!", flash[:error]
+		assert_equal "Du kan inte redigerad en ogiltlig API-nyckel!", flash[:danger]
 
 		assert_not_equal @revoked_apikey.domain, domain
 		assert @revoked_apikey.revoked
@@ -360,9 +360,9 @@ class ApikeysControllerTest < ActionController::TestCase
 			delete :destroy, {user_id: @non_admin_user.id, id: @revoked_apikey.id}
 		end
 
-		assert_redirected_to user_apikeys_path
+		assert_redirected_to user_apikey_path
 		
-		assert_equal "Du kan inte redigerad en ogiltlig API-nyckel!", flash[:error]
+		assert_equal "Du kan inte redigerad en ogiltlig API-nyckel!", flash[:danger]
 	end
 
 	test "should remove revoked apikey when admin" do 

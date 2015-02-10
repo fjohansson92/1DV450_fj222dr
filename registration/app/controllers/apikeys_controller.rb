@@ -21,6 +21,7 @@ class ApikeysController < ApplicationController
 	def create
 		@apikey = current_user.apikeys.new(apikey_params)
 		if @apikey.save
+			flash[:success] = "API-nyckeln är registrerad!"
 			redirect_to action: "index"
 		else 
 			render 'new'
@@ -36,10 +37,12 @@ class ApikeysController < ApplicationController
 		@user = User.find(params[:user_id])
 		@apikey = Apikey.find(params[:id])
 		if not_allowed_edit
+			flash.now[:danger] = "Du kan inte redigerad en ogiltlig API-nyckel!"
 			render 'edit'
 		else 
 			if @apikey.update_attributes(apikey_params)
-				redirect_to action: "index"
+				flash[:success] = "Redigeringen av API-nycklen lyckades!"
+				redirect_to user_apikey_path(@user, @apikey)
 			else 
 				render 'edit'
 			end
@@ -50,10 +53,12 @@ class ApikeysController < ApplicationController
 		@user = User.find(params[:user_id])
 		@apikey = Apikey.find(params[:id])
 		if not_allowed_edit
+			flash[:danger] = "Du kan inte redigerad en ogiltlig API-nyckel!"
 			redirect_to user_apikey_path(@user, @apikey)
-		else	
-			redirect_to action: "index"
+		else
 			@apikey.destroy
+			flash[:success] = "API-nycklen är borttagen!"
+			redirect_to action: "index"			
 		end
 	end	
 

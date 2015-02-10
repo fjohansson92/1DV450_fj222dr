@@ -17,6 +17,7 @@ class SessionsController < ApplicationController
 
 	def destroy
 		log_out if logged_in?
+		flash[:success] = "Du är nu utloggad!"
 		redirect_to login_path
 	end
 

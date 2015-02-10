@@ -53,7 +53,7 @@ class UsersLoginTest < ActionDispatch::IntegrationTest
 
 		assert_not is_logged_in?
 
-		assert_equal 'E-postadressen eller lösenordet du angav är fel.', flash[:success]
+		assert_equal 'E-postadressen eller lösenordet du angav är fel.', flash[:danger]
 	
 	end	
 
