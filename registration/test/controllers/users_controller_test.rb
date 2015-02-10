@@ -22,7 +22,7 @@ class UsersControllerTest < ActionController::TestCase
   		assert_template layout: "layouts/application"
 
   		assert_select "#users" do 
-		  assert_select "li", 54
+		  assert_select "li", 53
 		end
 	end
 
@@ -62,7 +62,6 @@ class UsersControllerTest < ActionController::TestCase
 
 	test "should fail to show when not logged in" do
 		get :show, {id: @user.id}
-		#TODO: Check for message
 		assert_redirected_to login_path		
 	end
 
@@ -70,14 +69,12 @@ class UsersControllerTest < ActionController::TestCase
 	test "should fail to show when wrong user" do
 		log_in_as @non_admin_user
 		get :show, { id: @wrong_user.id }
-		#TODO: Check for message
 		assert_redirected_to root_path	
 	end
 
 
 	test "should show other user when admin" do 
 		log_in_as @user
-
 		get :show, {id: @non_admin_user.id} 
 		assert_response :success
 	end
@@ -92,8 +89,6 @@ class UsersControllerTest < ActionController::TestCase
 
 		assert_template :new
   		assert_template layout: "layouts/application"
-
-  		#TODO assert_select 'title', "Registrering"
 	end
 
 
@@ -116,8 +111,7 @@ class UsersControllerTest < ActionController::TestCase
 		
 		
 		assert is_logged_in?
-
-		#TODO: assert_equal "Du är nu registrerad!", flash[:success]
+		assert_equal "Du är nu registrerad!", flash[:success]
 	end
 
 
@@ -128,8 +122,7 @@ class UsersControllerTest < ActionController::TestCase
 		end
 
 		assert_template :new
-		assert_select '#user_errors'
-		assert_select '#user_errors li'
+		assert assigns(:user).errors
 	end
 
 
@@ -150,7 +143,6 @@ class UsersControllerTest < ActionController::TestCase
 
 	test "should fail to edit when not logged in" do
 		get :edit, {id: @user.id}
-		#TODO: Check for message
 		assert_redirected_to login_path		
 	end
 
@@ -158,7 +150,6 @@ class UsersControllerTest < ActionController::TestCase
 	test "should fail to edit when wrong user" do
 		log_in_as @non_admin_user
 		get :edit, { id: @wrong_user.id }
-		#TODO: Check for message
 		assert_redirected_to root_path	
 	end
 
@@ -180,7 +171,7 @@ class UsersControllerTest < ActionController::TestCase
 
 		assert_redirected_to @non_admin_user
 
-		#TODO: Check for message
+		assert_equal "Redigeringen lyckades!", flash[:success]
 
 		@non_admin_user.reload		
 
@@ -191,8 +182,7 @@ class UsersControllerTest < ActionController::TestCase
 
 		assert_redirected_to @non_admin_user
 
-		#TODO: Check for message
-
+		assert_equal "Redigeringen lyckades!", flash[:success]
 	end	
 
 
@@ -207,13 +197,12 @@ class UsersControllerTest < ActionController::TestCase
 		assert_template :edit
 	  	assert_template layout: "layouts/application"
 
-	  	#TODO: check for message
+	  	assert assigns(:user).errors
 	end
 	 
 
 	test "should fail to update when not logged in" do
 		patch :update, {id: @user.id, user: { email: @user.email, name: @user.name }} 
-		#TODO: Check for message
 		assert_redirected_to login_path		
 	end
 
@@ -221,7 +210,6 @@ class UsersControllerTest < ActionController::TestCase
 	test "should fail to update when wrong user" do
 		log_in_as @non_admin_user
 		patch :update, {id: @wrong_user.id, user: { email: @non_admin_user.email, name: @non_admin_user.name }} 
-		#TODO: Check for message
 		assert_redirected_to root_path
 	end
 
@@ -233,19 +221,22 @@ class UsersControllerTest < ActionController::TestCase
 
 		log_in_as @user
 		
-		assert_difference 'User.count', -1 do
-			delete :destroy, {id: users(:baduser).id}
+		assert_difference 'Apikey.count', -2 do
+			assert_difference 'User.count', -1 do
+				delete :destroy, {id: @non_admin_user.id}
+			end
 		end
 
 		assert_redirected_to users_path
 
-		#TODO: assert message
+		assert_equal "Användaren har tagits bort!", flash[:success]
+
 	end
 
 
 	test "should fail to remove user when not logged in" do
 		assert_no_difference 'User.count' do
-			delete :destroy, {id: users(:baduser).id}
+			delete :destroy, {id: @non_admin_user.id}
 		end
 		assert_redirected_to login_path	
 	end
@@ -256,7 +247,7 @@ class UsersControllerTest < ActionController::TestCase
 		log_in_as @wrong_user
 
 		assert_no_difference 'User.count' do
-			delete :destroy, {id: users(:baduser).id}
+			delete :destroy, {id: @non_admin_user.id}
 		end
 		assert_redirected_to root_path	
 	end

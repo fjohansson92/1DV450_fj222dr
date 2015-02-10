@@ -11,12 +11,6 @@ filip:
   password_digest: <%= BCrypt::Password.create("unencrypted_password")%>
   admin: true
 
-baduser:
-  id: 2
-  name: Bad user
-  email: toRemove@b.c
-  password_digest: <%= BCrypt::Password.create("unencrypted_password")%>
-
 wrong_user:
   id: 3
   name: Wrong user

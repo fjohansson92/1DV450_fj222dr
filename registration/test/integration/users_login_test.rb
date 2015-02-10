@@ -16,7 +16,7 @@ class UsersLoginTest < ActionDispatch::IntegrationTest
 		follow_redirect!
 
 		assert_template 'users/show'
-		#TODO: Check for message
+		
 		assert_select "a[href=?]", logout_path
 
 		assert is_logged_in?
@@ -29,7 +29,7 @@ class UsersLoginTest < ActionDispatch::IntegrationTest
 		follow_redirect!
 
 		assert_select "a[href=?]", login_path
-		#TODO: Check for message
+		assert_equal "Du är nu utloggad!", flash[:success]
 
 		assert_not is_logged_in?
 
@@ -40,7 +40,7 @@ class UsersLoginTest < ActionDispatch::IntegrationTest
 		follow_redirect!
 
 		assert_select "a[href=?]", login_path
-		#TODO: Check for message
+		assert_equal "Du är nu utloggad!", flash[:success]
 
 		assert_not is_logged_in?
 	end
@@ -53,11 +53,7 @@ class UsersLoginTest < ActionDispatch::IntegrationTest
 
 		assert_not is_logged_in?
 
-		#TODO: Check for message
-		
-		#TODO: Get some page
-		
-		#TODO: Check message removed 
+		assert_equal 'E-postadressen eller lösenordet du angav är fel.', flash[:success]
 	
 	end	
 
