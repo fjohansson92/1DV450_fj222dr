@@ -215,7 +215,7 @@ class ApikeysControllerTest < ActionController::TestCase
 
 		get :edit, { id: @apikey.id, user_id: @non_admin_user.id }
 		
-		domain = "https://www.youtube.com/"
+		domain = "https://www.google.se"
 
 		patch :update, {user_id: @non_admin_user.id, id: @apikey.id, apikey: {domain: domain}} 
 

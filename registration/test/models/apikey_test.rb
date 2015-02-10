@@ -38,6 +38,12 @@ class ApikeyTest < ActiveSupport::TestCase
   	assert_not @apikey.valid?
   end
 
+  test "domain should be unique" do 
+  	duplicate_apikey = @apikey.dup
+  	duplicate_apikey.domain = duplicate_apikey.domain.upcase
+  	@apikey.save
+  	assert_not duplicate_apikey.valid?
+  end
 
 end
 

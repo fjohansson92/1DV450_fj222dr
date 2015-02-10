@@ -5,7 +5,7 @@ class Apikey < ActiveRecord::Base
 	after_initialize :create_apikey
 
   validates :key, presence:true, length: { maximum: 255 }
-	validates :domain, presence:true, length: { maximum: 255 }, format: { with: URI.regexp }
+	validates :domain, presence:true, length: { maximum: 255 }, format: { with: URI.regexp }, uniqueness: { case_sensitive: false }
 
 	private
 		def create_apikey
