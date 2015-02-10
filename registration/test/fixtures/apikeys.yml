@@ -4,8 +4,14 @@
 # model remove the '{}' from the fixture names and add the columns immediately
 # below each fixture, per the syntax in the comments below
 #
-one: {}
-# column: value
-#
-two: {}
-#  column: value
+apikey:
+  key: oiwuhergiuwherioguhweiuoghweirgh
+  domain: http://guides.rubyonrails.org
+  revoked: false
+  user_id: 4
+
+revoked_apikey:
+  key: rlötkhrökthmlkrtöhmkrthrth
+  domain: https://www.youtube.com/
+  revoked: true
+  user_id: 4
