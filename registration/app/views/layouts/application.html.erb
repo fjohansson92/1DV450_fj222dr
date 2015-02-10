@@ -8,22 +8,12 @@
 </head>
 <body>
 
-Är inloggad: <%= logged_in? %>
-<% if logged_in? %>
-	<%= link_to "Logga ut", logout_path, method: "delete" %>
-<% else %>
-	<%= link_to "Logga in", login_path %>
-<% end %>
-
-<% flash.each do |message_type, message| %>
-	<%= message %>
-<% end %>
-
-
-
-
-
-<%= yield %>
-
+	<div class="container" >
+		<%= render 'layouts/menu' %>
+		<% flash.each do |message_type, message| %>
+			<div class="alert alert-<%= message_type %>" ><%= message %></div>
+		<% end %>
+		<%= yield %>
+	</div>
 </body>
 </html>

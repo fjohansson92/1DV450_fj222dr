@@ -1,0 +1,7 @@
+<div class="jumbotron start_page">
+	<p class="lead">Välkommen till registrerings sidan för mitt API. Här kan du registrera ett konto och få tag i API-nycklar. 
+		Mer information om API kommer.</p>
+	<% if !logged_in? %>
+		<p><%= link_to "Registrera dig", signup_path, class: "btn btn-lg btn-success" %></p>
+	<% end %>
+</div>

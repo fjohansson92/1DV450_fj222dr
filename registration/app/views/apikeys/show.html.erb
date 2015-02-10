@@ -1,8 +1,9 @@
-<h1>API-nyckel för <%= @apikey.domain %></h1>
+<div class="jumbotron">
+<h1>API-nyckel</h1>
+<p>Domän: <%= @apikey.domain %></p>
 <p>Nyckel: <%= @apikey.key %></p>
 
-
-
-<%= link_to "Ta bort nyckel", user_apikey_path(@user, @apikey),
- method: :delete, data: {confirm: "Är du säker på att du vill ta bort användaren?"} %>
-<%= link_to "Redigera nyckel", edit_user_apikey_path(@user, @apikey) %>
+<p><%= link_to "Ta bort nyckel", user_apikey_path(@user, @apikey),
+ method: :delete, data: {confirm: "Är du säker på att du vill ta bort användaren?"} %></p>
+ <p><%= link_to "Redigera nyckel", edit_user_apikey_path(@user, @apikey) %></p>
+</div>

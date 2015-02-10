@@ -11,7 +11,7 @@ class Apikey < ActiveRecord::Base
 		def create_apikey
 			key = nil
 			loop do
-				key = SecureRandom.base64
+				key = SecureRandom.hex
 				break unless Apikey.exists?(key: key)
 			end
 			self.key ||= key

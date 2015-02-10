@@ -1,29 +1,5 @@
-<% if @user.errors.any? %>
-	<div id="user_errors">
-		<ul>
-			<% @user.errors.full_messages.each do |error| %>
-				<li><%= error %></li>
-			<% end %>
-		</ul>
-	</div>
-<% end %>
+<div class="jumbotron">
+	<h1>Redigera användare</h1>
 
-
-
-<%= form_for(@user) do |f| %>
-
-	<%= f.label :email %>
-	<%= f.email_field :email %>
-
-	<%= f.label :name %>
-	<%= f.text_field :name %>
-
-	<%= f.label :password %>
-	<%= f.password_field :password %>
-
-	<%= f.label :password_confirmation %>
-	<%= f.password_field :password_confirmation %>
-
-	<%= f.submit "Spara" %>
-
-<% end %>
+	<%= render 'users/form', :olduser => true %>
+</div>

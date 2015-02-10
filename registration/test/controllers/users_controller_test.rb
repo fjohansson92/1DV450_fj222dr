@@ -106,8 +106,7 @@ class UsersControllerTest < ActionController::TestCase
 			post :create, user: {email: "a@b.c",name: "Foo Bar", password: "Password", password_confirmation: "Password"} 
 		end
 
-		user = User.find_by_email("a@b.c")
-		assert_redirected_to user
+		assert_redirected_to root_path
 		
 		
 		assert is_logged_in?

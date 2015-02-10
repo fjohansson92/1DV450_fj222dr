@@ -1,33 +1,5 @@
-<h1>Registrera dig</h1>
+<div class="jumbotron">
+	<h1>Registrera dig</h1>
 
-
-<% if @user.errors.any? %>
-	<div id="user_errors">
-		<ul>
-			<% @user.errors.full_messages.each do |error| %>
-				<li><%= error %></li>
-			<% end %>
-		</ul>
-	</div>
-<% end %>
-
-
-
-
-<%= form_for(@user) do |f| %>
-
-	<%= f.label :email %>
-	<%= f.email_field :email %>
-
-	<%= f.label :name %>
-	<%= f.text_field :name %>
-
-	<%= f.label :password %>
-	<%= f.password_field :password %>
-
-	<%= f.label :password_confirmation %>
-	<%= f.password_field :password_confirmation %>
-
-	<%= f.submit "Registrera dig" %>
-
-<% end %>
+	<%= render 'users/form', :olduser => false %>
+</div>

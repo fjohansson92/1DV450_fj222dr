@@ -8,7 +8,7 @@ class SessionsController < ApplicationController
 		if user && user.authenticate(params[:session][:password])
 			log_in user
 			params[:session][:remember_me] == '1' ? remember(user) : forget(user)
-			redirect_to user
+			redirect_to root_path
 		else
       		flash.now[:danger] = 'E-postadressen eller lösenordet du angav är fel.'
 			render 'new'
@@ -18,7 +18,7 @@ class SessionsController < ApplicationController
 	def destroy
 		log_out if logged_in?
 		flash[:success] = "Du är nu utloggad!"
-		redirect_to login_path
+		redirect_to root_path
 	end
 
 end

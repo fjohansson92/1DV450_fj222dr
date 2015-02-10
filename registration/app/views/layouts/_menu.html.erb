@@ -1,0 +1,17 @@
+<div class="header">
+	<ul class="nav nav-pills pull-right">
+		<% if logged_in? %>
+			<% if current_user.admin? %>
+				<li><%= link_to "Användare", users_path %></li>
+			<% end %>
+
+
+			<li><%= link_to "Konto", current_user %></li>
+			<li><%= link_to "Api-nycklar", user_apikeys_path(current_user)  %></li>
+			<li><%= link_to "Logga ut", logout_path, method: "delete" %></li>
+		<% else %>
+			<li><%= link_to "Logga in", login_path %></li>
+		<% end %>
+	</ul>
+	<h3><%= link_to "Registrerings applikation", root_path %></h3>
+</div>
