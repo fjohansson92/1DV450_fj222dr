@@ -14,6 +14,6 @@ class Apikey < ActiveRecord::Base
 				key = SecureRandom.base64
 				break unless Apikey.exists?(key: key)
 			end
-			self.key = key
+			self.key ||= key
 		end
 end

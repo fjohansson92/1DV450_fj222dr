@@ -1,0 +1,10 @@
+<h1>Redigera API-nyckel</h1>
+
+<%= form_for([@user, @apikey]) do |f| %>
+
+	<%= f.label :domain %>
+	<%= f.text_field :domain %>
+
+	<%= f.submit "Skapa nyckel" %>
+
+<% end %>

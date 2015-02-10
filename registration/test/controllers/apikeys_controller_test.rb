@@ -93,6 +93,9 @@ class ApikeysControllerTest < ActionController::TestCase
 	# New apikey tests
  
 	test "should get new" do
+
+		log_in_as @non_admin_user
+
 		get :new, {user_id: @non_admin_user.id} 
 		assert_response :success
 
@@ -110,7 +113,7 @@ class ApikeysControllerTest < ActionController::TestCase
 		log_in_as @non_admin_user
 
 		get :new, {user_id: @non_admin_user.id} 
-		assert_difference 'User.count', 1 do
+		assert_difference 'Apikey.count', 1 do
 			post :create, {user_id: @non_admin_user.id, apikey: {domain: "http://localhost:3000"}} 
 		end
 
@@ -121,8 +124,7 @@ class ApikeysControllerTest < ActionController::TestCase
 
 		log_in_as @non_admin_user
 
-		get :new
-		assert_no_difference 'User.count' do
+		assert_no_difference 'Apikey.count' do
 			post :create, {user_id: @non_admin_user.id, apikey: {domain: ""}}
 		end
 
@@ -131,7 +133,7 @@ class ApikeysControllerTest < ActionController::TestCase
 
 	test "should fail to create when not logged in" do
 
-		assert_no_difference 'User.count' do
+		assert_no_difference 'Apikey.count' do
 			post :create, {user_id: @non_admin_user.id, apikey: {domain: "http://localhost:3000"}}
 		end
 
@@ -148,7 +150,7 @@ class ApikeysControllerTest < ActionController::TestCase
 		domain = "http://localhost:3000"
 		key = "own key"
 
-		assert_difference 'User.count', 1 do
+		assert_difference 'Apikey.count', 1 do
 			post :create, {user_id: @non_admin_user.id, apikey: {domain: domain, revoked: true, key: key}} 
 		end
 
@@ -156,7 +158,7 @@ class ApikeysControllerTest < ActionController::TestCase
 
 		assert_equal domain, apikey.domain
 		assert_not_equal key, apikey.key
-		assert_not revoked
+		assert_not apikey.revoked
 	end
 
 
@@ -255,11 +257,13 @@ class ApikeysControllerTest < ActionController::TestCase
 
 		log_in_as @non_admin_user
 
-		domain = "https://www.youtube.com/"
+		domain = "https://www.google.se"
 
 		patch :update, {user_id: @non_admin_user.id, id: @revoked_apikey.id, apikey: {domain: domain, revoked: false }} 
 
 		@revoked_apikey.reload		
+
+		#TODO: check for message
 
 		assert_not_equal @revoked_apikey.domain, domain
 		assert @revoked_apikey.revoked
@@ -269,11 +273,13 @@ class ApikeysControllerTest < ActionController::TestCase
 
 		log_in_as @non_admin_user
 
-		domain = "https://www.youtube.com/"
+		domain = "https://www.google.se"
 
 		patch :update, {user_id: @non_admin_user.id, id: @apikey.id, apikey: {domain: domain, revoked: true}} 
 
 		@apikey.reload		
+
+		#TODO: check for message
 
 		assert_equal @apikey.domain, domain
 		assert_not @apikey.revoked
@@ -283,7 +289,7 @@ class ApikeysControllerTest < ActionController::TestCase
 
 		log_in_as @non_admin_user
 
-		domain = "https://www.youtube.com/"
+		domain = "https://www.google.se"
 		key = "own key"
 
 		patch :update, {user_id: @non_admin_user.id, id: @apikey.id, apikey: {domain: domain, key: key}} 
@@ -298,7 +304,7 @@ class ApikeysControllerTest < ActionController::TestCase
 
 		log_in_as @user
 
-		domain = "https://www.youtube.com/"
+		domain = "https://www.google.se"
 
 		patch :update, {user_id: @non_admin_user.id, id: @apikey.id, apikey: {domain: domain, revoked: true }} 
 
@@ -317,7 +323,7 @@ class ApikeysControllerTest < ActionController::TestCase
 
 		log_in_as @non_admin_user
 		
-		assert_difference 'User.count', -1 do
+		assert_difference 'Apikey.count', -1 do
 			delete :destroy, {user_id: @non_admin_user.id, id: @apikey.id}
 		end
 
@@ -327,7 +333,7 @@ class ApikeysControllerTest < ActionController::TestCase
 	end
 
 	test "should fail to remove apikey when not logged in" do
-		assert_no_difference 'User.count' do
+		assert_no_difference 'Apikey.count' do
 			delete :destroy, {user_id: @non_admin_user.id, id: @apikey.id}
 		end
 		assert_redirected_to login_path	
@@ -337,18 +343,44 @@ class ApikeysControllerTest < ActionController::TestCase
 
 		log_in_as @wrong_user
 
-		assert_no_difference 'User.count' do
+		assert_no_difference 'Apikey.count' do
 			delete :destroy, {user_id: @non_admin_user.id, id: @apikey.id}
 		end
 
 		assert_redirected_to root_path	
 	end
 
+	test "should fail to remove apikey when revoked when not admin" do
+
+		log_in_as @non_admin_user
+		
+		assert_no_difference 'Apikey.count' do
+			delete :destroy, {user_id: @non_admin_user.id, id: @revoked_apikey.id}
+		end
+
+		#TODO: Assert redirect to index
+		
+		#TODO: Assert message
+	end
+
+	test "should remove revoked apikey when admin" do 
+
+		log_in_as @user
+		
+		assert_difference 'Apikey.count', -1 do
+			delete :destroy, {user_id: @non_admin_user.id, id: @revoked_apikey.id}
+		end
+
+		#TODO: Assert redirect to index
+
+		#TODO: assert message
+	end
+
 	test "should remove apikey when admin" do 
 
 		log_in_as @user
 		
-		assert_difference 'User.count', -1 do
+		assert_difference 'Apikey.count', -1 do
 			delete :destroy, {user_id: @non_admin_user.id, id: @apikey.id}
 		end
 

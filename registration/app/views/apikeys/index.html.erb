@@ -1,0 +1,11 @@
+<h1>Alla API-nycklar</h2>
+
+<%= link_to "Skapa ny API-nyckel", new_user_apikey_path(@user) %>
+
+<ul id="apikeys">	
+	<% @apikeys.each do |apikey| %>
+		<li>
+			<%= link_to apikey.domain, user_apikey_path(@user, apikey) %> <%= apikey.key %>
+		</li>
+	<% end %>
+</ul>	
