@@ -6,6 +6,17 @@
 #   cities = City.create([{ name: 'Chicago' }, { name: 'Copenhagen' }])
 #   Mayor.create(name: 'Emanuel', city: cities.first)
 
+user = User.create(name: "Admin",
+			email: "admin@mail.com",
+			password: "password",
+			password_confirmation: "password",
+			admin: true
+		)
+
+Apikey.create(domain: "https://www.youtube.com/", user_id: user.id)
+Apikey.create(domain: "http://reddit.com/", user_id: user.id)
+
+
 50.times do |n|
 	User.create(name: "Username#{n}",
 				email: "UserMail-#{n}@example.com",

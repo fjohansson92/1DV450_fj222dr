@@ -22,7 +22,7 @@ class UsersControllerTest < ActionController::TestCase
   		assert_template layout: "layouts/application"
 
   		User.paginate(page: 1).each do |user|
-  			assert_select 'a[href=?]', user.path(user)
+  			assert_select 'a[href=?]', user_path(user)
   		end
 	end
 
