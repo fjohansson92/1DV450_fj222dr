@@ -21,9 +21,9 @@ class UsersControllerTest < ActionController::TestCase
 		assert_template :index
   		assert_template layout: "layouts/application"
 
-  		assert_select "#users" do 
-		  assert_select "li", 53
-		end
+  		User.paginate(page: 1).each do |user|
+  			assert_select 'a[href=?]', user.path(user)
+  		end
 	end
 
 
