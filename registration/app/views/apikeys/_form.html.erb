@@ -13,7 +13,7 @@
 	<div class="form-group">
 		<%= f.label :domain, class: "col-sm-2 control-label" %>
 		<div class="col-sm-10">
-			<%= f.text_field :domain, class: "form-control" %>
+			<%= f.text_field :domain, class: "form-control", placeholder: "http://www.youtube.com" %>
 		</div>
 	</div>
 	<% if current_user.admin? %>

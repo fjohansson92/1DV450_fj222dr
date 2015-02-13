@@ -5,6 +5,7 @@ Rails version: 4.2.0
 
 Setup
 - Installera Ruby och Rails
+- Kör bundle install
 - Kör rake db:migrate
 - Kör rake db:seed
 - Starta rails server
@@ -17,5 +18,14 @@ Lösenord: password
 Backend tester
 - Kör med rake test
 
+
+
+Gems
+- bcrypt
+- coffee-script-source
+- will_paginate
+- bootstrap-will_paginate
+- bootstrap-sass
+- sass-rails
 
 
