@@ -58,7 +58,7 @@ class DomainsControllerTest < ActionController::TestCase
 
 	# Destroy domain tests
 	
-	test "should remove apikey" do
+	test "should remove domain" do
 
 		log_in_as @non_admin_user
 		
@@ -78,7 +78,7 @@ class DomainsControllerTest < ActionController::TestCase
 	end
 
 
-	test "should fail to remove apikey when other user" do
+	test "should fail to remove domain when other user" do
 
 		log_in_as @wrong_user
 
@@ -117,7 +117,7 @@ class DomainsControllerTest < ActionController::TestCase
 
 		log_in_as @user
 		
-		assert_difference 'Apikey.count', -1 do
+		assert_difference 'Domain.count', -1 do
 			delete :destroy, {user_id: @non_admin_user.id, apikey_id: @apikey.id, id: @domain.id }
 		end
 

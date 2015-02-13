@@ -10,6 +10,7 @@ class ApikeysController < ApplicationController
 	def show 
 		@user = User.find(params[:user_id])
 		@apikey = Apikey.find(params[:id])
+		@domain = Domain.new(:apikey => @apikey)
 	end
 
 
@@ -54,7 +55,8 @@ class ApikeysController < ApplicationController
 		@apikey = Apikey.find(params[:id])
 		if not_allowed_edit
 			flash[:danger] = "Du kan inte redigerad en ogiltlig API-nyckel!"
-			redirect_to user_apikey_path(@user, @apikey)
+			@domain = Domain.new(:apikey => @apikey)
+			render "apikeys/show"
 		else
 			@apikey.destroy
 			flash[:success] = "API-nycklen är borttagen!"

@@ -86,7 +86,7 @@ body {
 
 
 
-#user_errors, #apikey_errors {
+#user_errors, #apikey_errors, #domain_errors {
   color: red;
   ul {
     color: red;
@@ -102,17 +102,17 @@ body {
 }
 
 
-#apikeys li {
+#apikeys li, #domains li {
 	list-style: none
 }
-#apikeys .row {
+#apikeys .row, #domains .row {
 	padding: 10px;
 	margin: 0;
 }
-#apikeys li:nth-child(even) .row {
+#apikeys li:nth-child(even) .row, #domains li:nth-child(even) .row {
 	background-color: #F1F0FD;
 } 
-#apikeys {
+#apikeys, #domains {
 	padding: 0;
 }
 #users {

@@ -30,8 +30,8 @@ class ApikeysControllerTest < ActionController::TestCase
 		assert_not_nil assigns(:apikey)
 		assert_equal assigns(:apikey), @apikey
 
-		assert_not_nil assigns(:domains)
-		assert_equal assigns(:domains), @domains
+		assert_not_nil assigns(:apikey).domains
+		assert_equal assigns(:apikey).domains, @domains
 	end
 
 	test "should fail to show when not logged in" do
@@ -291,8 +291,11 @@ class ApikeysControllerTest < ActionController::TestCase
 
 		log_in_as @non_admin_user
 		
-		assert_difference 'Apikey.count', -1 do
-			delete :destroy, {user_id: @non_admin_user.id, id: @apikey.id}
+
+		assert_difference 'Domain.count', -1 do
+			assert_difference 'Apikey.count', -1 do
+				delete :destroy, {user_id: @non_admin_user.id, id: @apikey.id}
+			end
 		end
 
 		assert_redirected_to @non_admin_user
@@ -325,8 +328,6 @@ class ApikeysControllerTest < ActionController::TestCase
 		assert_no_difference 'Apikey.count' do
 			delete :destroy, {user_id: @non_admin_user.id, id: @revoked_apikey.id}
 		end
-
-		assert_redirected_to user_apikey_path(@non_admin_user, @revoked_apikey)
 		
 		assert_equal "Du kan inte redigerad en ogiltlig API-nyckel!", flash[:danger]
 	end

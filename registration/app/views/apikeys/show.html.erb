@@ -1,9 +1,62 @@
 <div class="jumbotron">
 <h1>API-nyckel</h1>
-<p>Domän: <%= @apikey.name %></p>
+<p>Namn: <%= @apikey.name %></p>
 <p>Nyckel: <%= @apikey.key %></p>
 
 <p><%= link_to "Ta bort nyckel", user_apikey_path(@user, @apikey),
- method: :delete, data: {confirm: "Är du säker på att du vill ta bort användaren?"} %></p>
+ method: :delete, data: {confirm: "Är du säker på att du vill ta bort nyckeln?"} %></p>
  <p><%= link_to "Redigera nyckel", edit_user_apikey_path(@user, @apikey) %></p>
 </div>
+
+
+<h3>Lägg till domäner:</h3>
+<%= form_for([@user, @apikey, @domain], html: {class: "form-horizontal" }) do |f| %>
+	<div class="col-sm-10 col-sm-offset-2">
+		<% if @domain.errors.any? %>
+			<div id="domain_errors">
+				<ul>
+					<% @domain.errors.full_messages.each do |error| %>
+						<li><%= error %></li>
+					<% end %>
+				</ul>
+			</div>
+		<% end %>
+	</div>
+	<div class="form-group">
+		<%= f.label :domain, class: "col-sm-2 control-label" %>
+		<div class="col-sm-10">
+			<%= f.text_field :domain, class: "form-control", placeholder: "https://www.youtube.com/" %>
+		</div>
+	</div>
+
+	<div class="col-sm-offset-2">
+		<%= f.submit "Spara", class: 'btn btn-primary' %>
+	</div>
+<% end %>
+
+
+
+<h3>Alla tillåtna domäner:</h3>
+<ul id="domains">
+	<li>
+		<div class="row">
+			<div class="col-md-10">
+				Domännamn
+			</div>
+			<div class="col-md-2">
+			</div>
+		</div>
+	</li>	
+	<% @apikey.domains.each do |domain| %>
+		<li>
+			<div class="row">
+				<div class="col-md-10">
+					<%= domain.domain %>
+				</div>
+				<div class="col-md-2">
+					<%= link_to "Ta bort", user_apikey_domain_path(@user, @apikey, domain), method: :delete, data: {confirm: "Är du säker på att du vill ta bort domänen?"} %>
+				</div>
+			</div>
+		</li>
+	<% end %>
+</ul>	

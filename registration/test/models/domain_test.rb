@@ -6,7 +6,7 @@ class DomainTest < ActiveSupport::TestCase
 		user = User.new(email: "a@b.c",name: "Foo Bar", password: "Password", password_confirmation: "Password")
 		user.save
 		apikey = user.apikeys.create(name: "localhost")
-		@domain = apikey.domains.create(domain: "https://www.youtube.com")
+		@domain = apikey.domains.create(domain: "http://www.svt.se/")
 	end
 
 

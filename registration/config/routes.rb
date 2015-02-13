@@ -13,7 +13,9 @@ Rails.application.routes.draw do
 
   # Example resource route (maps HTTP verbs to controller actions automatically):
   resources :users do
-    resources :apikeys, except: :index
+    resources :apikeys, except: :index do
+      resources :domains, only: [:create, :destroy]
+    end
    end 
   
   get    'signup'  => 'users#new'
