@@ -5,7 +5,7 @@ class ApikeyTest < ActiveSupport::TestCase
 	def setup
 		user = User.new(email: "a@b.c",name: "Foo Bar", password: "Password", password_confirmation: "Password")
 		user.save
-		@apikey = user.apikeys.create(domain: "http://localhost:3000")
+		@apikey = user.apikeys.create(name: "localhost")
 	end
 
 	test "should be valid apikey" do
@@ -19,30 +19,17 @@ class ApikeyTest < ActiveSupport::TestCase
 	end
 
 
-	# Apikey domain tests
+	# Apikey name tests
   
-  test "domain should be required" do
-  	@apikey.domain = "  "
+  test "name should be required" do
+  	@apikey.name = "  "
   	assert_not @apikey.valid?
   end
 
 
-  test "domain should not be to long" do
-  	@apikey.domain = "a" * 256
+  test "name should not be to long" do
+  	@apikey.name = "a" * 51
   	assert_not @apikey.valid?
-  end
-
-
-  test "domain should not be valid" do
-  	@apikey.domain = "Not a valid domain"
-  	assert_not @apikey.valid?
-  end
-
-  test "domain should be unique" do 
-  	duplicate_apikey = @apikey.dup
-  	duplicate_apikey.domain = duplicate_apikey.domain.upcase
-  	@apikey.save
-  	assert_not duplicate_apikey.valid?
   end
 
 end

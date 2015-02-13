@@ -4,14 +4,8 @@
 # model remove the '{}' from the fixture names and add the columns immediately
 # below each fixture, per the syntax in the comments below
 #
-apikey:
-  key: oiwuhergiuwherioguhweiuoghweirgh
-  name: guides
-  revoked: false
-  user_id: 4
-
-revoked_apikey:
-  key: rlötkhrökthmlkrtöhmkrthrth
-  name: youtube
-  revoked: true
-  user_id: 4
+one: {}
+# column: value
+#
+two: {}
+#  column: value

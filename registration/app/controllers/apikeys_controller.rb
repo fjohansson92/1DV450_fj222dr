@@ -70,7 +70,7 @@ class ApikeysController < ApplicationController
 		end
 
 		def apikey_params
-			current_user.admin? ? params.require(:apikey).permit(:domain, :revoked) : params.require(:apikey).permit(:domain)
+			current_user.admin? ? params.require(:apikey).permit(:name, :revoked) : params.require(:apikey).permit(:name)
 		end
 
 		def correct_user

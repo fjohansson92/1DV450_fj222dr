@@ -91,7 +91,7 @@ class ApikeysControllerTest < ActionController::TestCase
 
 		get :new, {user_id: @non_admin_user.id} 
 		assert_difference 'Apikey.count', 1 do
-			post :create, {user_id: @non_admin_user.id, apikey: {domain: "http://localhost:3000"}} 
+			post :create, {user_id: @non_admin_user.id, apikey: {name: "localhost"}} 
 		end
 
 		assert_redirected_to @non_admin_user
@@ -105,7 +105,7 @@ class ApikeysControllerTest < ActionController::TestCase
 		log_in_as @non_admin_user
 
 		assert_no_difference 'Apikey.count' do
-			post :create, {user_id: @non_admin_user.id, apikey: {domain: ""}}
+			post :create, {user_id: @non_admin_user.id, apikey: {name: ""}}
 		end
 
 		assert_template :new
@@ -115,7 +115,7 @@ class ApikeysControllerTest < ActionController::TestCase
 	test "should fail to create when not logged in" do
 
 		assert_no_difference 'Apikey.count' do
-			post :create, {user_id: @non_admin_user.id, apikey: {domain: "http://localhost:3000"}}
+			post :create, {user_id: @non_admin_user.id, apikey: {name: "localhost"}}
 		end
 
 		assert_redirected_to login_path	
@@ -128,16 +128,16 @@ class ApikeysControllerTest < ActionController::TestCase
 
 		get :new, {user_id: @non_admin_user.id} 
 
-		domain = "http://localhost:3000"
+		name = "localhost"
 		key = "own key"
 
 		assert_difference 'Apikey.count', 1 do
-			post :create, {user_id: @non_admin_user.id, apikey: {domain: domain, revoked: true, key: key}} 
+			post :create, {user_id: @non_admin_user.id, apikey: {name: name, revoked: true, key: key}} 
 		end
 
-		apikey = Apikey.find_by_domain(domain)
+		apikey = Apikey.order("created_at").last
 
-		assert_equal domain, apikey.domain
+		assert_equal name, apikey.name
 		assert_not_equal key, apikey.key
 		assert_not apikey.revoked
 	end
@@ -192,9 +192,9 @@ class ApikeysControllerTest < ActionController::TestCase
 
 		get :edit, { id: @apikey.id, user_id: @non_admin_user.id }
 		
-		domain = "https://www.google.se"
+		name = "google"
 
-		patch :update, {user_id: @non_admin_user.id, id: @apikey.id, apikey: {domain: domain}} 
+		patch :update, {user_id: @non_admin_user.id, id: @apikey.id, apikey: {name: name}} 
 
 		assert_redirected_to user_apikey_path
 
@@ -202,7 +202,7 @@ class ApikeysControllerTest < ActionController::TestCase
 
 		@apikey.reload		
 
-		assert_equal @apikey.domain, domain
+		assert_equal @apikey.name, name
 	end	
 
 	test "should fail to update apikey" do
@@ -211,7 +211,7 @@ class ApikeysControllerTest < ActionController::TestCase
 
 		get :edit, { id: @apikey.id, user_id: @non_admin_user.id }
 
-		patch :update, {user_id: @non_admin_user.id, id: @apikey.id, apikey: {domain: ""}} 
+		patch :update, {user_id: @non_admin_user.id, id: @apikey.id, apikey: {name: ""}} 
 
 		assert_template :edit
 
@@ -220,7 +220,7 @@ class ApikeysControllerTest < ActionController::TestCase
 
 	test "should fail to update when not logged in" do
 
-		patch :update, {user_id: @non_admin_user.id, id: @apikey.id, apikey: {domain: "https://www.youtube.com/"}} 
+		patch :update, {user_id: @non_admin_user.id, id: @apikey.id, apikey: {name: "youtube"}} 
 		assert_redirected_to login_path		
 	end
 
@@ -228,7 +228,7 @@ class ApikeysControllerTest < ActionController::TestCase
 
 		log_in_as @wrong_user
 
-		patch :update, {user_id: @non_admin_user.id, id: @apikey.id, apikey: {domain: "https://www.youtube.com/"}} 
+		patch :update, {user_id: @non_admin_user.id, id: @apikey.id, apikey: {name: "www.youtube"}} 
 		assert_redirected_to root_path
 	end
 
@@ -236,15 +236,15 @@ class ApikeysControllerTest < ActionController::TestCase
 
 		log_in_as @non_admin_user
 
-		domain = "https://www.google.se"
+		name = "google"
 
-		patch :update, {user_id: @non_admin_user.id, id: @revoked_apikey.id, apikey: {domain: domain, revoked: false }} 
+		patch :update, {user_id: @non_admin_user.id, id: @revoked_apikey.id, apikey: {name: name, revoked: false }} 
 
 		@revoked_apikey.reload		
 
 		assert_equal "Du kan inte redigerad en ogiltlig API-nyckel!", flash[:danger]
 
-		assert_not_equal @revoked_apikey.domain, domain
+		assert_not_equal @revoked_apikey.name, name
 		assert @revoked_apikey.revoked
 	end
 
@@ -252,13 +252,13 @@ class ApikeysControllerTest < ActionController::TestCase
 
 		log_in_as @non_admin_user
 
-		domain = "https://www.google.se"
+		name = "google"
 
-		patch :update, {user_id: @non_admin_user.id, id: @apikey.id, apikey: {domain: domain, revoked: true}} 
+		patch :update, {user_id: @non_admin_user.id, id: @apikey.id, apikey: {name: name, revoked: true}} 
 
 		@apikey.reload		
 
-		assert_equal @apikey.domain, domain
+		assert_equal @apikey.name, name
 		assert_not @apikey.revoked
 	end
 
@@ -266,14 +266,14 @@ class ApikeysControllerTest < ActionController::TestCase
 
 		log_in_as @non_admin_user
 
-		domain = "https://www.google.se"
+		name = "google"
 		key = "own key"
 
-		patch :update, {user_id: @non_admin_user.id, id: @apikey.id, apikey: {domain: domain, key: key}} 
+		patch :update, {user_id: @non_admin_user.id, id: @apikey.id, apikey: {name: name, key: key}} 
 
 		@apikey.reload		
 
-		assert_equal @apikey.domain, domain
+		assert_equal @apikey.name, name
 		assert_not_equal @apikey.key, key
 	end
 
@@ -281,13 +281,13 @@ class ApikeysControllerTest < ActionController::TestCase
 
 		log_in_as @user
 
-		domain = "https://www.google.se"
+		name = "google"
 
-		patch :update, {user_id: @non_admin_user.id, id: @apikey.id, apikey: {domain: domain, revoked: true }} 
+		patch :update, {user_id: @non_admin_user.id, id: @apikey.id, apikey: {name: name, revoked: true }} 
 
 		@apikey.reload		
 
-		assert_equal @apikey.domain, domain
+		assert_equal @apikey.name, name
 		assert @apikey.revoked
 
 		assert_equal "Redigeringen av API-nycklen lyckades!", flash[:success]

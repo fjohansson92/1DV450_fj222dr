@@ -11,11 +11,11 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150209174503) do
+ActiveRecord::Schema.define(version: 20150213135950) do
 
   create_table "apikeys", force: :cascade do |t|
     t.string   "key"
-    t.string   "domain"
+    t.string   "name"
     t.boolean  "revoked",    default: false
     t.integer  "user_id"
     t.datetime "created_at",                 null: false
@@ -23,6 +23,15 @@ ActiveRecord::Schema.define(version: 20150209174503) do
   end
 
   add_index "apikeys", ["user_id"], name: "index_apikeys_on_user_id"
+
+  create_table "domains", force: :cascade do |t|
+    t.string   "domain"
+    t.integer  "apikey_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "domains", ["apikey_id"], name: "index_domains_on_apikey_id"
 
   create_table "users", force: :cascade do |t|
     t.string   "email"

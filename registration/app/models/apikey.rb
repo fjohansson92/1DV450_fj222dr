@@ -4,8 +4,9 @@ class Apikey < ActiveRecord::Base
 	belongs_to :user
 	after_initialize :create_apikey
 
-  validates :key, presence:true, length: { maximum: 255 }
-	validates :domain, presence:true, length: { maximum: 255 }, format: { with: URI.regexp }, uniqueness: { case_sensitive: false }
+  	validates :key, presence:true, length: { maximum: 255 }
+	validates :name, presence:true, length: { maximum: 50 }
+
 
 	private
 		def create_apikey

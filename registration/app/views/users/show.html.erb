@@ -14,7 +14,7 @@
 	<li>
 		<div class="row">
 			<div class="col-md-5">
-				Domännamn
+				Namn
 			</div>
 			<div class="col-md-5">
 				API-nyckel
@@ -28,7 +28,7 @@
 		<li>
 			<div class="row">
 				<div class="col-md-5">
-					<%= link_to apikey.domain, user_apikey_path(@user, apikey) %>
+					<%= link_to apikey.name, user_apikey_path(@user, apikey) %>
 				</div>
 				<div class="col-md-5">
 					<%= apikey.key %>
