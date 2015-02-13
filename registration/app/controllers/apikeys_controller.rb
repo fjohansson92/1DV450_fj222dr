@@ -2,10 +2,10 @@ class ApikeysController < ApplicationController
 	before_action :logged_in_user, :correct_user
 
 
-	def index
-		@user = User.find(params[:user_id])
-		@apikeys = @user.apikeys
-	end
+#	def index
+#		@user = User.find(params[:user_id])
+#		@apikeys = @user.apikeys
+#	end
 
 	def show 
 		@user = User.find(params[:user_id])
@@ -22,7 +22,7 @@ class ApikeysController < ApplicationController
 		@apikey = current_user.apikeys.new(apikey_params)
 		if @apikey.save
 			flash[:success] = "API-nyckeln är registrerad!"
-			redirect_to action: "index"
+			redirect_to current_user
 		else 
 			render 'new'
 		end
@@ -58,7 +58,7 @@ class ApikeysController < ApplicationController
 		else
 			@apikey.destroy
 			flash[:success] = "API-nycklen är borttagen!"
-			redirect_to action: "index"			
+			redirect_to @user		
 		end
 	end	
 

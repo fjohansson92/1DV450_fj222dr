@@ -2,5 +2,41 @@
 	<h2><%= @user.name %> (<%= @user.email %>)</h2>
 	<p><%= link_to "Ta bort användare", @user, method: :delete, data: {confirm: "Är du säker på att du vill ta bort användaren?"} %></p>
 	<p><%= link_to "Redigera användare", edit_user_path(@user) %></p>
-	<p><%= link_to "API-nycklar", user_apikeys_path(@user) %></p>
 </div>
+
+<div class="jumbotron">
+	<h1>API-nycklar</h2>
+	<%= link_to "Skapa ny API-nyckel", new_user_apikey_path(@user) %>
+</div>
+
+<h3>Alla dina api nycklar:</h3>
+<ul id="apikeys">
+	<li>
+		<div class="row">
+			<div class="col-md-5">
+				Domännamn
+			</div>
+			<div class="col-md-5">
+				API-nyckel
+			</div>
+			<div class="col-md-2">
+				Revoked
+			</div>
+		</div>
+	</li>	
+	<% @apikeys.each do |apikey| %>
+		<li>
+			<div class="row">
+				<div class="col-md-5">
+					<%= link_to apikey.domain, user_apikey_path(@user, apikey) %>
+				</div>
+				<div class="col-md-5">
+					<%= apikey.key %>
+				</div>
+				<div class="col-md-2">
+					<%= apikey.revoked %>
+				</div>
+			</div>
+		</li>
+	<% end %>
+</ul>	

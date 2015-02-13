@@ -19,37 +19,14 @@ class ApikeysControllerTest < ActionController::TestCase
 
 		log_in_as @non_admin_user
 
-		get :index, user_id: @non_admin_user.id
+		@controller = UsersController.new
+		get :show, id: @non_admin_user.id
 		assert_response :success
 
-		assert_template :index
-  	assert_template layout: "layouts/application"
+		assert_template :show
+  		assert_template layout: "layouts/application"
 
 	end
-
-	test "should fail to list apikeys when not logged in" do
-		get :index, user_id: @non_admin_user.id
-		assert_redirected_to login_path	
-	end
-
-
-	test "should fail to list users when not admin" do
-
-		log_in_as @wrong_user
-
-		get :index, user_id: @non_admin_user.id
-		assert_redirected_to root_path	
-	end
-
-	test "should list all apikeys for admin" do
-
-		log_in_as @user
-
-		get :index, user_id: @non_admin_user.id
-		assert_response :success
-	end
-
-
 
 
 	# Show apikey tests
@@ -117,7 +94,7 @@ class ApikeysControllerTest < ActionController::TestCase
 			post :create, {user_id: @non_admin_user.id, apikey: {domain: "http://localhost:3000"}} 
 		end
 
-		assert_redirected_to user_apikeys_path
+		assert_redirected_to @non_admin_user
 		
 		assert_equal "API-nyckeln är registrerad!", flash[:success]
 		
@@ -329,7 +306,7 @@ class ApikeysControllerTest < ActionController::TestCase
 			delete :destroy, {user_id: @non_admin_user.id, id: @apikey.id}
 		end
 
-		assert_redirected_to user_apikeys_path
+		assert_redirected_to @non_admin_user
 
 		assert_equal "API-nycklen är borttagen!", flash[:success]
 	end
@@ -360,7 +337,7 @@ class ApikeysControllerTest < ActionController::TestCase
 			delete :destroy, {user_id: @non_admin_user.id, id: @revoked_apikey.id}
 		end
 
-		assert_redirected_to user_apikey_path
+		assert_redirected_to user_apikey_path(@non_admin_user, @revoked_apikey)
 		
 		assert_equal "Du kan inte redigerad en ogiltlig API-nyckel!", flash[:danger]
 	end
@@ -373,7 +350,7 @@ class ApikeysControllerTest < ActionController::TestCase
 			delete :destroy, {user_id: @non_admin_user.id, id: @revoked_apikey.id}
 		end
 
-		assert_redirected_to user_apikeys_path
+		assert_redirected_to @non_admin_user
 
 		assert_equal "API-nycklen är borttagen!", flash[:success]
 	end
@@ -386,7 +363,7 @@ class ApikeysControllerTest < ActionController::TestCase
 			delete :destroy, {user_id: @non_admin_user.id, id: @apikey.id}
 		end
 
-		assert_redirected_to user_apikeys_path
+		assert_redirected_to @non_admin_user
 
 		assert_equal "API-nycklen är borttagen!", flash[:success]
 	end
