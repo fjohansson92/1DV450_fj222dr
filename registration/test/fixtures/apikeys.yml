@@ -5,12 +5,14 @@
 # below each fixture, per the syntax in the comments below
 #
 apikey:
+  id: 1
   key: oiwuhergiuwherioguhweiuoghweirgh
   name: guides
   revoked: false
   user_id: 4
 
 revoked_apikey:
+  id: 2
   key: rlötkhrökthmlkrtöhmkrthrth
   name: youtube
   revoked: true

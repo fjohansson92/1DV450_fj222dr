@@ -9,29 +9,15 @@ class ApikeysControllerTest < ActionController::TestCase
 
 		@apikey = apikeys(:apikey)
 		@revoked_apikey = apikeys(:revoked_apikey)
+
+		@domains = @apikey.domains
 	end
 
-
-
-	# Index apikeys tests
-
-	test "should list all apikeys for user" do
-
-		log_in_as @non_admin_user
-
-		@controller = UsersController.new
-		get :show, id: @non_admin_user.id
-		assert_response :success
-
-		assert_template :show
-  		assert_template layout: "layouts/application"
-
-	end
 
 
 	# Show apikey tests
 
-	test "should show apikey" do
+	test "should show apikey and domains" do
 
 		log_in_as @non_admin_user
 
@@ -39,10 +25,13 @@ class ApikeysControllerTest < ActionController::TestCase
 		assert_response :success
 
 		assert_template :show
-	  assert_template layout: "layouts/application"
+		assert_template layout: "layouts/application"
 
-	  assert_not_nil assigns(:apikey)
-	  assert_equal assigns(:apikey), @apikey
+		assert_not_nil assigns(:apikey)
+		assert_equal assigns(:apikey), @apikey
+
+		assert_not_nil assigns(:domains)
+		assert_equal assigns(:domains), @domains
 	end
 
 	test "should fail to show when not logged in" do

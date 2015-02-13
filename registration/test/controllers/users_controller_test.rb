@@ -24,6 +24,7 @@ class UsersControllerTest < ActionController::TestCase
   		User.paginate(page: 1).each do |user|
   			assert_select 'a[href=?]', user_path(user)
   		end
+
 	end
 
 
@@ -57,6 +58,9 @@ class UsersControllerTest < ActionController::TestCase
 
 	  	assert_not_nil assigns(:user)
 	  	assert_equal assigns(:user), @non_admin_user
+
+	  	assert_not_nil assigns(:apikeys)
+		assert_equal assigns(:apikeys), @non_admin_user.apikeys	  	
 	end
 
 
