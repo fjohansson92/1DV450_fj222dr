@@ -1,12 +1,6 @@
 class ApikeysController < ApplicationController
 	before_action :logged_in_user, :correct_user
 
-
-#	def index
-#		@user = User.find(params[:user_id])
-#		@apikeys = @user.apikeys
-#	end
-
 	def show 
 		@user = User.find(params[:user_id])
 		@apikey = Apikey.find(params[:id])
