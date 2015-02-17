@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150213135950) do
+ActiveRecord::Schema.define(version: 20150217094742) do
 
   create_table "apikeys", force: :cascade do |t|
     t.string   "key"
@@ -23,6 +23,16 @@ ActiveRecord::Schema.define(version: 20150213135950) do
   end
 
   add_index "apikeys", ["user_id"], name: "index_apikeys_on_user_id"
+
+  create_table "apiusers", force: :cascade do |t|
+    t.string   "provider"
+    t.string   "uid"
+    t.string   "name"
+    t.string   "auth_token"
+    t.datetime "token_expires"
+    t.datetime "created_at",    null: false
+    t.datetime "updated_at",    null: false
+  end
 
   create_table "domains", force: :cascade do |t|
     t.string   "domain"

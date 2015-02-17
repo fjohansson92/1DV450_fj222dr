@@ -42,8 +42,8 @@ class ApiuserTest < ActiveSupport::TestCase
   	assert_not_equal first_token, @apiuser.auth_token 
   	assert_not_equal first_token_expires, @apiuser.token_expires 
 
-  	assert user.token_expires < Time.now + 1.hour
-  	assert user.token_expires > Time.now + 50.minute
+  	assert @apiuser.token_expires < Time.now + 1.hour
+  	assert @apiuser.token_expires > Time.now + 50.minute
   end
 
 
