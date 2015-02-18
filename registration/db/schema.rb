@@ -29,6 +29,7 @@ ActiveRecord::Schema.define(version: 20150217094742) do
     t.string   "uid"
     t.string   "name"
     t.string   "auth_token"
+    t.string   "user_token"
     t.datetime "token_expires"
     t.datetime "created_at",    null: false
     t.datetime "updated_at",    null: false

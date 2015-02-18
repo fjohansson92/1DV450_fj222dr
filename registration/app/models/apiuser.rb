@@ -12,9 +12,10 @@ class Apiuser < ActiveRecord::Base
 		end
 	end
 
-	def update_token
+	def update_token(user_token)
 		self.token_expires = Time.now + 1.hour
 		self.auth_token = SecureRandom.urlsafe_base64(nil, false)
+		self.user_token = user_token
 	end
 
 end

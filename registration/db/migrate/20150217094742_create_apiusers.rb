@@ -6,6 +6,7 @@ class CreateApiusers < ActiveRecord::Migration
     	t.string :uid
     	t.string :name
     	t.string :auth_token
+      t.string :user_token
     	t.datetime :token_expires
 
       t.timestamps null: false

@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script src="https://code.jquery.com/jquery-1.10.2.js"></script>
+</head>
+<body>
+<script>
+
+	user_token = "erhghjegrhjgerg8374ut8734th34t"
+	localStorage.setItem('user_token', user_token);
+	
+	url = "http://www.api.lvh.me:3001/authenticate?callback=http://127.0.0.1:8080/apitester/test.html&user_token=" + user_token;
+	window.location.href = url;
+</script>
+</body>
+</html>

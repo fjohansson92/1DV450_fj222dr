@@ -30,17 +30,31 @@ class ApiuserTest < ActiveSupport::TestCase
   	assert_not @apiuser.valid?
   end
 
+  test "user_token should not be to long" do
+    @apiuser.user_token = "a" * 256
+    assert_not @apiuser.valid?
+  end
 
-  test "auth_token and token_expires should be set" do
-  	@apiuser.update_token
+  test "user_token should be unique" do
+    duplicate_apiuser = @apiuser.dup
+    duplicate_apiuser.user_token = duplicate_apiuser.user_token.upcase
+    @apiuser.save
+    assert_not duplicate_apiuser.valid?
+  end
+
+
+  test "auth_token, user_token and token_expires should be set" do
+  	@apiuser.update_token "randomstringone"
   	assert @apiuser.auth_token
   	first_token = @apiuser.auth_token
   	first_token_expires = @apiuser.token_expires
+    first_user_token = @apiuser.user_token
 
-  	@apiuser.update_token
+  	@apiuser.update_token "randomstringsecond"
   	assert @apiuser.auth_token
   	assert_not_equal first_token, @apiuser.auth_token 
   	assert_not_equal first_token_expires, @apiuser.token_expires 
+    assert_not_equal first_user_token, @apiuser.user_token 
 
   	assert @apiuser.token_expires < Time.now + 1.hour
   	assert @apiuser.token_expires > Time.now + 50.minute

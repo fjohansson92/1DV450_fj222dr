@@ -30,6 +30,8 @@ Rails.application.routes.draw do
   constraints :subdomain => /(www.)?api/ do
     namespace :api,  path: nil do
       get   'authenticate'   => 'sessions#new'
+      get   "/auth/:provider/callback" => "sessions#create"
+      get   'test' => 'sessions#test'
     end
   end
  
