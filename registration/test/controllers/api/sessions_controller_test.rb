@@ -21,28 +21,36 @@ class Api::SessionsControllerTest < ActionController::TestCase
 		get :new
 
 		assert_response :bad_request
-		# Test error message
+		error = JSON.parse(@response.body)
+		assert error['developerMessage']
+		assert error['userMessage']
 	end
 
 	test "new should fail to redirect without callback" do
 		get :new, {user_token: "randomstring"} 
 
 		assert_response :bad_request
-		# Test error message
+		error = JSON.parse(@response.body)
+		assert error['developerMessage']
+		assert error['userMessage']
 	end
 
 	test "new should fail to redirect without user_token" do 
 		get :new, {callback: "http://www.example.com"} 
 
 		assert_response :bad_request
-		# Test error message
+		error = JSON.parse(@response.body)
+		assert error['developerMessage']
+		assert error['userMessage']
 	end
 
 	test "new should fail to redirect with same user_token" do
 		get :new, {callback:"http://www.example.com", user_token: @apiuser.user_token}
 
 		assert_response :bad_request
-		# Test error message
+		error = JSON.parse(@response.body)
+		assert error['developerMessage']
+		assert error['userMessage']
 	end
 
 
@@ -73,7 +81,9 @@ class Api::SessionsControllerTest < ActionController::TestCase
 		get :create, { provider: 'github' }
 
 		assert_response :bad_request
-		# Test error message
+		error = JSON.parse(@response.body)
+		assert error['developerMessage']
+		assert error['userMessage']
 	end
 
 	test "should fail to create without user_token session" do
@@ -82,7 +92,9 @@ class Api::SessionsControllerTest < ActionController::TestCase
 		get :create, { provider: 'github' }
 
 		assert_response :bad_request
-		# Test error messag
+		error = JSON.parse(@response.body)
+		assert error['developerMessage']
+		assert error['userMessage']
 	end
 
 	test "should fail to create without client_callback session" do
@@ -91,7 +103,9 @@ class Api::SessionsControllerTest < ActionController::TestCase
 		get :create, { provider: 'github' }
 
 		assert_response :bad_request
-		# Test error messag
+		error = JSON.parse(@response.body)
+		assert error['developerMessage']
+		assert error['userMessage']
 	end
 
 	test "should fail to create if apiuser is invalid" do
@@ -106,7 +120,9 @@ class Api::SessionsControllerTest < ActionController::TestCase
 		get :create, { provider: 'github' }
 
 		assert_response :bad_request
-		# Test error message
+		error = JSON.parse(@response.body)
+		assert error['developerMessage']
+		assert error['userMessage']
 	end
 
 
@@ -116,9 +132,11 @@ class Api::SessionsControllerTest < ActionController::TestCase
 	test "should fail to logout without tokens" do
 
 		delete :destroy
-		
+
 		assert_response :unauthorized
-		# Test error message
+		error = JSON.parse(@response.body)
+		assert error['developerMessage']
+		assert error['userMessage']
 	end
 
 	test "should fail to logout without auth_token" do
@@ -126,7 +144,9 @@ class Api::SessionsControllerTest < ActionController::TestCase
 		delete :destroy, {}, { "user-token" => @apiuser.user_token }
 
 		assert_response :unauthorized
-		# Test error message
+		error = JSON.parse(@response.body)
+		assert error['developerMessage']
+		assert error['userMessage']
 	end
 
 	test "should fail to logout without user_token" do
@@ -134,7 +154,9 @@ class Api::SessionsControllerTest < ActionController::TestCase
 		delete :destroy, {}, { "auth-token" => @apiuser.auth_token }
 
 		assert_response :unauthorized
-		# Test error message
+		error = JSON.parse(@response.body)
+		assert error['developerMessage']
+		assert error['userMessage']
 	end
 
 end

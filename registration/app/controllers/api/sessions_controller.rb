@@ -12,55 +12,46 @@ class Api::SessionsController < ApplicationController
 
 		auth = request.env["omniauth.auth"]
 		if auth.nil?
-			#TODO: Error message
-			response.status = 400
-			render :nothing => true	
+			@error = ErrorMessage.new("Auth data from github wasn't found", "Login failed. Contact developer", "2003")
+			render json: @error, status: :bad_request
 		else
 			apiuser = Apiuser.find_by_provider_and_uid(auth["provider"], auth["uid"]) || Apiuser.create_with_github_omniauth(auth)
 			apiuser.update_token @user_token
 			if apiuser.save
 				redirect_to "#{@url}?auth_token=#{apiuser.auth_token}&token_expires=#{Rack::Utils.escape(apiuser.token_expires.to_s)}"
 			else
-				#TODO: Error message
-				response.status = 400
-				render :nothing => true	
+				@error = ErrorMessage.new("Couldn't create user, see user messages.", apiuser.errors.messages, "2004")
+				render json: @error, status: :bad_request
 			end
 		end
 	end
 
 	def destroy
 		logout_apiuser
-		#TODO: Error message
-		response.status = 200
-		render :nothing => true
+		render json: { message: "User is logged out" }, status: :ok
 	end
-
 
 
 	private
 
 		def logged_in_user
 			unless apiuser_logged_in?
-				#TODO: Error message
-				response.status = 401
-				render :nothing => true
+				@error = ErrorMessage.new("The user needs to login", "Bad credentials", "1401")
+				render json: @error, status: :unauthorized
 			end
 		end
-
 
 		def get_and_reset_session
 
 			if session[:user_token].nil?
-				#TODO: Error message
-				response.status = 400
-				render :nothing => true		
+				@error = ErrorMessage.new("Missing user_token in request headers", "Login failed. Contact developer", "2001")
+				render json: @error, status: :bad_request
 			else
 				@user_token = session[:user_token]
 				session[:user_token] = nil
 				if session[:client_callback].nil?
-					#TODO: Error message
-					response.status = 400
-					render :nothing => true		
+					@error = ErrorMessage.new("Missing client_callback in request headers", "Login failed. Contact developer", "2002")
+					render json: @error, status: :bad_request	
 				else
 					@url = session[:client_callback]
 					session[:client_callback] = nil
@@ -70,15 +61,13 @@ class Api::SessionsController < ApplicationController
 
 		def set_session
 			if Apiuser.exists?(:user_token => params[:user_token]) || params[:user_token].nil?
-				#TODO: Error message
-				response.status = 400
-				render :nothing => true
+				@error = ErrorMessage.new("Missing or existing user_token", "Login failed. Contact developer", "2005")
+				render json: @error, status: :bad_request
 			else 
 				session[:user_token] = params[:user_token]
 				if params[:callback].nil?
-					#TODO: Error message
-					response.status = 400
-					render :nothing => true		
+					@error = ErrorMessage.new("Missing callback", "Login failed. Contact developer", "2006")
+					render json: @error, status: :bad_request	
 				else
 					session[:client_callback] = params[:callback]
 				end

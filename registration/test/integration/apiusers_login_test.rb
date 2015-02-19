@@ -18,13 +18,11 @@ class ApiusersLoginTest < ActionDispatch::IntegrationTest
 
 		assert_redirected_to "http://www.example.com?auth_token=#{apiuser.auth_token}&token_expires=#{Rack::Utils.escape(apiuser.token_expires.to_s)}"
 
-		#TODO: Check if user can use protect  methods
-
-
 		delete "http://www.api.lvh.me:3001/logout", {}, { "auth-token" => apiuser.auth_token, "user-token" => apiuser.user_token }
 
 		assert_response :ok		
-		#TODO: Check for message
+		message = JSON.parse(@response.body)
+		assert message['message']
 
 		apiuser.reload
 
