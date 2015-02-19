@@ -6,7 +6,7 @@ class Apiuser < ActiveRecord::Base
 	validates :user_token, length: { maximum: 255 }, uniqueness: { case_sensitive: false }, allow_blank: true
 
 	def self.create_with_github_omniauth(auth)
-		create! do |user|
+		create do |user|
 			user.provider = auth["provider"]
 			user.uid = auth["uid"]
 			user.name = auth["info"]["name"]
