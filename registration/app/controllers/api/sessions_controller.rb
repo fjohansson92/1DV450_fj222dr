@@ -1,6 +1,7 @@
 class Api::SessionsController < ApplicationController
-	before_action :set_session, only: [:new]
-	before_action :get_and_reset_session, only: [:create]
+	before_action :set_session, only: :new
+	before_action :get_and_reset_session, only: :create
+	before_action :logged_in_user, only: :destroy 
 
 	def new 
 		redirect_to "/auth/github"
@@ -27,34 +28,25 @@ class Api::SessionsController < ApplicationController
 		end
 	end
 
-
-
-
-
-	# Temporary test method
-	def test
-
-		auth_token = request.headers["X-auth-token"] || nil
-		user_token = request.headers["X-user-token"] || nil
-
-		user = nil
-
-		if auth_token
-			user = Apiuser.find_by_auth_token(auth_token) || nil
-		end
-
-		if(user.nil? || user_token.nil? || user_token != user.user_token || user.token_expires < Time.now)
-			response.status = 401
-			render :nothing => true
-		else
-			response.status = 200
-			render :json => user
-		end
+	def destroy
+		logout_apiuser
+		#TODO: Error message
+		response.status = 200
+		render :nothing => true
 	end
 
 
 
 	private
+
+		def logged_in_user
+			unless apiuser_logged_in?
+				#TODO: Error message
+				response.status = 401
+				render :nothing => true
+			end
+		end
+
 
 		def get_and_reset_session
 

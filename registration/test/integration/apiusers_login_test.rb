@@ -21,13 +21,12 @@ class ApiusersLoginTest < ActionDispatch::IntegrationTest
 		#TODO: Check if user can use protect  methods
 
 
-
-		assert_routing "http://www.api.lvh.me:3001/logout", { :controller => "api/sessions", :action => "destroy" }
-
 		delete "http://www.api.lvh.me:3001/logout", {}, { "auth-token" => apiuser.auth_token, "user-token" => apiuser.user_token }
 
 		assert_response :ok		
 		#TODO: Check for message
+
+		apiuser.reload
 
 		assert_not apiuser.auth_token
 		assert_not apiuser.user_token

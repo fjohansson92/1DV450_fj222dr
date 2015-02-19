@@ -115,15 +115,15 @@ class Api::SessionsControllerTest < ActionController::TestCase
 
 	test "should fail to logout without tokens" do
 
-		delete "http://www.api.lvh.me:3001/logout"
-
+		delete :destroy
+		
 		assert_response :unauthorized
 		# Test error message
 	end
 
 	test "should fail to logout without auth_token" do
 
-		delete "http://www.api.lvh.me:3001/logout", {}, { "user-token" => apiuser.user_token }
+		delete :destroy, {}, { "user-token" => @apiuser.user_token }
 
 		assert_response :unauthorized
 		# Test error message
@@ -131,7 +131,7 @@ class Api::SessionsControllerTest < ActionController::TestCase
 
 	test "should fail to logout without user_token" do
 
-		delete "http://www.api.lvh.me:3001/logout", {}, { "auth-token" => apiuser.auth_token }
+		delete :destroy, {}, { "auth-token" => @apiuser.auth_token }
 
 		assert_response :unauthorized
 		# Test error message

@@ -17,6 +17,17 @@ Rails.application.routes.draw do
       resources :domains, only: [:create, :destroy]
     end
    end 
+
+  constraints :subdomain => /(www.)?api/ do
+    namespace :api,  path: nil do
+      get   'authenticate'   => 'sessions#new'
+      get   "/auth/:provider/callback" => "sessions#create"
+      delete   "logout" => "sessions#destroy"
+
+      get   'test' => 'sessions#test'
+    end
+  end
+
   
   get    'signup'  => 'users#new'
   get    'login'   => 'sessions#new'
@@ -27,13 +38,7 @@ Rails.application.routes.draw do
   match '/500', to: 'errors#internal_server_error', via: :all
 
 
-  constraints :subdomain => /(www.)?api/ do
-    namespace :api,  path: nil do
-      get   'authenticate'   => 'sessions#new'
-      get   "/auth/:provider/callback" => "sessions#create"
-      get   'test' => 'sessions#test'
-    end
-  end
+
  
 
 
