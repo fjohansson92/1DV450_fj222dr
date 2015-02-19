@@ -3,6 +3,7 @@ class Apiuser < ActiveRecord::Base
 	validates :provider, presence:true
 	validates :uid, presence:true
 	validates :name, presence:true
+	validates :user_token, length: { maximum: 255 }, uniqueness: { case_sensitive: false }, allow_blank: true
 
 	def self.create_with_github_omniauth(auth)
 		create! do |user|

@@ -36,6 +36,7 @@ class ApiuserTest < ActiveSupport::TestCase
   end
 
   test "user_token should be unique" do
+    @apiuser.update_token "randomstringone"
     duplicate_apiuser = @apiuser.dup
     duplicate_apiuser.user_token = duplicate_apiuser.user_token.upcase
     @apiuser.save
@@ -50,11 +51,16 @@ class ApiuserTest < ActiveSupport::TestCase
   	first_token_expires = @apiuser.token_expires
     first_user_token = @apiuser.user_token
 
+    sleep 0.001
+
   	@apiuser.update_token "randomstringsecond"
   	assert @apiuser.auth_token
   	assert_not_equal first_token, @apiuser.auth_token 
   	assert_not_equal first_token_expires, @apiuser.token_expires 
     assert_not_equal first_user_token, @apiuser.user_token 
+
+    sleep 0.001
+
 
   	assert @apiuser.token_expires < Time.now + 1.hour
   	assert @apiuser.token_expires > Time.now + 50.minute
