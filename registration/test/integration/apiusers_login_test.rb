@@ -2,7 +2,7 @@ require 'test_helper'
 
 class ApiusersLoginTest < ActionDispatch::IntegrationTest
 
-	test "login should succeed" do
+	test "login and logout should succeed" do
 		
 		assert_routing "http://www.api.lvh.me:3001/authenticate", { :controller => "api/sessions", :action => "new" }
 
@@ -20,6 +20,18 @@ class ApiusersLoginTest < ActionDispatch::IntegrationTest
 
 		#TODO: Check if user can use protect  methods
 
+
+
+		assert_routing "http://www.api.lvh.me:3001/logout", { :controller => "api/sessions", :action => "destroy" }
+
+		delete "http://www.api.lvh.me:3001/logout", {}, { "auth-token" => apiuser.auth_token, "user-token" => apiuser.user_token }
+
+		assert_response :ok		
+		#TODO: Check for message
+
+		assert_not apiuser.auth_token
+		assert_not apiuser.user_token
+		assert_not apiuser.token_expires
 	end
 
 end
