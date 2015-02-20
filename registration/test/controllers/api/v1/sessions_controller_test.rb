@@ -1,6 +1,6 @@
 require 'test_helper'
 
-class Api::SessionsControllerTest < ActionController::TestCase
+class Api::V1::SessionsControllerTest < ActionController::TestCase
 
 	def setup
 
@@ -14,7 +14,7 @@ class Api::SessionsControllerTest < ActionController::TestCase
 
  	test "new should redirect" do
  		get :new, {user_token: "randomstring", callback:"http://www.example.com"} 
- 		assert_redirected_to "http://test.host/auth/github"
+ 		assert_redirected_to "http://test.host/v1/auth/github"
  	end
 
  	test "new should fail to redirect without user_token or callback" do 

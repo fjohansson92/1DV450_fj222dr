@@ -1,10 +1,10 @@
-class Api::SessionsController < ApplicationController
+class Api::V1::SessionsController < ApplicationController
 	before_action :set_session, only: :new
 	before_action :get_and_reset_session, only: :create
 	before_action :logged_in_user, only: :destroy 
 
 	def new 
-		redirect_to "/auth/github"
+		redirect_to "/v1/auth/github"
 	end
 
 

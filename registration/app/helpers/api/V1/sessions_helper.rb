@@ -1,4 +1,4 @@
-module Api::SessionsHelper
+module Api::V1::SessionsHelper
 
 	def apiuser_logged_in?
 		!current_apiuser.nil?

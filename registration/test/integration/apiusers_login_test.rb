@@ -4,21 +4,21 @@ class ApiusersLoginTest < ActionDispatch::IntegrationTest
 
 	test "login and logout should succeed" do
 		
-		assert_routing "http://www.api.lvh.me:3001/authenticate", { :controller => "api/sessions", :action => "new" }
+		assert_routing "http://www.api.lvh.me:3001/v1/authenticate", { :controller => "api/v1/sessions", :action => "new" }
 
-		get "http://www.api.lvh.me:3001/authenticate?callback=http://www.example.com&user_token=test_token"
+		get "http://www.api.lvh.me:3001/v1/authenticate?callback=http://www.example.com&user_token=test_token"
 
-		assert_redirected_to "http://www.api.lvh.me:3001/auth/github"
+		assert_redirected_to "http://www.api.lvh.me:3001/v1/auth/github"
 		follow_redirect!
 
-		assert_redirected_to "http://www.api.lvh.me:3001/auth/github/callback"
+		assert_redirected_to "http://www.api.lvh.me:3001/v1/auth/github/callback"
 		follow_redirect!
 
 		apiuser = Apiuser.find_by_user_token("test_token")
 
 		assert_redirected_to "http://www.example.com?auth_token=#{apiuser.auth_token}&token_expires=#{Rack::Utils.escape(apiuser.token_expires.to_s)}"
 
-		delete "http://www.api.lvh.me:3001/logout", {}, { "auth-token" => apiuser.auth_token, "user-token" => apiuser.user_token }
+		delete "http://www.api.lvh.me:3001/v1/logout", {}, { "auth-token" => apiuser.auth_token, "user-token" => apiuser.user_token }
 
 		assert_response :ok		
 		message = JSON.parse(@response.body)

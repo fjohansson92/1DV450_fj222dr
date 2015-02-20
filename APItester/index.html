@@ -17,7 +17,7 @@
 	user_token = text;
 	localStorage.setItem('user_token', user_token);
 	
-	url = "http://www.api.lvh.me:3001/authenticate?callback=http://127.0.0.1:8080/apitester/test.html&user_token=" + user_token;
+	url = "http://www.api.lvh.me:3001/v1/authenticate?callback=http://127.0.0.1:8080/apitester/test.html&user_token=" + user_token;
 	window.location.href = url;
 </script>
 </body>

@@ -20,11 +20,13 @@ Rails.application.routes.draw do
 
   constraints :subdomain => /(www.)?api/ do
     namespace :api,  path: nil do
-      get   'authenticate'   => 'sessions#new'
-      get   "/auth/:provider/callback" => "sessions#create"
-      delete   "logout" => "sessions#destroy"
+      namespace :v1 do
+        get   'authenticate'   => 'sessions#new'
+        get   "/auth/:provider/callback" => "sessions#create"
+        delete   "logout" => "sessions#destroy"
 
-      get   'test' => 'sessions#test'
+        get   'test' => 'sessions#test'
+      end
     end
   end
 
