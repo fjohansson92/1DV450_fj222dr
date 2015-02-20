@@ -17,3 +17,10 @@ revoked_apikey:
   name: youtube
   revoked: true
   user_id: 4
+
+wrong_domain:
+  id: 3
+  key: hjmhmhjmhjmhjmhjmhjmhjm
+  name: stackoverflow
+  revoked: false
+  user_id: 4

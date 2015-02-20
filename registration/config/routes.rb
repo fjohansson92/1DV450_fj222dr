@@ -25,7 +25,7 @@ Rails.application.routes.draw do
         get   "/auth/:provider/callback" => "sessions#create"
         delete   "logout" => "sessions#destroy"
 
-        get   'test' => 'sessions#test'
+        get   'test' => 'temp_for_developing#index'
       end
     end
   end

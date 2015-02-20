@@ -292,7 +292,7 @@ class ApikeysControllerTest < ActionController::TestCase
 		log_in_as @non_admin_user
 		
 
-		assert_difference 'Domain.count', -1 do
+		assert_difference 'Domain.count', -3 do
 			assert_difference 'Apikey.count', -1 do
 				delete :destroy, {user_id: @non_admin_user.id, id: @apikey.id}
 			end

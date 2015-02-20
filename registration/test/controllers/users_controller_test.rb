@@ -224,7 +224,7 @@ class UsersControllerTest < ActionController::TestCase
 
 		log_in_as @user
 		
-		assert_difference 'Apikey.count', -2 do
+		assert_difference 'Apikey.count', -3 do
 			assert_difference 'User.count', -1 do
 				delete :destroy, {id: @non_admin_user.id}
 			end

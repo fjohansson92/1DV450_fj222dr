@@ -8,6 +8,19 @@ youtube:
   domain: https://www.youtube.com
   apikey_id: 1
 
+test:
+  domain: http://test.host
+  apikey_id: 1
+
+test2:
+  domain: http://www.api.lvh.me:3001
+  apikey_id: 1
+
+
 bootstrap:
   domain: http://getbootstrap.com
   apikey_id: 2
+
+stackoverflow:
+  domain: http://stackoverflow.com
+  apikey_id: 3

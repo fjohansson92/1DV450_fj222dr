@@ -10,6 +10,9 @@ class Api::V1::SessionsControllerTest < ActionController::TestCase
 															   :info => { :name => @apiuser.name}
 															})
 
+    	apikey = apikeys(:apikey)
+    	request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Token.encode_credentials(apikey.key)
+
 	end
 
  	test "new should redirect" do
@@ -159,4 +162,6 @@ class Api::V1::SessionsControllerTest < ActionController::TestCase
 		assert error['userMessage']
 	end
 
+
 end
+
