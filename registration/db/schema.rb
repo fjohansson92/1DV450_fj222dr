@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150221123511) do
+ActiveRecord::Schema.define(version: 20150221152353) do
 
   create_table "api_statistics", force: :cascade do |t|
     t.integer  "call",       default: 1
@@ -52,6 +52,34 @@ ActiveRecord::Schema.define(version: 20150221123511) do
   end
 
   add_index "domains", ["apikey_id"], name: "index_domains_on_apikey_id"
+
+  create_table "restaurants_tags", id: false, force: :cascade do |t|
+    t.integer "restaurant_id"
+    t.integer "tag_id"
+  end
+
+  add_index "restaurants_tags", ["restaurant_id"], name: "index_restaurants_tags_on_restaurant_id"
+  add_index "restaurants_tags", ["tag_id"], name: "index_restaurants_tags_on_tag_id"
+
+  create_table "restaurents", force: :cascade do |t|
+    t.integer  "user_id"
+    t.string   "name"
+    t.string   "phone"
+    t.string   "address"
+    t.text     "description"
+    t.decimal  "longitude",   precision: 8, scale: 6
+    t.decimal  "latiude",     precision: 9, scale: 6
+    t.datetime "created_at",                          null: false
+    t.datetime "updated_at",                          null: false
+  end
+
+  add_index "restaurents", ["user_id"], name: "index_restaurents_on_user_id"
+
+  create_table "tags", force: :cascade do |t|
+    t.string   "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "users", force: :cascade do |t|
     t.string   "email"
