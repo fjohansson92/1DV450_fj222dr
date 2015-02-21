@@ -13,8 +13,13 @@ user = User.create(name: "Admin",
 			admin: true
 		)
 
-Apikey.create(domain: "https://www.youtube.com/", user_id: user.id)
-Apikey.create(domain: "http://reddit.com/", user_id: user.id)
+apikey = Apikey.create(user_id: user.id, name: "Svt")
+Apikey.create(user_id: user.id, name: "github")
+
+4.times do |n|
+	ApiStatistic.create(call: n * (500 + 1), apikey_id: apikey.id)
+end
+
 
 
 50.times do |n|

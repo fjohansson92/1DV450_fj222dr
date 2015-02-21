@@ -7,17 +7,17 @@ class ApiStatisticTest < ActiveSupport::TestCase
 	user.save
 	apikey = user.apikeys.create(name: "localhost")
 
-  	@apiStatistic = apikey.api_statistics.create
+  	@api_statistics = apikey.api_statistics.create
   end
 
   test "apistatistic should be valid" do
-  	assert @apiStatistic.valid?
-  	assert_equal @apiStatistic.call, 1
+  	assert @api_statistics.valid?
+  	assert_equal @api_statistics.call, 1
   end
 
   test "api_call should increase call" do
-	assert_difference '@apiStatistic.call', 1 do
-		@apiStatistic.api_call
+	assert_difference '@api_statistics.call', 1 do
+		@api_statistics.api_call
 	end
   end
 
