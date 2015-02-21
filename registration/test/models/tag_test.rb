@@ -3,8 +3,6 @@ require 'test_helper'
 class TagTest < ActiveSupport::TestCase
 
 	def setup
-		user = User.new(email: "a@b.c",name: "Foo Bar", password: "Password", password_confirmation: "Password")
-		user.save
 
 		@tag = Tag.create(name: "Pizzeria")
 	end

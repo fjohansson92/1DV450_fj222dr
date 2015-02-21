@@ -3,10 +3,14 @@ require 'test_helper'
 class RestaurantTest < ActiveSupport::TestCase
 
 	def setup
-		user = User.new(email: "a@b.c",name: "Foo Bar", password: "Password", password_confirmation: "Password")
-		user.save
+	  	auth = {'provider' => 'github',
+			  	'uid' => '5634563',
+			  	'info' => {'name' => '´Filip Johansson'}
+	    }
 
-		@restaurant = user.restaurants.create(name: "Pizzerian", phone: "12346789", address: "Gatan 10, 30303 Kalmar", description: "Säljer pizzor.", latitude: 56.684598, longitude: 16.364136)
+		apiuser = Apiuser.create_with_github_omniauth(auth)
+
+		@restaurant = apiuser.restaurants.create(name: "Pizzerian", phone: "12346789", address: "Gatan 10, 30303 Kalmar", description: "Säljer pizzor.", latitude: 56.684598, longitude: 16.364136)
 	end
 
 	test "should be valid restaurant" do
@@ -69,20 +73,19 @@ class RestaurantTest < ActiveSupport::TestCase
 	end
 
 	test "latitude should not be to high" do
-		@restaurant.latitude = 90.0
+		@restaurant.latitude = 91.0
 		assert_not @restaurant.valid?
 	end
 
 	test "latitude should not be to low" do
-		@restaurant.latitude = -90.0
+		@restaurant.latitude = -91.0
 		assert_not @restaurant.valid?
 	end
 
 	test "latitude should round" do
-		@restaurant.latitude = 50.0000009
-		assert_equal @restaurant.latitude, 50.000001
+		@restaurant.latitude = 50.123456789
+		assert_in_delta @restaurant.latitude, BigDecimal.new('50.123456')
 	end
-
 
 
 	test "longitude should be required" do
@@ -106,7 +109,7 @@ class RestaurantTest < ActiveSupport::TestCase
 	end
 
 	test "longitude should round" do
-		@restaurant.longitude = 50.0000009
-		assert_equal @restaurant.longitude, 50.000001
+		@restaurant.longitude = 150.123456789
+		assert_in_delta @restaurant.longitude, BigDecimal.new('150.123456')
 	end
 end

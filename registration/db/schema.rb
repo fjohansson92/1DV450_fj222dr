@@ -54,18 +54,18 @@ ActiveRecord::Schema.define(version: 20150221152353) do
   add_index "domains", ["apikey_id"], name: "index_domains_on_apikey_id"
 
   create_table "restaurants", force: :cascade do |t|
-    t.integer  "user_id"
+    t.integer  "apiuser_id"
     t.string   "name"
     t.string   "phone"
     t.string   "address"
     t.text     "description"
-    t.decimal  "longitude",   precision: 8, scale: 6
-    t.decimal  "latiude",     precision: 9, scale: 6
+    t.decimal  "longitude",   precision: 9, scale: 6
+    t.decimal  "latitude",    precision: 8, scale: 6
     t.datetime "created_at",                          null: false
     t.datetime "updated_at",                          null: false
   end
 
-  add_index "restaurants", ["user_id"], name: "index_restaurants_on_user_id"
+  add_index "restaurants", ["apiuser_id"], name: "index_restaurants_on_apiuser_id"
 
   create_table "restaurants_tags", id: false, force: :cascade do |t|
     t.integer "restaurant_id"

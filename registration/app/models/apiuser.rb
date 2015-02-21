@@ -1,4 +1,5 @@
 class Apiuser < ActiveRecord::Base
+	has_many :restaurants
 
 	validates :provider, presence:true
 	validates :uid, presence:true
