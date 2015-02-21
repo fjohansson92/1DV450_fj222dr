@@ -21,7 +21,7 @@ class RestaurantTest < ActiveSupport::TestCase
 	end
 
 	test "name should not be to long" do
-		@restaurant.name = "a" * 50
+		@restaurant.name = "a" * 51
     	assert_not @restaurant.valid?
 	end
 
@@ -33,7 +33,7 @@ class RestaurantTest < ActiveSupport::TestCase
 	end
 
 	test "phone should not be to long" do
-		@restaurant.phone = "a" * 12
+		@restaurant.phone = "a" * 13
     	assert_not @restaurant.valid?
 	end
 
@@ -45,7 +45,7 @@ class RestaurantTest < ActiveSupport::TestCase
 	end
 
 	test "address should not be to long" do
-		@restaurant.address = "a" * 100
+		@restaurant.address = "a" * 101
     	assert_not @restaurant.valid?
 	end
 
