@@ -1,6 +1,6 @@
 class CreateRestaurents < ActiveRecord::Migration
   def change
-    create_table :restaurents do |t|
+    create_table :restaurants do |t|
 
       t.belongs_to :user, index: true
 

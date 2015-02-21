@@ -53,15 +53,7 @@ ActiveRecord::Schema.define(version: 20150221152353) do
 
   add_index "domains", ["apikey_id"], name: "index_domains_on_apikey_id"
 
-  create_table "restaurants_tags", id: false, force: :cascade do |t|
-    t.integer "restaurant_id"
-    t.integer "tag_id"
-  end
-
-  add_index "restaurants_tags", ["restaurant_id"], name: "index_restaurants_tags_on_restaurant_id"
-  add_index "restaurants_tags", ["tag_id"], name: "index_restaurants_tags_on_tag_id"
-
-  create_table "restaurents", force: :cascade do |t|
+  create_table "restaurants", force: :cascade do |t|
     t.integer  "user_id"
     t.string   "name"
     t.string   "phone"
@@ -73,7 +65,15 @@ ActiveRecord::Schema.define(version: 20150221152353) do
     t.datetime "updated_at",                          null: false
   end
 
-  add_index "restaurents", ["user_id"], name: "index_restaurents_on_user_id"
+  add_index "restaurants", ["user_id"], name: "index_restaurants_on_user_id"
+
+  create_table "restaurants_tags", id: false, force: :cascade do |t|
+    t.integer "restaurant_id"
+    t.integer "tag_id"
+  end
+
+  add_index "restaurants_tags", ["restaurant_id"], name: "index_restaurants_tags_on_restaurant_id"
+  add_index "restaurants_tags", ["tag_id"], name: "index_restaurants_tags_on_tag_id"
 
   create_table "tags", force: :cascade do |t|
     t.string   "name"
