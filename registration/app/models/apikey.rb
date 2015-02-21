@@ -3,6 +3,7 @@ require 'uri'
 class Apikey < ActiveRecord::Base
 	belongs_to :user
 	has_many :domains, :dependent => :destroy
+	has_many :api_statistics, :dependent => :destroy
 	after_initialize :create_apikey
 
   	validates :key, presence:true, length: { maximum: 255 }
