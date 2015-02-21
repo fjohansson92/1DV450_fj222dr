@@ -48,4 +48,5 @@ class Api::V1::ApplicationControllerTest < ActionController::TestCase
 		assert error['developerMessage']
 		assert error['userMessage']
 	end
+
 end
