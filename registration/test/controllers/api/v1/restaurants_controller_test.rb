@@ -25,7 +25,7 @@ class Api::V1::RestaurantsControllerTest < ActionController::TestCase
 
 
 		first_restaurant = @restaurants.first
-		first_response_restaurant = body['restaurants'].first["restaurant"]
+		first_response_restaurant = body['restaurants'].first
 
 		assert_equal first_restaurant.name, first_response_restaurant["name"]
 		assert_equal first_restaurant.phone, first_response_restaurant["phone"]
@@ -37,17 +37,17 @@ class Api::V1::RestaurantsControllerTest < ActionController::TestCase
 
 
 		first_restaurant_tags = @restaurants.first.tags
-		first_response_restaurant_tags = body['restaurants'].first["restaurant"]["tags"]
+		first_response_restaurant_tags = body['restaurants'].first["tags"]
 
 		assert_equal first_restaurant_tags.length, first_response_restaurant_tags.length
 
-		assert_equal first_restaurant_tags.first.name, first_response_restaurant_tags.first["tag"]["name"]
-		assert_equal first_restaurant_tags.last.name, first_response_restaurant_tags.last["tag"]["name"]
+		assert_equal first_restaurant_tags.first.name, first_response_restaurant_tags.first["name"]
+		assert_equal first_restaurant_tags.last.name, first_response_restaurant_tags.last["name"]
 
 
 
 		first_restaurant_apiuser = @restaurants.first.apiuser
-		first_response_restaurant_apiuser = body['restaurants'].first["restaurant"]["apiuser"]
+		first_response_restaurant_apiuser = body['restaurants'].first["apiuser"]
 
 		assert_equal first_restaurant_apiuser.name, first_response_restaurant_apiuser["name"]
 	end
@@ -63,7 +63,7 @@ class Api::V1::RestaurantsControllerTest < ActionController::TestCase
 
 		@restaurants = Restaurant::all
 
-		first_response_restaurant_apiuser = body['restaurants'].first["restaurant"]["apiuser"]
+		first_response_restaurant_apiuser = body['restaurants'].first["apiuser"]
 
 
 		assert first_response_restaurant_apiuser["name"]
