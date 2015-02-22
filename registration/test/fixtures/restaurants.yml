@@ -4,8 +4,27 @@
 # model remove the '{}' from the fixture names and add the columns immediately
 # below each fixture, per the syntax in the comments below
 #
-one: {}
-# column: value
-#
-two: {}
-#  column: value
+
+
+restaurant:
+  id: 1
+  name: Bästa pizzerian
+  phone: 12345679
+  address: Vägen 5 33033 Kalmar
+  description: Pizzerian servera pizza och kebab
+  longitude: 50
+  latitude: 50
+  apiuser_id: 1
+  tags: tag_nr_1, tag_nr_2
+
+
+<% 30.times do |n| %>
+restaurant_nr_<%= n %>:
+  name:  <%= "Restaurang#{n}" %>
+  phone: <%= "#{n}234567" %>
+  address: <%= "Gatan #{n}" %>
+  description: <%= "Top #{n} på min lista med restauranger" %>
+  longitude: <%= "#{n * 3}" %>
+  latitude: <%= "#{n * 2}" %>
+  apiuser_id: 1
+<% end %>

@@ -26,6 +26,9 @@ Rails.application.routes.draw do
         delete   "logout" => "sessions#destroy"
 
         get   'test' => 'temp_for_developing#index'
+
+        resources :restaurants
+
       end
     end
   end
