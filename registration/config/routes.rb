@@ -28,6 +28,12 @@ Rails.application.routes.draw do
         get   'test' => 'temp_for_developing#index'
 
         resources :restaurants
+        resources :tags do
+          resources :restaurants
+        end
+        resources :apiusers do
+          resources :restaurants
+        end
 
       end
     end

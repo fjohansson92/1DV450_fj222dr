@@ -22,6 +22,9 @@ class Api::V1::RestaurantsControllerTest < ActionController::TestCase
 
 		assert_equal body['restaurants'].length, @restaurants.length
 
+		assert_equal body['links']["self"], api_v1_restaurants_url		
+
+
 
 
 		first_restaurant = @restaurants.first
@@ -33,6 +36,7 @@ class Api::V1::RestaurantsControllerTest < ActionController::TestCase
 		assert_equal first_restaurant.description, first_response_restaurant["description"]
 		assert_in_delta first_restaurant.longitude, first_response_restaurant["longitude"].to_i
 		assert_in_delta first_restaurant.latitude, first_response_restaurant["latitude"].to_i
+		assert_equal api_v1_restaurant_url(first_restaurant), first_response_restaurant["links"]["self"]
 
 
 
@@ -42,6 +46,9 @@ class Api::V1::RestaurantsControllerTest < ActionController::TestCase
 		assert_equal first_restaurant_tags.length, first_response_restaurant_tags.length
 
 		assert_equal first_restaurant_tags.first.name, first_response_restaurant_tags.first["name"]
+		assert_equal api_v1_tag_url(first_restaurant_tags.first), first_response_restaurant_tags.first["links"]["self"]
+		assert_equal api_v1_tag_restaurants_url(first_restaurant_tags.first), first_response_restaurant_tags.first["links"]["restaurants"]
+
 		assert_equal first_restaurant_tags.last.name, first_response_restaurant_tags.last["name"]
 
 
@@ -50,6 +57,8 @@ class Api::V1::RestaurantsControllerTest < ActionController::TestCase
 		first_response_restaurant_apiuser = body['restaurants'].first["apiuser"]
 
 		assert_equal first_restaurant_apiuser.name, first_response_restaurant_apiuser["name"]
+		assert_equal api_v1_apiuser_url(first_restaurant_apiuser), first_response_restaurant_apiuser["links"]["self"]
+		assert_equal api_v1_apiuser_restaurants_url(first_restaurant_apiuser), first_response_restaurant_apiuser["links"]["restaurants"]
 	end
 
 
