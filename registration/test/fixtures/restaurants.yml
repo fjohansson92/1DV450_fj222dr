@@ -27,4 +27,5 @@ restaurant_nr_<%= n %>:
   longitude: <%= "#{n * 3}" %>
   latitude: <%= "#{n * 2}" %>
   apiuser_id: 1
+  id: <%= "#{n+2}" %>
 <% end %>

@@ -9,8 +9,9 @@ class RateLimitTest < ActionDispatch::IntegrationTest
 
 		@apikey = apikeys(:apikey)
 
-		get "http://www.api.lvh.me:3001/v1/test", nil, :authorization => %{Token token="#{@apikey.key}"}
-		
+		get "http://www.api.lvh.me:3001/v1/restaurants", {:format => :json}, :authorization => %{Token token="#{@apikey.key}"}
+		assert_response :ok	
+
 		assert_equal response.headers["X-Rate-Limit-Remaining"].to_i, 59
 		
 		assert_equal response.headers["X-Rate-Limit-Limit"].to_i, 60
@@ -18,12 +19,12 @@ class RateLimitTest < ActionDispatch::IntegrationTest
 		assert response.headers["X-Rate-Limit-Reset"].to_i
 		 
 		for i in 0..58 
-			get "http://www.api.lvh.me:3001/v1/test", nil, :authorization => %{Token token="#{@apikey.key}"}
+			get "http://www.api.lvh.me:3001/v1/restaurants", {:format => :json}, :authorization => %{Token token="#{@apikey.key}"}
 			assert_response :ok	
 			i
 		end
 
-		get "http://www.api.lvh.me:3001/v1/test", nil, :authorization => %{Token token="#{@apikey.key}"}
+		get "http://www.api.lvh.me:3001/v1/restaurants", {:format => :json}, :authorization => %{Token token="#{@apikey.key}"}
 		
 		assert_response :too_many_requests
 		

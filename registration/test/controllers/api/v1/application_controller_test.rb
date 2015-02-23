@@ -65,4 +65,166 @@ class Api::V1::ApplicationControllerTest < ActionController::TestCase
 		assert_equal @apikey.api_statistics.where("created_at >= ?", Time.zone.now.beginning_of_day).first.call, 2
 	end
 
+
+
+	test "should limit resources" do
+
+		@controller = Api::V1::RestaurantsController.new
+    	request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Token.encode_credentials(@apikey.key)
+
+		get :index, { format: :json, limit: 5}
+		assert_response :ok
+
+		assert_equal 5, assigns(:restaurants).length
+
+		assert_equal Restaurant::find(1), assigns(:restaurants).first
+		assert_equal Restaurant::find(5), assigns(:restaurants).last
+	end
+
+	test "text limit should get default" do
+
+		@controller = Api::V1::RestaurantsController.new
+    	request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Token.encode_credentials(@apikey.key)
+
+		get :index, { format: :json, limit: "text"}
+		assert_response :ok
+
+		assert_equal 25, assigns(:restaurants).length
+	end
+
+	test "too high limit should get default" do
+
+		@controller = Api::V1::RestaurantsController.new
+    	request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Token.encode_credentials(@apikey.key)
+
+		get :index, { format: :json, limit: 100}
+		assert_response :ok
+
+		assert_equal 25, assigns(:restaurants).length
+	end
+
+	test "too low limit should get default" do
+
+		@controller = Api::V1::RestaurantsController.new
+    	request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Token.encode_credentials(@apikey.key)
+
+		get :index, { format: :json, limit: -100}
+		assert_response :ok
+
+		assert_equal 25, assigns(:restaurants).length
+	end
+
+	test "should offset resources" do
+
+		@controller = Api::V1::RestaurantsController.new
+    	request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Token.encode_credentials(@apikey.key)
+
+		get :index, { format: :json, offset: 5, limit: 5}
+		assert_response :ok
+
+		assert_equal Restaurant::find(6), assigns(:restaurants).first
+		assert_equal Restaurant::find(10), assigns(:restaurants).last
+	end
+
+	test "text offset should get default" do
+
+		@controller = Api::V1::RestaurantsController.new
+    	request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Token.encode_credentials(@apikey.key)
+
+		get :index, { format: :json, offset: "text", limit: 5}
+		assert_response :ok
+
+		assert_equal Restaurant::find(1), assigns(:restaurants).first
+		assert_equal Restaurant::find(5), assigns(:restaurants).last
+	end
+
+	test "too high offset should get zero restaurants" do
+
+		@controller = Api::V1::RestaurantsController.new
+    	request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Token.encode_credentials(@apikey.key)
+
+		get :index, { format: :json, offset: 500, limit: 5}
+		assert_response :ok
+
+		assert_equal assigns(:restaurants).length, 0
+	end
+
+	test "too low offset should get from zero" do
+
+		@controller = Api::V1::RestaurantsController.new
+    	request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Token.encode_credentials(@apikey.key)
+
+		get :index, { format: :json, offset: -500, limit: 5}
+		assert_response :ok
+
+		assert_equal Restaurant::find(1), assigns(:restaurants).first
+		assert_equal Restaurant::find(5), assigns(:restaurants).last
+	end
+
+
+
+	test "should set relative limit offset values" do
+
+		@controller = Api::V1::RestaurantsController.new
+    	request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Token.encode_credentials(@apikey.key)
+
+		get :index, { format: :json, offset: 0, limit: 5}
+		assert_response :ok
+
+
+		assert_not assigns(:prev_offset)
+		assert_equal 5, assigns(:prev_limit)
+
+		assert_equal 5, assigns(:next_limit)
+		assert_equal 5, assigns(:next_offset)
+		
+		assert_equal Restaurant::all.length - 5, assigns(:last_offset)
+	end
+
+	test "prev limit should be smaller then limit and offset zero" do
+
+		@controller = Api::V1::RestaurantsController.new
+    	request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Token.encode_credentials(@apikey.key)
+
+		get :index, { format: :json, offset: 3, limit: 5}
+		assert_response :ok
+
+		assert_equal 0, assigns(:prev_offset)
+		assert_equal 3, assigns(:prev_limit)
+
+		assert_equal 5, assigns(:next_limit)
+		assert_equal 8, assigns(:next_offset)
+	end
+
+	test "prev limit should be same as limit" do
+
+		@controller = Api::V1::RestaurantsController.new
+    	request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Token.encode_credentials(@apikey.key)
+
+		get :index, { format: :json, offset: 10, limit: 5}
+		assert_response :ok
+
+		assert_equal 5, assigns(:prev_offset)
+		assert_equal 5, assigns(:prev_limit)
+
+		assert_equal 5, assigns(:next_limit)
+		assert_equal 15, assigns(:next_offset)
+	end
+
+	test "next should be nil" do
+
+		@controller = Api::V1::RestaurantsController.new
+    	request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Token.encode_credentials(@apikey.key)
+
+		get :index, { format: :json, offset: 30, limit: 5}
+		assert_response :ok
+
+		assert_equal 25, assigns(:prev_offset)
+		assert_equal 5, assigns(:prev_limit)
+
+		assert_equal 5, assigns(:next_limit)
+		assert_not assigns(:next_offset)
+	end
+
+
 end

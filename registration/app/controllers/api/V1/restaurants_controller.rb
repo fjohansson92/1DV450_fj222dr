@@ -1,9 +1,11 @@
-class Api::V1::RestaurantsController < ApplicationController
+class Api::V1::RestaurantsController < Api::V1::ApplicationController
 	respond_to :json
 
 	def index
 
-		@restaurants = Restaurant.includes(:tags, :apiuser)::all
+
+
+		@restaurants = get_offset_limit Restaurant.includes(:tags, :apiuser)::all
 	end
 
 end
