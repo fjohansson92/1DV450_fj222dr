@@ -16,6 +16,7 @@ restaurant:
   latitude: 50
   apiuser_id: 1
   tags: tag_nr_1, tag_nr_2
+  created_at: <%= Time.now - 5.second  %>
 
 
 <% 30.times do |n| %>
@@ -28,4 +29,5 @@ restaurant_nr_<%= n %>:
   latitude: <%= "#{n * 2}" %>
   apiuser_id: 1
   id: <%= "#{n+2}" %>
+  created_at: <%= Time.now + n.second  %>
 <% end %>

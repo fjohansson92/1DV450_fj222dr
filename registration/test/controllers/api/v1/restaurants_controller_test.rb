@@ -12,7 +12,7 @@ class Api::V1::RestaurantsControllerTest < ActionController::TestCase
 
 	test "should get list of restaurants" do
 		
-		get :index, :format => :json
+		get :index, {  order_by_asc: true, :format => :json }
 		assert_response :ok
 
 		body = JSON.parse(@response.body)
@@ -86,5 +86,11 @@ class Api::V1::RestaurantsControllerTest < ActionController::TestCase
 	end
 
 
+	test "should get desc order" do 
+		get :index, { :format => :json }
+		assert_response :ok
+
+		assert_equal Restaurant::all.last, assigns(:restaurants).first 
+	end
 
 end

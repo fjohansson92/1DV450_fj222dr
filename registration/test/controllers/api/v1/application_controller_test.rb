@@ -72,7 +72,7 @@ class Api::V1::ApplicationControllerTest < ActionController::TestCase
 		@controller = Api::V1::RestaurantsController.new
     	request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Token.encode_credentials(@apikey.key)
 
-		get :index, { format: :json, limit: 5}
+		get :index, { format: :json, limit: 5, order_by_asc: true}
 		assert_response :ok
 
 		assert_equal 5, assigns(:restaurants).length
@@ -119,7 +119,7 @@ class Api::V1::ApplicationControllerTest < ActionController::TestCase
 		@controller = Api::V1::RestaurantsController.new
     	request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Token.encode_credentials(@apikey.key)
 
-		get :index, { format: :json, offset: 5, limit: 5}
+		get :index, { format: :json, offset: 5, limit: 5, order_by_asc: true}
 		assert_response :ok
 
 		assert_equal Restaurant::find(6), assigns(:restaurants).first
@@ -131,7 +131,7 @@ class Api::V1::ApplicationControllerTest < ActionController::TestCase
 		@controller = Api::V1::RestaurantsController.new
     	request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Token.encode_credentials(@apikey.key)
 
-		get :index, { format: :json, offset: "text", limit: 5}
+		get :index, { format: :json, offset: "text", limit: 5, order_by_asc: true}
 		assert_response :ok
 
 		assert_equal Restaurant::find(1), assigns(:restaurants).first
@@ -154,7 +154,7 @@ class Api::V1::ApplicationControllerTest < ActionController::TestCase
 		@controller = Api::V1::RestaurantsController.new
     	request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Token.encode_credentials(@apikey.key)
 
-		get :index, { format: :json, offset: -500, limit: 5}
+		get :index, { format: :json, offset: -500, limit: 5, order_by_asc: true}
 		assert_response :ok
 
 		assert_equal Restaurant::find(1), assigns(:restaurants).first
