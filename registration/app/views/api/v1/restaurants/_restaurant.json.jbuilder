@@ -1,15 +1,23 @@
-json.(restaurant, :id, :name, :phone, :address, :description, :longitude, :latitude)
 
-json.links do
-	json.self api_v1_restaurant_url(restaurant)
+json.id restaurant.id if @values_t_show[:id] 
+json.name restaurant.name if @values_t_show[:name] 
+json.phone restaurant.phone if @values_t_show[:phone] 
+json.address restaurant.address if @values_t_show[:address] 
+json.description restaurant.description if @values_t_show[:description] 
+json.longitude restaurant.longitude if @values_t_show[:longitude] 
+json.latitude restaurant.latitude if @values_t_show[:latitude] 
+
+if @values_t_show[:links]
+	json.links do
+		json.self api_v1_restaurant_url(restaurant)
+	end
+end
+if @values_t_show[:tags]
+	json.tags restaurant.tags, partial: 'api/v1/tags/tag', as: :tag, :values_t_show => @child_values_t_show[:tags][:tagshash]
 end
 
-json.tags restaurant.tags, partial: 'api/v1/tags/tag', as: :tag
-
-json.apiuser do
-	json.name restaurant.apiuser.name
-	json.links do
-		json.self api_v1_apiuser_url(restaurant.apiuser)
-		json.restaurants api_v1_apiuser_restaurants_url(restaurant.apiuser)
+if @values_t_show[:apiuser] 
+	json.apiuser do
+		json.partial! 'api/v1/apiusers/apiuser', :apiuser => restaurant.apiuser, :values_t_show => @child_values_t_show[:apiuser][:tagshash]
 	end
 end
