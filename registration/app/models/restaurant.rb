@@ -12,4 +12,34 @@ class Restaurant < ActiveRecord::Base
 
 	LATITUDE_REGEX = /\A[-]?(([0-8]?[0-9])\.(\d+))|(90(\.0+)?)\z/
 	validates :latitude, presence:true, :numericality => true, format: { with: LATITUDE_REGEX }
+
+	def self.get_propertys_as_hash
+		{ 
+			:id => "id", 
+			:name => "name", 
+			:phone => "phone", 
+			:address => "address", 
+			:longitude => "longitude", 
+			:latitude => "latitude", 
+			:description => "description",
+			:links => "links",
+			:tags => "tags",
+			:apiuser => 'apiuser'
+		}
+	end
+
+	def self.get_child_propertys_as_hash
+		{ 
+			:tags => { 
+						:selector => "tags(", 
+						:parent_selector => "tags",	
+						:tagshash => Tag.get_propertys_as_hash
+			},
+			:apiuser => { 
+						:selector => "apiuser(", 
+						:parent_selector => "apiuser",
+						:tagshash => Apiuser.get_propertys_as_hash
+			} 
+		}
+	end
 end

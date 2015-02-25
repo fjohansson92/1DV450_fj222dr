@@ -20,4 +20,13 @@ class Apiuser < ActiveRecord::Base
 		self.user_token = user_token
 	end
 
+
+	def self.get_propertys_as_hash
+		{ 
+			:id => "id",
+			:name => "name",
+			:links => "links"
+		}
+	end
+
 end

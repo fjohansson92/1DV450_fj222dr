@@ -28,43 +28,31 @@ class Api::V1::ApplicationController < ActionController::Base
 		object.limit(limit).offset(offset)
 	end
 
-	def filter_restaurants_response values_t_show, child_values_t_show
-
-		values_t_show = { :id => "id", 
-				 :name => "name", 
-				 :phone => "phone", 
-				 :address => "address", 
-				 :longitude => "longitude", 
-				 :latitude => "latitude", 
-				 :description => "description",
-				 :links => "links",
-				 :tags => "tags",
-				 :apiuser => 'apiuser'
-				}
-
-		child_values_t_show = { :tags => { :selector => "tags(", 
-								 		   :tagshash => { :id => "id",
-														  :name => "name",
-														  :links => "links" }},
-								:apiuser => { :selector => "apiuser(", 
-											  :tagshash => {:name => "name",
-											  				:links => "links"}} 
-					}
+	def filter_restaurants_response values_t_show, child_values_t_show = []
 
 		if params[:filter]
-			filter = params[:filter].split(/,/)
+			filter = params[:filter].gsub(/\s+/, "").split(/,/)
 			
-			filter.each do |v|
-				child_values_t_show.each do |child_key, child|
-					if v.start_with?(child[:selector])
-						
-						child_filter = v.scan(/\(([^\)]+)\)/).first
-
+			child_values_t_show.each do |child_key, child|
+				child_values_to_not_remove = []
+					filter.each do |v|
+						begin
+							if v.start_with?(child[:selector])
+								
+								child_filter = v.scan(/\(([^\)]+)\)/)
+								child_values_to_not_remove << child_filter[0][0]
+							end
+						rescue
+							@error = ErrorMessage.new("Format of filter is wrong. Around value #{v}", "Request failed. Contact developer", "2201")
+							render json: @error, status: :bad_request
+						end	
+					end
+					if child_values_to_not_remove.length > 0
+						filter << child[:parent_selector]
 						child_values_t_show[child_key][:tagshash].each do |k, attribute|
-							child_values_t_show[child_key][:tagshash].delete(k) unless child_filter.include?(attribute)
+							child_values_t_show[child_key][:tagshash].delete(k) unless child_values_to_not_remove.include?(attribute)
 						end
 					end
-				end
 			end
 			values_t_show.each do |k,v|
 				values_t_show.delete(k) unless filter.include?(v)
@@ -79,6 +67,6 @@ end
 
 
 
-
+						
 
 

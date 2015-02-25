@@ -27,7 +27,7 @@ Rails.application.routes.draw do
 
         get   'test' => 'temp_for_developing#index'
 
-        resources :restaurants
+        resources :restaurants 
         resources :tags do
           resources :restaurants
         end
