@@ -1,7 +1,65 @@
 require 'test_helper'
 
 class Api::V1::TagsControllerTest < ActionController::TestCase
-  # test "the truth" do
-  #   assert true
-  # end
+
+	def setup
+		apikey = apikeys(:apikey)
+    	request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Token.encode_credentials(apikey.key)
+	end
+
+	test "should get list of tags" do
+		
+		get :index, {  :format => :json }
+		assert_response :ok
+
+		body = JSON.parse(@response.body)
+		assert body['tags']
+
+		tags = Tag::all
+
+		assert_equal body['tags'].length, 25
+
+		assert_equal body['links']["self"], api_v1_tags_url
+		assert_equal body['links']["first"], api_v1_tagss_url + "?limit=25&offset=0"
+		assert_not body['links']["prev"]
+		assert_equal body['links']["next"], api_v1_tags_url + "?limit=25&offset=25"
+		assert_equal body['links']["last"], api_v1_tags_url + "?limit=25&offset=6"
+
+
+		first_tag = tags.first
+		first_response_tag = body['tags'].first
+
+		assert_equal first_tag.id, first_response_tag["id"]
+		assert_equal first_tag.name, first_response_tag["name"]
+
+		assert_equal api_v1_tag_url(first_tag), first_response_tag["links"]["self"]
+		assert_equal api_v1_tag_restaurants_url(first_tag), first_response_tag["links"]["restaurants"]
+	end
+
+	test "should partial only name" do
+		get :index, {  filter: "name", :format => :json }
+		assert_response :ok
+
+		body = JSON.parse(@response.body)
+
+		tag = Tag::all.first
+		assert_equal body['tags'].first, { "name" => tag.name }
+	end
+
+	test "should partial multiple attributes" do
+		get :index, {  filter: "id,links", :format => :json }
+		assert_response :ok
+
+		body = JSON.parse(@response.body)
+
+		tag = Tag::all.first
+
+		assert_equal tag.id, body['tags'].first['id']
+		assert_equal api_v1_tag_url(tag), body['tags'].first["links"]["self"]
+		assert_equal api_v1_tag_restaurants_url(tag), body['tags'].first["links"]["restaurants"]
+
+		assert_not body['tags'].first['name']
+	end
+
+
 end

@@ -77,7 +77,7 @@ class Api::V1::RestaurantsControllerTest < ActionController::TestCase
 
 		first_response_restaurant_apiuser = body['restaurants'].first["apiuser"]
 
-
+		assert first_response_restaurant_apiuser["id"]
 		assert first_response_restaurant_apiuser["name"]
 		assert_not first_response_restaurant_apiuser["provider"]
 		assert_not first_response_restaurant_apiuser["uid"]
