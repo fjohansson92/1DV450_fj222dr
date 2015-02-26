@@ -14,4 +14,7 @@ class Api::V1::RestaurantsController < Api::V1::ApplicationController
 		filter_restaurants_response values_t_show, child_values_t_show
 	end
 
+
+
+
 end
