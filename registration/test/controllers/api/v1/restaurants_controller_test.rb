@@ -264,8 +264,12 @@ class Api::V1::RestaurantsControllerTest < ActionController::TestCase
 		get :show, { id: restaurant.id, :format => :json }
 		assert_response :ok
 
+		body = JSON.parse(@response.body)
+
 		assert  body['restaurant']
 		assert_equal body['links']["self"], api_v1_restaurant_url(restaurant)
+		assert_equal body['links']["restaurants"], api_v1_restaurants_url
+
 
 		test_restaurant_json(restaurant, body['restaurant'])
 	end
