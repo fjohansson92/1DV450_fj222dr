@@ -24,7 +24,7 @@ class Api::V1::ApiusersControllerTest < ActionController::TestCase
 		assert_equal body['links']["first"], api_v1_apiusers_url + "?limit=25&offset=0"
 		assert_not body['links']["prev"]
 		assert_equal body['links']["next"], api_v1_apiusers_url + "?limit=25&offset=25"
-		assert_equal body['links']["last"], api_v1_apiusers_url + "?limit=25&offset=5"
+		assert_equal body['links']["last"], api_v1_apiusers_url + "?limit=25&offset=6"
 
 
 		first_apiuser = apiusers.first

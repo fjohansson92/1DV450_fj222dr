@@ -23,6 +23,6 @@ class Api::V1::RestaurantsController < Api::V1::ApplicationController
 			values_t_show = Restaurant.get_propertys_as_hash
 			child_values_t_show = Restaurant.get_child_propertys_as_hash
 			
-			filter_restaurants_response values_t_show, child_values_t_show
+			filter_response values_t_show, child_values_t_show
 		end
 end
