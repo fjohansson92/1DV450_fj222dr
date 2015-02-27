@@ -68,4 +68,52 @@ class Api::V1::ApiusersControllerTest < ActionController::TestCase
 		assert_not body['apiusers'].first['name']
 	end
 
+
+
+
+	test "should show apiuser" do
+
+		apiuser = Apiuser::find(1)
+
+		get :show, { id: apiuser.id, :format => :json }
+		assert_response :ok
+
+		body = JSON.parse(@response.body)
+
+		assert body['apiuser']
+		assert_equal body['links']["self"], api_v1_apiuser_url(apiuser)
+
+
+		assert_equal apiuser.id, body['apiuser']["id"]
+		assert_equal apiuser.name, body['apiuser']["name"]
+
+		assert_equal api_v1_apiuser_url(apiuser), body['apiuser']["links"]["self"]
+		assert_equal api_v1_apiuser_restaurants_url(apiuser), body['apiuser']["links"]["restaurants"]
+
+	end
+
+	test "should get error if apiuser not found" do
+		get :show, {  id: 1000, :format => :json }
+		
+		assert_response :not_found
+		error = JSON.parse(@response.body)
+		assert error['developerMessage']
+		assert error['userMessage']
+	end
+
+	test "partial should work with single apiuser too" do
+
+		apiuser = Apiuser::find(1)
+
+		get :show, { id: apiuser.id, filter: "id,name", :format => :json }
+		assert_response :ok
+
+		body = JSON.parse(@response.body)
+
+		assert_equal ({ "id" => apiuser.id, 
+						"name" => apiuser.name
+						 }), body['apiuser']
+	end
+
+
 end
