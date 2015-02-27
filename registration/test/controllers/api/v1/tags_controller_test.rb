@@ -62,4 +62,51 @@ class Api::V1::TagsControllerTest < ActionController::TestCase
 	end
 
 
+
+
+
+
+	test "should show tag" do
+
+		tag = Tag::find(1)
+
+		get :show, { id: tag.id, :format => :json }
+		assert_response :ok
+
+		body = JSON.parse(@response.body)
+
+		assert body['tag']
+		assert_equal body['links']["self"], api_v1_tag_url(tag)
+
+
+		assert_equal tag.id, body['tag']["id"]
+		assert_equal tag.name, body['tag']["name"]
+
+		assert_equal api_v1_tag_url(tag), body['tag']["links"]["self"]
+		assert_equal api_v1_tag_restaurants_url(tag), body['tag']["links"]["restaurants"]
+	end
+
+	test "should get error if tag not found" do
+		get :show, {  id: 1000, :format => :json }
+		
+		assert_response :not_found
+		error = JSON.parse(@response.body)
+		assert error['developerMessage']
+		assert error['userMessage']
+	end
+
+	test "partial should work with single tag too" do
+
+		tag = Tag::find(1)
+
+		get :show, { id: tag.id, filter: "id,name", :format => :json }
+		assert_response :ok
+
+		body = JSON.parse(@response.body)
+
+		assert_equal ({ "id" => tag.id, 
+						"name" => tag.name
+						 }), body['tag']
+	end
+
 end
