@@ -11,3 +11,9 @@ filip:
   name: Filip Johansson
   auth_token: erginergueirgueirugnerger
   user_token: jenrgkjnerkjgnekjrngkjerng
+
+<% 30.times do |n| %>
+apiuser_nr_<%= n %>:
+  name:  <%= "Apiuser #{n}" %>
+  provider:  github
+<% end %>
