@@ -11,6 +11,7 @@ filip:
   name: Filip Johansson
   auth_token: erginergueirgueirugnerger
   user_token: jenrgkjnerkjgnekjrngkjerng
+  token_expires: 2016-02-22 12:16:07
 
 <% 30.times do |n| %>
 apiuser_nr_<%= n %>:
