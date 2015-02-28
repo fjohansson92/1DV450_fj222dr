@@ -301,4 +301,141 @@ class Api::V1::RestaurantsControllerTest < ActionController::TestCase
 
 
 
+
+
+
+
+
+	# Create restaurant tests
+
+	test "should create restaurant" do
+	
+		apiuser = apiusers(:filip)
+    	request.env["omniauth.auth"] = OmniAuth::AuthHash.new({:provider => apiuser.provider,
+															   :uid => apiuser.uid,
+															   :info => { :name => apiuser.name}
+															})
+
+		assert_difference 'Restaurant.count', 1 do
+			assert_difference 'Tag.count', 2 do
+				post :create, { restaurant: {
+												:name => "Pizzerian", 
+												:phone => "0123456", 
+												:address => "Gatan 5, 333 33 Kalmar", 
+												:longitude => "12.45689", 
+												:latitude => "20.123654", 
+												:description => "Säljer pizzor",
+												:tags => "Pizzeria, Kebab"
+											}} 
+			end
+		end
+
+		assert_response :created
+		restaurant = Restaurant.order("created_at").last
+
+		assert  body['restaurant']
+		assert_equal body['links']["self"], api_v1_restaurant_url(restaurant)
+		assert_equal body['links']["restaurants"], api_v1_restaurants_url
+
+		test_restaurant_json(restaurant, body['restaurant'])
+	end
+
+	test "tags should not duplicate" do
+	
+		apiuser = apiusers(:filip)
+    	request.env["omniauth.auth"] = OmniAuth::AuthHash.new({:provider => apiuser.provider,
+															   :uid => apiuser.uid,
+															   :info => { :name => apiuser.name}
+															})
+
+		assert_difference 'Restaurant.count', 1 do
+			assert_difference 'Tag.count', 2 do
+				post :create, { restaurant: {
+												:name => "Pizzerian", 
+												:phone => "0123456", 
+												:address => "Gatan 5, 333 33 Kalmar", 
+												:longitude => "12.45689", 
+												:latitude => "20.123654", 
+												:description => "Säljer pizzor",
+												:tags => "Pizzeria, Kebab"
+											}} 
+			end
+		end
+		assert_response :created
+
+
+		assert_difference 'Restaurant.count', 1 do
+			assert_no_difference 'Tag.count' do
+				post :create, { restaurant: {
+												:name => "Andra Pizzerian", 
+												:phone => "0123456", 
+												:address => "Gatan 5, 333 33 Kalmar", 
+												:longitude => "30.45689", 
+												:latitude => "40.123654", 
+												:description => "Säljer pizzor",
+												:tags => "Pizzeria, Kebab"
+											}} 
+			end
+		end
+		assert_response :created
+	end
+
+	test "should create restaurant without tags" do
+	
+		apiuser = apiusers(:filip)
+    	request.env["omniauth.auth"] = OmniAuth::AuthHash.new({:provider => apiuser.provider,
+															   :uid => apiuser.uid,
+															   :info => { :name => apiuser.name}
+															})
+
+		assert_no_difference 'Restaurant.count' do
+			post :create, { restaurant: {
+											:name => "Pizzerian", 
+											:phone => "0123456", 
+											:address => "Gatan 5, 333 33 Kalmar", 
+											:longitude => "12.45689", 
+											:latitude => "20.123654", 
+											:description => "Säljer pizzor"
+										}} 
+		end
+
+		assert_response :created
+	end
+
+
+	test "should fail to create restaurant if invalid restaurant" do
+	
+		apiuser = apiusers(:filip)
+    	request.env["omniauth.auth"] = OmniAuth::AuthHash.new({:provider => apiuser.provider,
+															   :uid => apiuser.uid,
+															   :info => { :name => apiuser.name}
+															})
+
+		assert_no_difference 'Restaurant.count' do
+			assert_no_difference 'Tag.count' do
+				post :create, { restaurant: {
+												:name => "Pizzerian", 
+												:address => "Gatan 5, 333 33 Kalmar", 
+												:longitude => "12.45689", 
+												:latitude => "20.123654", 
+												:description => "Säljer pizzor",
+												:tags => "Pizzeria, Kebab"
+											}} 
+			end
+		end
+
+		assert_response :bad_request
+		error = JSON.parse(@response.body)
+		assert error['developerMessage']
+		assert error['userMessage']
+	end
+
+
+
+
+
+
+
+
+
 end
