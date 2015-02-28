@@ -476,4 +476,52 @@ class Api::V1::RestaurantsControllerTest < ActionController::TestCase
 
 
 
+	test "should remove restaurant" do
+		restaurant = @apiuser.restaurants.first
+		assert_difference 'Restaurant.count', -1 do
+			assert_no_difference 'Tag.count' do
+				delete :destroy, { id: restaurant.id ,:format => :json }
+				assert_response :ok
+				message = JSON.parse(@response.body)
+				assert message['message']
+			end
+		end
+	end
+
+	test "should not be able to remove removed restaurant" do
+		restaurant = @apiuser.restaurants.first
+		delete :destroy, { id: restaurant.id ,:format => :json }
+		assert_response :ok
+
+		delete :destroy, { id: restaurant.id ,:format => :json }
+		assert_response :not_found
+		error = JSON.parse(@response.body)
+		assert error['developerMessage']
+		assert error['userMessage']
+	end
+
+	test "should not be able to remove other users restaurant" do
+		restaurant = restaurants(:restaurant_to_remove)
+		assert_no_difference 'Restaurant.count' do
+			assert_no_difference 'Tag.count' do
+				delete :destroy, { id: restaurant.id ,:format => :json }
+				
+				assert_response :forbidden
+				error = JSON.parse(@response.body)
+				assert error['developerMessage']
+				assert error['userMessage']
+			end
+		end
+
+	end
+
+
+
+
+
+
+
+
+
+
 end

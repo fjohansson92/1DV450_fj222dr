@@ -18,6 +18,16 @@ restaurant:
   tags: tag_nr_1, tag_nr_2
   created_at: <%= Time.now - 5.second  %>
 
+restaurant_to_remove:
+  id: 500
+  name: Bästa pizzerian 2
+  phone: 321654987
+  address: Vägen 5 33033 Växjö
+  description: Pizzerian servera pizza och kebab
+  longitude: 50
+  latitude: 50
+  apiuser_id: 2
+  created_at: <%= Time.now - 4.second  %>
 
 <% 30.times do |n| %>
 restaurant_nr_<%= n %>:
