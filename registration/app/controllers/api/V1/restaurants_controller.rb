@@ -24,8 +24,24 @@ class Api::V1::RestaurantsController < Api::V1::ApplicationController
 		if @restaurant.save
 			render 'show', status: :created
 		else 
-			@error = ErrorMessage.new("Couldn't create restaurant, see user messages.", @restaurant.errors.messages, "2402")
+			@error = ErrorMessage.new("Couldn't create restaurant, see user messages.", @restaurant.errors.messages, "2203")
 			render json: @error, status: :bad_request
+		end
+	end
+
+	def destroy
+		@restaurant = Restaurant.find_by_id(params[:id])
+		if @restaurant
+			if current_apiuser == @restaurant.apiuser
+				@restaurant.destroy
+				render json: { message: "Restaurant was removed" }, status: :ok
+			else
+				@error = ErrorMessage.new("The restaurant didn't belong to the current apiuser.", "Forbidden to remove restaurant", "2204")
+				render json: @error, status: :forbidden
+			end
+		else
+			@error = ErrorMessage.new("No restaurant with requested id.", "Restaurant not found", "2202")
+			render json: @error, status: :not_found
 		end
 	end
 
