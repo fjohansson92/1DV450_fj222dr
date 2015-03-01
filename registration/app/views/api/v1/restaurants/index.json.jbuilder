@@ -4,6 +4,8 @@ end
 
 json.links do
 	json.self api_v1_restaurants_url
+	json.position_search api_v1_positions_url	
+
 
 	json.first api_v1_restaurants_url(offset: 0, limit: @next_limit)
 

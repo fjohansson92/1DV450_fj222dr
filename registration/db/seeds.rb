@@ -13,8 +13,13 @@ user = User.create(name: "Admin",
 			admin: true
 		)
 
-apikey = Apikey.create(user_id: user.id, name: "Svt")
+apikey = Apikey.create(user_id: user.id, name: "Svt", key: "123")
 Apikey.create(user_id: user.id, name: "github")
+
+Domain.create(domain: "http://api.lvh.me:3001/", apikey_id: apikey.id)
+
+
+
 
 4.times do |n|
 	ApiStatistic.create(call: n * (500 + 1), apikey_id: apikey.id)

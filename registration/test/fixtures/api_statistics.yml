@@ -4,8 +4,8 @@
 # model remove the '{}' from the fixture names and add the columns immediately
 # below each fixture, per the syntax in the comments below
 #
-one: {}
-# column: value
-#
-two: {}
-#  column: value
+<% 30.times do |n| %>
+statistics_nr_<%= n %>:
+  call:  <%= "#{( n * 25 )+ 20}" %>
+  apikey_id: 1
+<% end %>
