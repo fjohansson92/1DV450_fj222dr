@@ -9,23 +9,18 @@ tag:
   name: Pizzerior
 
 pizza:
-  id: 2
   name: pizza
 
 kebab:
-  id: 3
   name: kebab
 
 sushi:
-  id: 4
   name: sushi
 
 cafe:
-  id: 5
   name: cafe
 
 mongolisk:
-  id: 6
   name: mongolisk
 
 

@@ -236,14 +236,14 @@ class Api::V1::ApplicationControllerTest < ActionController::TestCase
 
     	assert_equal body['restaurants'].length, 2
 
-    	assert_equal restaurants(:restaurant), assigns(:restaurants).first
-    	assert_equal restaurants(:restaurant_to_remove), assigns(:restaurants).last
+    	assert_equal restaurants(:restaurant), assigns(:restaurants).last
+    	assert_equal restaurants(:restaurant_to_remove), assigns(:restaurants).first
 	end
 
 	test "should search multiple strings in multiple columns" do
 		@controller = Api::V1::RestaurantsController.new
     	request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Token.encode_credentials(@apikey.key)
-    	get :index, { format: :json, q: "pizzerian+kebab+kalmar"}
+    	get :index, { format: :json, q: "pizzerian kebab kalmar"}
     	assert_response :ok
 
     	body = JSON.parse(@response.body)
@@ -269,7 +269,7 @@ class Api::V1::ApplicationControllerTest < ActionController::TestCase
 	test "should search multiple strings and one in apiuser" do
 		@controller = Api::V1::RestaurantsController.new
     	request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Token.encode_credentials(@apikey.key)
-    	get :index, { format: :json, q: "filip+search2+växjö"}
+    	get :index, { format: :json, q: "filip search2 växjö"}
     	assert_response :ok
 
     	body = JSON.parse(@response.body)
@@ -295,7 +295,7 @@ class Api::V1::ApplicationControllerTest < ActionController::TestCase
 	test "should search multiple strings in different tags" do
 		@controller = Api::V1::RestaurantsController.new
     	request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Token.encode_credentials(@apikey.key)
-    	get :index, { format: :json, q: "cafe+sushi"}
+    	get :index, { format: :json, q: "cafe sushi"}
     	assert_response :ok
 
     	body = JSON.parse(@response.body)
@@ -308,7 +308,7 @@ class Api::V1::ApplicationControllerTest < ActionController::TestCase
 	test "should search multiple strings values from all tables" do
 		@controller = Api::V1::RestaurantsController.new
     	request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Token.encode_credentials(@apikey.key)
-    	get :index, { format: :json, q: "john+search1+pizza"}
+    	get :index, { format: :json, q: "john search1 pizza"}
     	assert_response :ok
 
     	body = JSON.parse(@response.body)
@@ -321,7 +321,7 @@ class Api::V1::ApplicationControllerTest < ActionController::TestCase
 	test "should search where no restaurant match" do
 		@controller = Api::V1::RestaurantsController.new
     	request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Token.encode_credentials(@apikey.key)
-    	get :index, { format: :json, q: "john+search1+pizza+somethingsomething"}
+    	get :index, { format: :json, q: "john search1 pizza somethingsomething"}
     	assert_response :ok
 
     	body = JSON.parse(@response.body)

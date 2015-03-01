@@ -9,7 +9,7 @@ class Api::V1::RestaurantsController < Api::V1::ApplicationController
 
 		order = params[:order_by_asc] == "true" || params[:order_by_asc] == true ? 'ASC' : 'DESC'
 
-		@restaurants = get_offset_limit Restaurant.includes(:tags, :apiuser)::all.order("restaurants.created_at #{order}")
+		@restaurants = get_offset_limit search_filter Restaurant.includes(:tags, :apiuser)::all.order("restaurants.created_at #{order}")
 	end
 
 	def show

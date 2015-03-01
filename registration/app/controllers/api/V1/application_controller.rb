@@ -28,6 +28,19 @@ class Api::V1::ApplicationController < ActionController::Base
 		object.limit(limit).offset(offset)
 	end
 	
+	def search_filter(restaurants)
+		if params[:q]
+			search = params[:q].split(' ')
+			search.each do |v|
+				restaurants = restaurants.where("restaurants.name LIKE :v OR phone LIKE :v OR address LIKE :v OR description LIKE :v OR tags.name LIKE :v OR apiusers.name LIKE :v", { v: "%#{v}%"}).references(:apiusers)
+			end
+			
+		end
+
+		restaurants
+	end
+
+
 	def filter_response values_t_show, child_values_t_show = []
 
 		if params[:filter]
