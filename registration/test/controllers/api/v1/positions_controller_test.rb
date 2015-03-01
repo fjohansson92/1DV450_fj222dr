@@ -134,4 +134,11 @@ class Api::V1::PositionsControllerTest < ActionController::TestCase
 		assert error['developerMessage']
 		assert error['userMessage']
 	end
+
+	test "should be unauthorized without apikey" do
+		request.env['HTTP_AUTHORIZATION'] = nil
+		get :index
+		assert_response :unauthorized
+	end
+
 end

@@ -109,4 +109,14 @@ class Api::V1::TagsControllerTest < ActionController::TestCase
 						 }), body['tag']
 	end
 
+
+	test "should be unauthorized without apikey" do
+		request.env['HTTP_AUTHORIZATION'] = nil
+		get :index
+		assert_response :unauthorized
+
+		get :show, {id: 1}
+		assert_response :unauthorized
+	end
+
 end

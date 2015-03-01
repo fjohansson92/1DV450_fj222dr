@@ -743,4 +743,42 @@ class Api::V1::RestaurantsControllerTest < ActionController::TestCase
 		assert error['developerMessage']
 		assert error['userMessage']
 	end
+
+
+
+
+
+
+
+	test "should be unauthorized without apikey" do
+		request.env['HTTP_AUTHORIZATION'] = nil
+		get :index
+		assert_response :unauthorized
+
+		get :show, {id: 1}
+		assert_response :unauthorized
+
+		post :create
+		assert_response :unauthorized
+
+		patch :update, {id: 1}
+		assert_response :unauthorized
+
+		delete :destroy, {id: 1}
+		assert_response :unauthorized	
+	end
+
+	test "should be unauthorized if not logged in" do
+		request.headers['auth-token'] = nil
+    	request.headers['user-token'] = nil
+
+		post :create
+		assert_response :unauthorized
+
+		patch :update, {id: 1}
+		assert_response :unauthorized
+
+		delete :destroy, {id: 1}
+		assert_response :unauthorized	
+	end
 end

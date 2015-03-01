@@ -2,8 +2,9 @@ class Api::V1::RestaurantsController < Api::V1::ApplicationController
 	respond_to :json
 	before_filter :partial_response
 	before_filter :get_restaurant, only: [:show, :update, :destroy]
+	before_filter :logged_in_user, only: [:create, :update, :destroy ]
 	before_filter :correct_user, only: [:update, :destroy]
-	before_action :logged_in_user, only: :create 
+	
 
 	def index
 
