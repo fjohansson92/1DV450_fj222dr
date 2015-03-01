@@ -48,8 +48,8 @@ search2:
   phone: 567
   address: Vägen 15 456 Växjö
   description: En annan text
-  longitude: 11
-  latitude: 22
+  longitude: -11
+  latitude: -22
   apiuser_id: 1
   tags: sushi, cafe
   created_at: <%= Time.now - 1.second  %>
