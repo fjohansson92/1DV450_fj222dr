@@ -27,6 +27,8 @@ Rails.application.routes.draw do
 
         get   'test' => 'temp_for_developing#index'
 
+
+        resources :positions, only: :index 
         resources :restaurants 
         resources :tags do
           resources :restaurants
