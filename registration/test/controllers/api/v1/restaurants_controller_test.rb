@@ -523,7 +523,7 @@ class Api::V1::RestaurantsControllerTest < ActionController::TestCase
 
 	# Update restaurant tests
 	
-	test "should update apikey" do
+	test "should update restaurant" do
 
 		name = "Pizzerian Unik"
 		phone = "0123456"
@@ -589,7 +589,7 @@ class Api::V1::RestaurantsControllerTest < ActionController::TestCase
 			end
 		end
 
-		assert_difference 'Restaurant.count', 1 do
+		assert_no_difference 'Restaurant.count' do
 			assert_no_difference 'Tag.count' do
 				patch :update, { id: id, :format => :json, restaurant: {
 												:name => "Andra Pizzerian", 
@@ -609,16 +609,17 @@ class Api::V1::RestaurantsControllerTest < ActionController::TestCase
 		restaurant = restaurants(:restaurant)
 
 		patch :update, { id: restaurant.id, :format => :json, restaurant: {
-										:name => name,
-										:phone => phone,
-										:address => address,
-										:longitude =>  longitude,
-										:latitude =>  latitude,
-										:description => description
+										:name => "Andra Pizzerian", 
+										:phone => "0123456", 
+										:address => "Gatan 5, 333 33 Kalmar", 
+										:longitude => "30.45689", 
+										:latitude => "40.123654", 
+										:description => "Säljer pizzor",
+										:tags => []
 									}} 
 		assert_response :ok
 
-		assert_equal restaurant.tags.length, 0
+		assert_equal 0, restaurant.tags.length
 	end
 
 	test "should partial restaurant on update" do
@@ -648,11 +649,10 @@ class Api::V1::RestaurantsControllerTest < ActionController::TestCase
 		restaurant = restaurants(:restaurant)
 
 		patch :update, { id: restaurant.id, :format => :json, filter: "name", restaurant: {
-										:name => "Pizzerian", 
 										:phone => "0123456", 
 										:address => "Gatan 5, 333 33 Kalmar", 
 										:longitude => "12.45689", 
-										:latitude => "20.123654", 
+										:latitude => "not number", 
 										:description => "Säljer pizzor"
 									}} 
 		assert_response :bad_request
@@ -665,6 +665,8 @@ class Api::V1::RestaurantsControllerTest < ActionController::TestCase
 
 	test "should fail to update restaurant if invalid tag" do
 	
+		restaurant = restaurants(:restaurant)
+
 		patch :update, { id: restaurant.id, :format => :json, filter: "name", restaurant: {
 										:name => "Pizzerian", 
 										:phone => "0123456", 
@@ -681,6 +683,20 @@ class Api::V1::RestaurantsControllerTest < ActionController::TestCase
 		assert error['userMessage']
 	end
 
-
-
+	test "should not be able to update other users restaurant" do
+		restaurant = restaurants(:restaurant_to_remove)
+		patch :update, { id: restaurant.id, :format => :json, filter: "name", restaurant: {
+										:name => "Pizzerian", 
+										:phone => "0123456", 
+										:address => "Gatan 5, 333 33 Kalmar", 
+										:longitude => "12.45689", 
+										:latitude => "20.123654", 
+										:description => "Säljer pizzor",
+										:tags_attributes => [{id: 123}, {name: "Kebab"}]
+									}} 
+		assert_response :forbidden
+		error = JSON.parse(@response.body)
+		assert error['developerMessage']
+		assert error['userMessage']
+	end
 end

@@ -20,12 +20,4 @@ class TagTest < ActiveSupport::TestCase
 		@tag.name = "a" * 51
     	assert_not @tag.valid?
 	end
-
-	test "name should be unique" do
-		duplicate_tag = @tag.dup
-		duplicate_tag.name = duplicate_tag.name.upcase
-		@tag.save
-		assert_not duplicate_tag.valid?
-	end
-
 end

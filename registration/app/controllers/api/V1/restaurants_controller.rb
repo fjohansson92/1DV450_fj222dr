@@ -1,6 +1,8 @@
 class Api::V1::RestaurantsController < Api::V1::ApplicationController
 	respond_to :json
-	before_filter :partial_response, only: [:index, :show, :create]
+	before_filter :partial_response, only: [:index, :show, :create, :update, :destroy]
+	before_filter :get_restaurant, only: [:show, :update, :destroy]
+	before_filter :correct_user, only: [:update, :destroy]
 	before_action :logged_in_user, only: :create 
 
 	def index
@@ -11,12 +13,6 @@ class Api::V1::RestaurantsController < Api::V1::ApplicationController
 	end
 
 	def show
-		@restaurant = Restaurant.find_by_id(params[:id])
-		
-		if @restaurant.nil?
-			@error = ErrorMessage.new("No restaurant with requested id.", "Restaurant not found", "2202")
-			render json: @error, status: :not_found
-		end
 	end
 
 	def create
@@ -29,24 +25,38 @@ class Api::V1::RestaurantsController < Api::V1::ApplicationController
 		end
 	end
 
-	def destroy
-		@restaurant = Restaurant.find_by_id(params[:id])
-		if @restaurant
-			if current_apiuser == @restaurant.apiuser
-				@restaurant.destroy
-				render json: { message: "Restaurant was removed" }, status: :ok
-			else
-				@error = ErrorMessage.new("The restaurant didn't belong to the current apiuser.", "Forbidden to remove restaurant", "2204")
-				render json: @error, status: :forbidden
-			end
+	def update
+		if @restaurant.update_attributes(restaurant_params)
+			render 'show'
 		else
-			@error = ErrorMessage.new("No restaurant with requested id.", "Restaurant not found", "2202")
-			render json: @error, status: :not_found
+			@error = ErrorMessage.new("Couldn't create restaurant, see user messages.", @restaurant.errors.messages, "2203")
+			render json: @error, status: :bad_request
 		end
+	end
+
+	def destroy
+		@restaurant.destroy
+		render json: { message: "Restaurant was removed" }, status: :ok
 	end
 
 
 	private
+
+		def get_restaurant
+			@restaurant = Restaurant.find_by_id(params[:id])
+			if @restaurant.nil?
+				@error = ErrorMessage.new("No restaurant with requested id.", "Restaurant not found", "2202")
+				render json: @error, status: :not_found
+			end
+		end
+
+		def correct_user
+			if current_apiuser != @restaurant.apiuser
+				@error = ErrorMessage.new("The restaurant didn't belong to the current apiuser.", "Forbidden to edit restaurant", "2204")
+				render json: @error, status: :forbidden
+			end
+		end
+
 		def logged_in_user
 			unless apiuser_logged_in?
 				@error = ErrorMessage.new("The user needs to login", "Bad credentials", "1401")

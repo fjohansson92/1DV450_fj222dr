@@ -1,8 +1,8 @@
 class Restaurant < ActiveRecord::Base
   belongs_to :apiuser
-  has_and_belongs_to_many :tags#, autosave: false
+  has_and_belongs_to_many :tags
   accepts_nested_attributes_for :tags
-  before_save :test
+  before_save :save_tags
 
 	validates :name, presence:true, length: { maximum: 50 }
 	validates :phone, presence:true, length: { maximum: 12 }
@@ -16,13 +16,15 @@ class Restaurant < ActiveRecord::Base
 	validates :latitude, presence:true, :numericality => true, format: { with: LATITUDE_REGEX }
 
 	 
-	def test
-		self.tags.each { |key|
-		 	if Tag.find_by_name(key.name)
+	def save_tags
+		self.tags.each do |key|
+			if key.id
+				self.tags.delete(key)
+			elsif Tag.find_by_name(key.name)
 		 		self.tags.delete(key)
 		 		self.tags << Tag.find_by_name(key.name)
 		 	end
-		 }		
+		 end		
 	end
 
 
