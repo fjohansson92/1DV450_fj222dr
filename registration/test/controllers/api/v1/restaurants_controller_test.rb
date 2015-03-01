@@ -521,6 +521,165 @@ class Api::V1::RestaurantsControllerTest < ActionController::TestCase
 
 
 
+	# Update restaurant tests
+	
+	test "should update apikey" do
+
+		name = "Pizzerian Unik"
+		phone = "0123456"
+		address = "Gatan 5, 333 33 Kalmar"
+		longitude = 12.45689
+		latitude = 20.12365
+		description = "Säljer pizzor"
+		tag1 = "Pizzeria"
+		tag2 = "Kebab"
+
+		restaurant = restaurants(:restaurant)
+
+		assert_difference 'Tag.count', 2 do
+			patch :update, { id: restaurant.id, :format => :json, restaurant: {
+											:name => name,
+											:phone => phone,
+											:address => address,
+											:longitude =>  longitude,
+											:latitude =>  latitude,
+											:description => description,
+											:tags_attributes => [{name: tag1}, {name: tag2}]
+										}} 
+			assert_response :ok
+		end
+
+		restaurant = Restaurant.find_by_name("Pizzerian Unik")
+
+		body = JSON.parse(@response.body)
+
+		assert  body['restaurant']
+		assert_equal body['links']["self"], api_v1_restaurant_url(restaurant)
+		assert_equal body['links']["restaurants"], api_v1_restaurants_url
+
+		test_restaurant_json(restaurant, body['restaurant'])
+
+		assert_equal name, body['restaurant']["name"]
+		assert_equal phone, body['restaurant']["phone"]
+		assert_equal address, body['restaurant']["address"]
+		assert_equal description, body['restaurant']["description"]
+		assert_in_delta longitude, body['restaurant']["longitude"].to_f
+		assert_in_delta latitude, body['restaurant']["latitude"].to_f
+		assert_equal tag1, body['restaurant']["tags"].first["name"]
+		assert_equal tag2, body['restaurant']["tags"].last["name"]
+	end	
+
+	test "tags should not duplicate on update" do
+	
+		id = 0
+		assert_difference 'Restaurant.count', 1 do
+			assert_difference 'Tag.count', 2 do
+				post :create, { :format => :json, restaurant: {
+												:name => "Pizzerian", 
+												:phone => "0123456", 
+												:address => "Gatan 5, 333 33 Kalmar", 
+												:longitude => "12.45689", 
+												:latitude => "20.123654", 
+												:description => "Säljer pizzor",
+												:tags_attributes => [{name: "Pizzeria"}, {name: "Kebab"}]
+											}} 
+				assert_response :created
+				body = JSON.parse(@response.body)
+				id = body['restaurant']['id'].to_i
+			end
+		end
+
+		assert_difference 'Restaurant.count', 1 do
+			assert_no_difference 'Tag.count' do
+				patch :update, { id: id, :format => :json, restaurant: {
+												:name => "Andra Pizzerian", 
+												:phone => "0123456", 
+												:address => "Gatan 5, 333 33 Kalmar", 
+												:longitude => "30.45689", 
+												:latitude => "40.123654", 
+												:description => "Säljer pizzor",
+												:tags_attributes => [{name: "Pizzeria"}, {name: "Kebab"}]
+											}} 
+				assert_response :ok
+			end
+		end
+	end
+
+	test "should be able to remove tags from restaurant" do
+		restaurant = restaurants(:restaurant)
+
+		patch :update, { id: restaurant.id, :format => :json, restaurant: {
+										:name => name,
+										:phone => phone,
+										:address => address,
+										:longitude =>  longitude,
+										:latitude =>  latitude,
+										:description => description
+									}} 
+		assert_response :ok
+
+		assert_equal restaurant.tags.length, 0
+	end
+
+	test "should partial restaurant on update" do
+		restaurant = restaurants(:restaurant)
+
+		name = "Pizzerian"
+		patch :update, { id: restaurant.id, :format => :json, filter: "name", restaurant: {
+										:name => name, 
+										:phone => "0123456", 
+										:address => "Gatan 5, 333 33 Kalmar", 
+										:longitude => "12.45689", 
+										:latitude => "20.123654", 
+										:description => "Säljer pizzor"
+									}} 
+		assert_response :ok
+
+		body = JSON.parse(@response.body)
+
+		assert_equal ({ "name" => name }), body['restaurant']
+	end
+
+
+
+
+	test "should fail to update restaurant if invalid restaurant" do
+	
+		restaurant = restaurants(:restaurant)
+
+		patch :update, { id: restaurant.id, :format => :json, filter: "name", restaurant: {
+										:name => "Pizzerian", 
+										:phone => "0123456", 
+										:address => "Gatan 5, 333 33 Kalmar", 
+										:longitude => "12.45689", 
+										:latitude => "20.123654", 
+										:description => "Säljer pizzor"
+									}} 
+		assert_response :bad_request
+
+
+		error = JSON.parse(@response.body)
+		assert error['developerMessage']
+		assert error['userMessage']
+	end
+
+	test "should fail to update restaurant if invalid tag" do
+	
+		patch :update, { id: restaurant.id, :format => :json, filter: "name", restaurant: {
+										:name => "Pizzerian", 
+										:phone => "0123456", 
+										:address => "Gatan 5, 333 33 Kalmar", 
+										:longitude => "12.45689", 
+										:latitude => "20.123654", 
+										:description => "Säljer pizzor",
+										:tags_attributes => [{id: 123}, {name: "Kebab"}]
+									}} 
+
+		assert_response :bad_request
+		error = JSON.parse(@response.body)
+		assert error['developerMessage']
+		assert error['userMessage']
+	end
 
 
 
