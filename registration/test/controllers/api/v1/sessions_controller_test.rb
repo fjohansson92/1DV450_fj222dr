@@ -132,6 +132,14 @@ class Api::V1::SessionsControllerTest < ActionController::TestCase
 
 
 
+	test "should logout if valid" do
+
+		delete :destroy, {}, { "user-token" => @apiuser.user_token, "auth-token" => @apiuser.auth_token }
+
+		assert_response :ok
+	end
+
+
 	test "should fail to logout without tokens" do
 
 		delete :destroy
@@ -162,6 +170,17 @@ class Api::V1::SessionsControllerTest < ActionController::TestCase
 		assert error['userMessage']
 	end
 
+	test "should fail to logout if token has expired" do
+
+		@apiuser.token_expires = Time.now - 5.day
+
+		delete :destroy, {}, { "user-token" => @apiuser.user_token, "auth-token" => @apiuser.auth_token }
+
+		assert_response :unauthorized
+		error = JSON.parse(@response.body)
+		assert error['developerMessage']
+		assert error['userMessage']
+	end
 
 end
 
