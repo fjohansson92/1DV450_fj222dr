@@ -8,4 +8,5 @@
 statistics_nr_<%= n %>:
   call:  <%= "#{( n * 25 )+ 20}" %>
   apikey_id: 1
+  created_at: <%= Time.now - (n + 3).day %>
 <% end %>

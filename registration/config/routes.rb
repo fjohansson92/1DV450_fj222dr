@@ -29,6 +29,7 @@ Rails.application.routes.draw do
 
 
         resources :positions, only: :index 
+        resources :apikeys, only: [:index, :show ]
         resources :restaurants, only: [:index, :show, :create, :update, :destroy]
         resources :tags, only: [:index, :show] do
           resources :restaurants, only: :index

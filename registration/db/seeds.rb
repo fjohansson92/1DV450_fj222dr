@@ -21,8 +21,8 @@ Domain.create(domain: "http://api.lvh.me:3001/", apikey_id: apikey.id)
 
 
 
-4.times do |n|
-	ApiStatistic.create(call: n * (500 + 1), apikey_id: apikey.id)
+20.times do |n|
+	ApiStatistic.create(call: n * (500 + 1), apikey_id: apikey.id, created_at: Time.now - n.day)
 end
 
 tag1 = nil

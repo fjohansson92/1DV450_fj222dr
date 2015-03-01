@@ -38,4 +38,6 @@ Felmeddelande
 
 2502	-	Longitude måste innehålla minst en siffra
 
+2601	-	Apinyckeln hittades inte. Ogiltligt id.
+
 	

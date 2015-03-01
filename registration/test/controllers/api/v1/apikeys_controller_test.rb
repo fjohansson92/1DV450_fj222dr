@@ -1,7 +1,6 @@
 require 'test_helper'
 
-class Api::V1::ApiStatisticsControllerTest < ActionController::TestCase
-
+class Api::V1::ApikeysControllerTest < ActionController::TestCase
 	def setup
 		apikey = apikeys(:apikey)
     	request.env['HTTP_AUTHORIZATION'] = ActionController::HttpAuthentication::Token.encode_credentials(apikey.key)
@@ -15,7 +14,7 @@ class Api::V1::ApiStatisticsControllerTest < ActionController::TestCase
 		body = JSON.parse(@response.body)
 		assert body['apikeys']
 
-		apikeys = Apikeys::all
+		apikeys = Apikey::all
 
 		assert_equal body['links']["self"], api_v1_apikeys_url
 		assert_equal body['links']["first"], api_v1_apikeys_url + "?limit=25&offset=0"
@@ -32,9 +31,9 @@ class Api::V1::ApiStatisticsControllerTest < ActionController::TestCase
 
 		assert_equal api_v1_apikey_url(first_apikey), first_response_apikey["links"]["self"]
 
-		assert_not first_response_apiuser["key"]
-		assert_not first_response_apiuser["revoked"]
-		assert_not first_response_apiuser["user_id"]
+		assert_not first_response_apikey["key"]
+		assert_not first_response_apikey["revoked"]
+		assert_not first_response_apikey["user_id"]
 	end
 
 	test "should show api statistics" do
@@ -54,9 +53,8 @@ class Api::V1::ApiStatisticsControllerTest < ActionController::TestCase
 
 		assert_equal api_v1_apikey_url(apikey), body['apikey']["links"]["self"]
 
-		assert_equal 30, body['apikey']['api_statistics'].length
-		assert body['apikey']['api_statistics'].first['call']
-		assert_equal apikey.id ,body['apikey']['api_statistics'].first['apikey_id']
+		assert_equal 31, body['apikey']['statistics'].length
+		assert body['apikey']['statistics'].first['requests']
 
 	end
 
@@ -70,14 +68,6 @@ class Api::V1::ApiStatisticsControllerTest < ActionController::TestCase
 		assert error['userMessage']
 	end
 
-
-
-
-
-
-
-
-
 	test "should be unauthorized without apikey" do
 		request.env['HTTP_AUTHORIZATION'] = nil
 		get :index
@@ -86,6 +76,5 @@ class Api::V1::ApiStatisticsControllerTest < ActionController::TestCase
 		get :show, {id: 1}
 		assert_response :unauthorized
 	end
-
 
 end

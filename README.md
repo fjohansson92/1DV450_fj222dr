@@ -13,6 +13,12 @@ Setup
 - Kör rake db:seed
 - Starta rails server OBS Postman använder port 3001
 
+Buggar:
+	Sökfunktionen hanterar inte sökningar på taggars namn korrekt.
+
+Postman länk:
+	https://www.getpostman.com/collections/8d9c27b4db2839fb922e
+
 
 Adminkonto
 Användarnamn: admin@mail.com
