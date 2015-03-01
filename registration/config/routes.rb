@@ -29,12 +29,12 @@ Rails.application.routes.draw do
 
 
         resources :positions, only: :index 
-        resources :restaurants 
-        resources :tags do
-          resources :restaurants
+        resources :restaurants, only: [:index, :show, :create, :update, :destroy]
+        resources :tags, only: [:index, :show] do
+          resources :restaurants, only: :index
         end
-        resources :apiusers do
-          resources :restaurants
+        resources :apiusers, only: [:index, :show] do
+          resources :restaurants, only: :index 
         end
 
       end

@@ -699,4 +699,48 @@ class Api::V1::RestaurantsControllerTest < ActionController::TestCase
 		assert error['developerMessage']
 		assert error['userMessage']
 	end
+
+
+
+
+
+
+	test "should get restaurants from tag" do
+
+		tag = tags(:pizza)
+
+		get :index, { tag_id: tag.id, order_by_asc: true, :format => :json }
+		assert_response :ok
+
+		body = JSON.parse(@response.body)
+		assert_equal body['restaurants'].length, 1 
+		assert_equal body['restaurants'].first['tags'].first['id'], tag.id
+	end
+
+	test "should not get restaurants from tag if tag not found" do
+		get :index, { tag_id: 7000, order_by_asc: true, :format => :json }
+		assert_response :not_found
+		error = JSON.parse(@response.body)
+		assert error['developerMessage']
+		assert error['userMessage']
+	end
+
+	test "should get restaurants from apiuser" do
+		apiuser = apiusers(:john)
+
+		get :index, { apiuser_id: apiuser.id, order_by_asc: true, :format => :json }
+		assert_response :ok
+
+		body = JSON.parse(@response.body)
+		assert_equal body['restaurants'].length, 1 
+		assert_equal body['restaurants'].first['apiuser']['id'], apiuser.id
+	end
+
+	test "should not get restaurants from apiuser if tag not found" do
+		get :index, { apiuser_id: 7000, order_by_asc: true, :format => :json }
+		assert_response :not_found
+		error = JSON.parse(@response.body)
+		assert error['developerMessage']
+		assert error['userMessage']
+	end
 end

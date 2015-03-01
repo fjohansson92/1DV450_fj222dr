@@ -32,7 +32,7 @@ class Api::V1::ApplicationController < ActionController::Base
 		if params[:q]
 			search = params[:q].split(' ')
 			search.each do |v|
-				restaurants = restaurants.where("restaurants.name LIKE :v OR phone LIKE :v OR address LIKE :v OR description LIKE :v OR tags.name LIKE :v OR apiusers.name LIKE :v", { v: "%#{v}%"}).references(:apiusers)
+				restaurants = restaurants.includes(:apiuser, :tags).where("restaurants.name LIKE :v OR phone LIKE :v OR address LIKE :v OR description LIKE :v OR tags.name LIKE :v OR apiusers.name LIKE :v", { v: "%#{v}%"}).references(:apiusers)
 			end
 			
 		end

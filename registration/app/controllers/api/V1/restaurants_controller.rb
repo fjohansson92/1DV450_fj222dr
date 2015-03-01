@@ -1,6 +1,6 @@
 class Api::V1::RestaurantsController < Api::V1::ApplicationController
 	respond_to :json
-	before_filter :partial_response, only: [:index, :show, :create, :update, :destroy]
+	before_filter :partial_response
 	before_filter :get_restaurant, only: [:show, :update, :destroy]
 	before_filter :correct_user, only: [:update, :destroy]
 	before_action :logged_in_user, only: :create 
@@ -9,7 +9,29 @@ class Api::V1::RestaurantsController < Api::V1::ApplicationController
 
 		order = params[:order_by_asc] == "true" || params[:order_by_asc] == true ? 'ASC' : 'DESC'
 
-		@restaurants = get_offset_limit search_filter Restaurant.includes(:tags, :apiuser)::all.order("restaurants.created_at #{order}")
+		if params[:tag_id]
+			tag = Tag.find_by_id(params[:tag_id])
+			if tag
+				@all_restaurants = tag.restaurants
+			else
+				@error = ErrorMessage.new("No tag with requested id.", "Tag not found", "2401")
+				render json: @error, status: :not_found
+			end
+		elsif params[:apiuser_id]
+			apiuser = Apiuser.find_by_id(params[:apiuser_id])
+			if apiuser
+				@all_restaurants = apiuser.restaurants
+			else
+				@error = ErrorMessage.new("No apiuser with requested id.", "Apiuser not found", "2301")
+				render json: @error, status: :not_found
+			end
+		else
+			@all_restaurants = Restaurant::all
+		end
+
+		if @all_restaurants
+			@restaurants = get_offset_limit search_filter @all_restaurants.order("restaurants.created_at #{order}")
+		end
 	end
 
 	def show

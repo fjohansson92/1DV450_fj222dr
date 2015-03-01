@@ -15,10 +15,10 @@ class Api::V1::PositionsController < Api::V1::ApplicationController
 		def get_lat_lng_ranges
 
 			if !params[:lat] || params[:lat].to_s.gsub(/[^0-9]/i, '').blank?
-				@error = ErrorMessage.new("Couldn't create restaurant, see user message11s.", "temp error", "2203")
+				@error = ErrorMessage.new("Lat need to have a numeric value.", "Latitude had wrong format", "2501")
 				render json: @error, status: :bad_request
 			elsif !params[:lng] || params[:lng].to_s.gsub(/[^0-9]/i, '').blank?
-				@error = ErrorMessage.new("Couldn't create restaurant, see user messa22ges.", "temp error", "2203")
+				@error = ErrorMessage.new("Lng need to have a numeric value.", "Longitude had wrong format", "2502")
 				render json: @error, status: :bad_request
 			end
 			lat = params[:lat].to_s.gsub(/[^0-9.-]/i, '').to_f
