@@ -134,8 +134,10 @@ class Api::V1::SessionsControllerTest < ActionController::TestCase
 
 	test "should logout if valid" do
 
-		delete :destroy, {}, { "user-token" => @apiuser.user_token, "auth-token" => @apiuser.auth_token }
+		request.headers['auth-token'] = @apiuser.auth_token
+    	request.headers['user-token'] = @apiuser.user_token
 
+		delete :destroy
 		assert_response :ok
 	end
 
@@ -152,7 +154,8 @@ class Api::V1::SessionsControllerTest < ActionController::TestCase
 
 	test "should fail to logout without auth_token" do
 
-		delete :destroy, {}, { "user-token" => @apiuser.user_token }
+		request.headers['user-token'] = @apiuser.user_token
+		delete :destroy
 
 		assert_response :unauthorized
 		error = JSON.parse(@response.body)
@@ -162,7 +165,8 @@ class Api::V1::SessionsControllerTest < ActionController::TestCase
 
 	test "should fail to logout without user_token" do
 
-		delete :destroy, {}, { "auth-token" => @apiuser.auth_token }
+		request.headers['auth-token'] = @apiuser.auth_token
+		delete :destroy
 
 		assert_response :unauthorized
 		error = JSON.parse(@response.body)
@@ -173,8 +177,11 @@ class Api::V1::SessionsControllerTest < ActionController::TestCase
 	test "should fail to logout if token has expired" do
 
 		@apiuser.token_expires = Time.now - 5.day
+		@apiuser.save
+		request.headers['auth-token'] = @apiuser.auth_token
+    	request.headers['user-token'] = @apiuser.user_token
 
-		delete :destroy, {}, { "user-token" => @apiuser.user_token, "auth-token" => @apiuser.auth_token }
+		delete :destroy
 
 		assert_response :unauthorized
 		error = JSON.parse(@response.body)

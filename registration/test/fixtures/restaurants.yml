@@ -30,6 +30,54 @@ restaurant_to_remove:
   tags: tag_nr_1, tag_nr_2
   created_at: <%= Time.now - 1.second  %>
 
+search1:
+  id: 3
+  name: search1
+  phone: 123
+  address: Gata 28 123 Kalmar
+  description: En beskrivning som går att söka på
+  longitude: 11
+  latitude: 22
+  apiuser_id: 2
+  tags: pizza, kebab
+  created_at: <%= Time.now - 1.second  %>
+
+search2:
+  id: 4
+  name: search2
+  phone: 567
+  address: Vägen 15 456 Växjö
+  description: En annan text
+  longitude: 11
+  latitude: 22
+  apiuser_id: 1
+  tags: sushi, cafe
+  created_at: <%= Time.now - 1.second  %>
+
+search3:
+  id: 5
+  name: search3
+  phone: 987456
+  address: Vägen 60 456 Växjö
+  description: text
+  longitude: 11
+  latitude: 22
+  apiuser_id: 1
+  tags: mongolisk
+  created_at: <%= Time.now - 1.second  %>
+
+search4:
+  id: 6
+  name: search4
+  phone: 555
+  address: Gatan 60 456 Växjö
+  description: text
+  longitude: 11
+  latitude: 22
+  apiuser_id: 1
+  tags: mongolisk
+  created_at: <%= Time.now - 1.second  %>
+
 <% 30.times do |n| %>
 restaurant_nr_<%= n %>:
   name:  <%= "Restaurang#{n}" %>
@@ -39,6 +87,6 @@ restaurant_nr_<%= n %>:
   longitude: <%= "#{n * 3}" %>
   latitude: <%= "#{n * 2}" %>
   apiuser_id: 1
-  id: <%= "#{n+3}" %>
+  id: <%= "#{n+7}" %>
   created_at: <%= Time.now + n.second  %>
 <% end %>

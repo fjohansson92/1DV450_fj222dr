@@ -27,7 +27,7 @@ class Api::V1::ApplicationController < ActionController::Base
 
 		object.limit(limit).offset(offset)
 	end
-
+	
 	def filter_response values_t_show, child_values_t_show = []
 
 		if params[:filter]

@@ -13,6 +13,15 @@ filip:
   user_token: jenrgkjnerkjgnekjrngkjerng
   token_expires: 2016-02-22 12:16:07
 
+john:
+  id: 2
+  provider: github
+  uid: 3453
+  name: john
+  auth_token: pwefwefmtrokhmrkth
+  user_token: wergergergergergergerg
+  token_expires: 2016-02-22 12:16:07
+
 <% 30.times do |n| %>
 apiuser_nr_<%= n %>:
   name:  <%= "Apiuser #{n}" %>
