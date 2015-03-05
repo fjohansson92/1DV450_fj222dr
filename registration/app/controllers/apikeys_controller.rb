@@ -17,7 +17,7 @@ class ApikeysController < ApplicationController
 		@apikey = current_user.apikeys.new(apikey_params)
 		if @apikey.save
 			flash[:success] = "API-nyckeln är registrerad!"
-			redirect_to current_user
+			redirect_to user_apikey_path @current_user, @apikey
 		else 
 			render 'new'
 		end
