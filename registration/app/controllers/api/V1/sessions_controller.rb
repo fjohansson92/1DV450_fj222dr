@@ -2,7 +2,7 @@ class Api::V1::SessionsController < Api::V1::ApplicationController
 	before_action :set_session, only: :new
 	before_action :get_and_reset_session, only: :create
 	before_action :logged_in_user, only: :destroy 
-	skip_before_filter :authenticate, :only => [:create]
+	skip_before_filter :authenticate, :only => [:create, :new]
 
 	def new 
 		redirect_to "/v1/auth/github"
