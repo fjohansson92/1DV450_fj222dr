@@ -1,6 +1,6 @@
-﻿angular.module('RestaurantManager.Restaurants').controller('tempctrl', ['$scope', function ($scope) {
-	console.log("körs?");
+﻿angular.module('RestaurantManager.Restaurants').controller('tempctrl', ['$scope', 'RestaurantFactory', function ($scope, RestaurantFactory) {
+
 	$scope.temp = function() {
-		alert($scope.name)
+		$scope.result = RestaurantFactory.get();
 	}
  }]);

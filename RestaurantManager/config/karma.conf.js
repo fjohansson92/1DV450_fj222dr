@@ -6,6 +6,7 @@ module.exports = function(config) {
       'scripts/vendor/angular.js',
       'scripts/vendor/angular-mocks.js',
       'scripts/vendor/angular-route.js',
+      'scripts/vendor/angular-resource.js',
       'scripts/app/**/*.js',
       'tests/**/*.js',
       'views/**/*.html'

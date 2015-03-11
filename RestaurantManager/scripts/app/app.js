@@ -1,5 +1,6 @@
 angular.module('RestaurantManager', [
-										'ngRoute', 
+										'ngRoute',
+										'ngResource',
 									 	'RestaurantManager.Restaurants'
 									]
 );
