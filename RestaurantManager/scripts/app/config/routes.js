@@ -2,8 +2,8 @@ angular.module('RestaurantManager').config(['$routeProvider', function ($routePr
 
 	$routeProvider.
 		when('/', {
-			controller: 'tempctrl',
-			templateUrl: 'views/restaurants/temp.html'
+			controller: 'RestaurantsCtrl',
+			templateUrl: 'views/restaurants/restaurants.html'
 		}).
 		otherwise({ redirectTo: '/' });
 }]);

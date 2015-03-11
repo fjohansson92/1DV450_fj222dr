@@ -12,15 +12,17 @@ angular.module('RestaurantManager.Restaurants', []);;angular.module('RestaurantM
 
 	$routeProvider.
 		when('/', {
-			controller: 'tempctrl',
-			templateUrl: 'views/restaurants/temp.html'
+			controller: 'RestaurantsCtrl',
+			templateUrl: 'views/restaurants/restaurants.html'
 		}).
 		otherwise({ redirectTo: '/' });
-}]);;angular.module('RestaurantManager.Restaurants').controller('tempctrl', ['$scope', 'RestaurantFactory', function ($scope, RestaurantFactory) {
+}]);;angular.module('RestaurantManager.Restaurants').controller('RestaurantsCtrl', ['$scope', 'RestaurantFactory', function ($scope, RestaurantFactory) {
 
-	$scope.temp = function() {
-		$scope.result = RestaurantFactory.get();
-	}
+	RestaurantFactory.get().$promise.then(function(data) {
+
+		$scope.restaurants = data.restaurants;
+	});
+
  }]);;angular.module('RestaurantManager.Restaurants').directive('temp', function () {
 	return {
 		template: 'test test test'
@@ -29,13 +31,13 @@ angular.module('RestaurantManager.Restaurants', []);;angular.module('RestaurantM
 	return $resource($API + 'restaurants/:id', {}, {
 		'put':    {method:'PUT'}
 	});
- }]);;angular.module('templates-dist', ['../views/restaurants/temp.html']);
+ }]);;angular.module('templates-dist', ['../views/restaurants/restaurants.html']);
 
-angular.module("../views/restaurants/temp.html", []).run(["$templateCache", function($templateCache) {
-  $templateCache.put("../views/restaurants/temp.html",
-    "<input data-ng-model=\"name\" />\n" +
-    "<button data-ng-click=\"temp()\">Test</button>\n" +
-    "<div temp></div>\n" +
-    "<p data-ng-model=\"result\"></p>\n" +
-    "");
+angular.module("../views/restaurants/restaurants.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("../views/restaurants/restaurants.html",
+    "<ul>\n" +
+    "	<li data-ng-repeat=\"restaurant in restaurants\" >\n" +
+    "		{{restaurant.name}}\n" +
+    "	</li>\n" +
+    "</ul>");
 }]);
