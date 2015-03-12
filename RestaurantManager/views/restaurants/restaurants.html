@@ -1,5 +1,12 @@
-<ul>
-	<li data-ng-repeat="restaurant in restaurants" >
-		{{restaurant.name}}
-	</li>
-</ul>
+<div class="row fullheight">
+	<div class="col-md-3">
+		<ul>
+			<li data-ng-repeat="restaurant in restaurants" >
+				{{restaurant.name}}
+			</li>
+		</ul>
+	</div>
+	<div class="col-md-9 fullheight">
+		<ui-gmap-google-map center='map.center' zoom='map.zoom' ></ui-gmap-google-map>
+	</div>
+</div>

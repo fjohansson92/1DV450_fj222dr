@@ -1,6 +1,7 @@
 angular.module('RestaurantManager.Restaurants', []);;angular.module('RestaurantManager', [
 										'ngRoute',
 										'ngResource',
+										'uiGmapgoogle-maps',
 									 	'RestaurantManager.Restaurants'
 									]
 );;angular.module('RestaurantManager')
@@ -8,7 +9,14 @@ angular.module('RestaurantManager.Restaurants', []);;angular.module('RestaurantM
 
 	$httpProvider.defaults.headers.common.Authorization = 'Token 123';
 	$httpProvider.defaults.headers.common.Accept = 'application/json';
-}]);;angular.module('RestaurantManager').config(['$routeProvider', function ($routeProvider) {
+}]);;angular.module('RestaurantManager').config(function(uiGmapGoogleMapApiProvider) {
+    
+    uiGmapGoogleMapApiProvider.configure({
+        key: 'AIzaSyBmjjMKhsChjnsU63RzxJat-jOZhoZb5xQ',
+        v: '3.17',
+        libraries: 'weather,geometry,visualization'
+    });
+});angular.module('RestaurantManager').config(['$routeProvider', function ($routeProvider) {
 
 	$routeProvider.
 		when('/', {
@@ -17,6 +25,8 @@ angular.module('RestaurantManager.Restaurants', []);;angular.module('RestaurantM
 		}).
 		otherwise({ redirectTo: '/' });
 }]);;angular.module('RestaurantManager.Restaurants').controller('RestaurantsCtrl', ['$scope', 'RestaurantFactory', function ($scope, RestaurantFactory) {
+
+	$scope.map = { center: { latitude: 45, longitude: -73 }, zoom: 8 };
 
 	RestaurantFactory.get().$promise.then(function(data) {
 
@@ -35,9 +45,17 @@ angular.module('RestaurantManager.Restaurants', []);;angular.module('RestaurantM
 
 angular.module("../views/restaurants/restaurants.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("../views/restaurants/restaurants.html",
-    "<ul>\n" +
-    "	<li data-ng-repeat=\"restaurant in restaurants\" >\n" +
-    "		{{restaurant.name}}\n" +
-    "	</li>\n" +
-    "</ul>");
+    "<div class=\"row fullheight\">\n" +
+    "	<div class=\"col-md-3\">\n" +
+    "		<ul>\n" +
+    "			<li data-ng-repeat=\"restaurant in restaurants\" >\n" +
+    "				{{restaurant.name}}\n" +
+    "			</li>\n" +
+    "		</ul>\n" +
+    "	</div>\n" +
+    "	<div class=\"col-md-9 fullheight\">\n" +
+    "		<ui-gmap-google-map center='map.center' zoom='map.zoom' ></ui-gmap-google-map>\n" +
+    "	</div>\n" +
+    "</div>\n" +
+    "");
 }]);

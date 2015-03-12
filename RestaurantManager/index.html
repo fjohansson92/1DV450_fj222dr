@@ -2,16 +2,24 @@
 <html data-ng-app="RestaurantManager">
     <head>
         <meta charset="utf-8" />
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+
+        <link rel="stylesheet" href="stylesheet/app.css" />
     </head>
     <body>
-        <div>
-            <div data-ng-view></div>
+        <div class="container-fluid">
+            <div data-ng-view class="fullscreen"></div>
         </div>
-     
+
+             
 
         <script src="scripts/vendor/angular.js"></script>
         <script src="scripts/vendor/angular-route.js"></script>
         <script src="scripts/vendor/angular-resource.js"></script>
+
+        <script src='scripts/vendor/lodash.min.js'></script>
+        <script src='scripts/vendor/angular-google-maps.js'></script>
 
         <script type="text/javascript" src="dist/app.js"></script>
 

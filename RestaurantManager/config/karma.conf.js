@@ -7,6 +7,8 @@ module.exports = function(config) {
       'scripts/vendor/angular-mocks.js',
       'scripts/vendor/angular-route.js',
       'scripts/vendor/angular-resource.js',
+      'scripts/vendor/lodash.min.js',
+      'scripts/vendor/angular-google-maps.js',
       'scripts/app/**/*.js',
       'tests/**/*.js',
       'views/**/*.html'
