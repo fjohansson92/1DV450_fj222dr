@@ -14,17 +14,32 @@ class Api::V1::PositionsController < Api::V1::ApplicationController
 	private 
 		def get_lat_lng_ranges
 
-			if !params[:lat] || params[:lat].to_s.gsub(/[^0-9]/i, '').blank?
-				@error = ErrorMessage.new("Lat need to have a numeric value.", "Latitude had wrong format", "2501")
-				render json: @error, status: :bad_request
-			elsif !params[:lng] || params[:lng].to_s.gsub(/[^0-9]/i, '').blank?
-				@error = ErrorMessage.new("Lng need to have a numeric value.", "Longitude had wrong format", "2502")
+			if !params[:lat_top] || params[:lat_top].to_s.gsub(/[^0-9]/i, '').blank? ||
+			   !params[:lat_bottom] || params[:lat_bottom].to_s.gsub(/[^0-9]/i, '').blank? ||
+			   !params[:lng_right] || params[:lng_right].to_s.gsub(/[^0-9]/i, '').blank? ||
+			   !params[:lng_left] || params[:lng_left].to_s.gsub(/[^0-9]/i, '').blank? 
+
+			   	@error = ErrorMessage.new("Missing parameter or wrong format for lat_top, lat_bottom, lng_right or lng_left.", "Something went wrong, contact developer", "2501")
 				render json: @error, status: :bad_request
 			end
-			lat = params[:lat].to_s.gsub(/[^0-9.-]/i, '').to_f
-			lng = params[:lng].to_s.gsub(/[^0-9.-]/i, '').to_f
+
+			lat_top = params[:lat_top].to_i
+			lat_bottom = params[:lat_bottom].to_i
+			lng_right = params[:lng_right].to_i
+			lng_left = params[:lng_left].to_i
+
+			@lat_range = Range.new(lat_bottom, lat_top) 
+
+			if (lng_right < lng_left) 
+
+					@lng_range = [Range.new(-180, lng_right), Range.new(lng_left, 180)]
+					
+			else
+				@lng_range = Range.new(lng_left, lng_right) 
+			end
+
 			
-			@lat_range = Range.new(lat-2, lat + 2) 
-			@lng_range = Range.new(lng-4, lng + 4) 
+			
+			
 		end
 end

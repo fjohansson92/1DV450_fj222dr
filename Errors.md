@@ -34,9 +34,7 @@ Felmeddelande
 
 2401	-	Taggen hittades inte. Ogiltligt id.
 
-2501	-	Latitude måste innehålla minst en siffra
-
-2502	-	Longitude måste innehålla minst en siffra
+2501	-	Värden som går att göra om till giltliga integers behövs för parametrarna: lat_top, lat_bottom, lng_right och lng_left.
 
 2601	-	Apinyckeln hittades inte. Ogiltligt id.
 

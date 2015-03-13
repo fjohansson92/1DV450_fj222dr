@@ -48,18 +48,21 @@ Apiuser.create(provider: "Github",
 
 
 apiuser = Apiuser.first
-30.times do |n|
+300.times do |n|
+	prng = Random.new(n)
 	restaurant = Restaurant.create(name: "Restaurang#{n}",
 					  phone: "#{n}123456",
 					  address: "Gata #{n}",
 					  description: "Beskrivning nr #{n}",
-					  longitude: "#{n * 3}",
-					  latitude: "#{n * 3}",
+					  longitude: "#{ prng.rand(-179.0..180.0) }",
+					  latitude: "#{ prng.rand(-89.0..90.0) }",
 					  apiuser_id: apiuser.id 
 		)
 	restaurant.tags << Tag.first
 	restaurant.tags << Tag.last
 end
+
+
 
 
 50.times do |n|
