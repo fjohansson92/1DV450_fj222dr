@@ -16,12 +16,14 @@ class Api::V1::ApplicationController < ActionController::Base
 		@prev_offset = offset - limit 
 		if @prev_offset < 0 && offset > 0
 	  		@prev_offset = 0
-	  		@prev_limit = offset
 		elsif @prev_offset < 0
 			@prev_offset = nil
 		end
 
-		@last_offset = object.length - limit	
+		last_length = object.length % limit
+		last_length = limit if @last_length == 0
+
+		@last_offset = object.length - last_length
 		@last_offset = 0 if @last_offset < 0	
 
 

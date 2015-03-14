@@ -3,7 +3,7 @@ class Api::V1::PositionsController < Api::V1::ApplicationController
 
 	def index
 
-		@restaurants = get_offset_limit Restaurant.where(latitude: @lat_range, longitude: @lng_range)
+		@restaurants = get_offset_limit Restaurant.includes(:apiuser, :tags).where(latitude: @lat_range, longitude: @lng_range)
 
 		values_t_show = Restaurant.get_propertys_as_hash
 		child_values_t_show = Restaurant.get_child_propertys_as_hash

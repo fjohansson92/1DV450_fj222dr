@@ -5,6 +5,10 @@
 				{{restaurant.name}}
 			</li>
 		</ul>
+		<button data-ng-disabled="firstUrl.length < 1 || prevUrl.length < 1" data-ng-click="paginate(firstUrl)">First</button>
+		<button data-ng-disabled="prevUrl.length < 1" data-ng-click="paginate(prevUrl)">Prev</button>
+		<button data-ng-disabled="nextUrl.length < 1" data-ng-click="paginate(nextUrl)">Next</button>
+		<button data-ng-disabled="lastUrl.length < 1 || nextUrl.length < 1" data-ng-click="paginate(lastUrl)">Last</button>
 	</div>
 	<div class="col-md-9 fullheight">
 		<ui-gmap-google-map center='map.center' zoom='map.zoom' bounds="map.bounds">

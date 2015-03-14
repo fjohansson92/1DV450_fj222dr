@@ -1,71 +1,104 @@
-describe("RestaurantFactory", function() {
+describe("RestaurantFactories", function() {
 
-	beforeEach(function() {
-		module('RestaurantManager');
+	describe("RestaurantFactory", function() {
 
-		angular.mock.inject(function ($injector) {
-			$httpBackend = $injector.get('$httpBackend');
-			mockRestaurantFactory = $injector.get('RestaurantFactory');
-			mockAPIConstant = $injector.get('API');
-		})
+		beforeEach(function() {
+			module('RestaurantManager');
+
+			angular.mock.inject(function ($injector) {
+				$httpBackend = $injector.get('$httpBackend');
+				mockRestaurantFactory = $injector.get('RestaurantFactory');
+				mockAPIConstant = $injector.get('API');
+			})
+		});
+
+
+		it('factory should get all', function() {
+			
+			$httpBackend.expectGET(mockAPIConstant + 'restaurants').respond({restaurants : 'test'});
+
+			var result = mockRestaurantFactory.get();
+
+			$httpBackend.flush();
+
+			expect(result.restaurants).toEqual('test');
+	  	});
+
+
+	  	it('factory should get single', function() {
+			
+			$httpBackend.expectGET(mockAPIConstant + 'restaurants/1').respond({restaurants : 'test'});
+
+			var result = mockRestaurantFactory.get({ id: 1 });
+
+			$httpBackend.flush();
+
+			expect(result.restaurants).toEqual('test');
+	  	});
+
+
+	  	it('factory should post', function() {
+			
+			$httpBackend.expectPOST(mockAPIConstant + 'restaurants', { "object": {} }).respond({restaurant: 'test'})
+
+			var result = mockRestaurantFactory.save({ object: {}})
+
+			$httpBackend.flush();
+
+			expect(result.restaurant).toEqual('test');
+	  	});
+
+
+	  	it('factory should delete', function() {
+			
+			$httpBackend.expectDELETE(mockAPIConstant + 'restaurants/1').respond({restaurant: 'test'})
+
+			var result = mockRestaurantFactory.remove({ id: 1 })
+
+			$httpBackend.flush();
+
+			expect(result.restaurant).toEqual('test');
+	  	});
+
+	  	it('factory should update', function() {
+			
+			$httpBackend.expectPUT(mockAPIConstant + 'restaurants/1', { "object": {} }).respond({restaurant: 'test'})
+
+			var result = mockRestaurantFactory.put({ id: 1 }, { "object": {} })
+
+			$httpBackend.flush();
+
+			expect(result.restaurant).toEqual('test');
+	  	});
 	});
 
 
-	it('factory should get all', function() {
-		
-		$httpBackend.expectGET(mockAPIConstant + 'restaurants').respond({restaurants : 'test'});
-
-		var result = mockRestaurantFactory.get();
-
-		$httpBackend.flush();
-
-		expect(result.restaurants).toEqual('test');
-  	});
 
 
-  	it('factory should get single', function() {
-		
-		$httpBackend.expectGET(mockAPIConstant + 'restaurants/1').respond({restaurants : 'test'});
-
-		var result = mockRestaurantFactory.get({ id: 1 });
-
-		$httpBackend.flush();
-
-		expect(result.restaurants).toEqual('test');
-  	});
 
 
-  	it('factory should post', function() {
-		
-		$httpBackend.expectPOST(mockAPIConstant + 'restaurants', { "object": {} }).respond({restaurant: 'test'})
+	describe("PositionFactory", function() {
 
-		var result = mockRestaurantFactory.save({ object: {}})
+		beforeEach(function() {
+			module('RestaurantManager');
 
-		$httpBackend.flush();
+			angular.mock.inject(function ($injector) {
+				$httpBackend = $injector.get('$httpBackend');
+				mockRestaurantFactory = $injector.get('PositionFactory');
+				mockAPIConstant = $injector.get('API');
+			})
+		});
 
-		expect(result.restaurant).toEqual('test');
-  	});
 
+		it('factory should get all', function() {
+			
+			$httpBackend.expectGET(mockAPIConstant + 'positions').respond({restaurants : 'test'});
 
-  	it('factory should delete', function() {
-		
-		$httpBackend.expectDELETE(mockAPIConstant + 'restaurants/1').respond({restaurant: 'test'})
+			var result = mockRestaurantFactory.get();
 
-		var result = mockRestaurantFactory.remove({ id: 1 })
+			$httpBackend.flush();
 
-		$httpBackend.flush();
-
-		expect(result.restaurant).toEqual('test');
-  	});
-
-  	it('factory should update', function() {
-		
-		$httpBackend.expectPUT(mockAPIConstant + 'restaurants/1', { "object": {} }).respond({restaurant: 'test'})
-
-		var result = mockRestaurantFactory.put({ id: 1 }, { "object": {} })
-
-		$httpBackend.flush();
-
-		expect(result.restaurant).toEqual('test');
-  	});
+			expect(result.restaurants).toEqual('test');
+	  	});
+	});
 });
