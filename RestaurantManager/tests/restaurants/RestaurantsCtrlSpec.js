@@ -1,17 +1,6 @@
 describe('RestaurantsCtrl', function() {
 	
-    var $q, $rootScope, $scope, mockRestaurantsFactory, mockPositionFactory;
-    var mockRestaurantsResponse = { restaurants: [
-    												{"id": 1 , "name": "test1", "latitude": "5.5", "longitude": "3.5"},
-    												{"id": 2 , "name": "test2", "latitude": "3.5", "longitude": "4.5"}
-    											 ],
-    								links: {
-												first: "http://api.lvh.me:3001/v...tions?limit=25&offset=0",
-												prev: null,
-												next: "http://api.lvh.me:3001/v...ions?limit=25&offset=25",
-												last: "http://api.lvh.me:3001/v...ons?limit=25&offset=100"
-    										}
-    							};
+    var $q, $rootScope, $scope, mockPositionFactory;
     var mockPositionsResponse = { 
     								restaurants: [
     												{"id": 1 , "name": "test1", "latitude": "5.5", "longitude": "3.5"},
@@ -37,14 +26,6 @@ describe('RestaurantsCtrl', function() {
 	beforeEach(inject(function ($controller) {
 		$scope = $rootScope.$new();
 
-		mockRestaurantsFactory = {
-			get: function() {
-				deferred = $q.defer();
-				return { $promise: deferred.promise};
-			}
-		}
-		spyOn(mockRestaurantsFactory, 'get').andCallThrough();
-
 		mockPositionFactory = {
 			get: function(parameters) {
 				positionDeferred = $q.defer();
@@ -57,32 +38,32 @@ describe('RestaurantsCtrl', function() {
 		mapDeferred = $q.defer();
 		uiGmapGoogleMapApi = mapDeferred.promise;
 
-		restaurantsCtrl = $controller('RestaurantsCtrl', { $scope: $scope, RestaurantFactory: mockRestaurantsFactory, PositionFactory: mockPositionFactory, uiGmapGoogleMapApi: uiGmapGoogleMapApi });
+		restaurantsCtrl = $controller('RestaurantsCtrl', { $scope: $scope, PositionFactory: mockPositionFactory, uiGmapGoogleMapApi: uiGmapGoogleMapApi });
 	}));
 
 
 
-	describe('RestaurantsCtrl.get', function() {
+	describe('RestaurantsCtrl Startup', function() {
 
 	    beforeEach(function() {
 	    	mapDeferred.resolve();
-	    	deferred.resolve(mockRestaurantsResponse);
+	    	positionDeferred.resolve(mockPositionsResponse);
 	    	$rootScope.$apply();
 	    });
 
 
 		it('should get from RestaurantsFactory', function() {
-			expect(mockRestaurantsFactory.get).toHaveBeenCalled();
+			expect(mockPositionFactory.get).toHaveBeenCalled();
 		});
 
 
 		it('should set result to scope', function() {
-			expect($scope.restaurants).toBe(mockRestaurantsResponse.restaurants);
+			expect($scope.restaurants).toBe(mockPositionsResponse.restaurants);
 		});
 
 		it('should set markers', function() {
-			restaurant1 = mockRestaurantsResponse.restaurants[0];
-			restaurant2 = mockRestaurantsResponse.restaurants[1];
+			restaurant1 = mockPositionsResponse.restaurants[0];
+			restaurant2 = mockPositionsResponse.restaurants[1];
 
 			expect(angular.equals($scope.restaurantmarkers[0], {
 																	title: restaurant1.name,
@@ -99,11 +80,11 @@ describe('RestaurantsCtrl', function() {
 		});
 	});
 
-	describe('RestaurantsCtrl.get fails', function() {
+	describe('RestaurantsCtrl restaurants get fails', function() {
 
 	    beforeEach(function() {
 	    	mapDeferred.resolve();
-	    	deferred.reject({ data: {userMessage: "error"} });
+	    	positionDeferred.reject({ data: {userMessage: "error"} });
 	    	$rootScope.$apply();
 	    });
 
@@ -116,7 +97,7 @@ describe('RestaurantsCtrl', function() {
 
 	    beforeEach(function() {
 	    	mapDeferred.reject({});
-	    	deferred.resolve(mockRestaurantsResponse);
+	    	positionDeferred.resolve(mockPositionsResponse);
 	    	$rootScope.$apply();
 	    });
 
@@ -130,13 +111,10 @@ describe('RestaurantsCtrl', function() {
 
 
 
-
 	describe('RestaurantsCtrl map watch', function() {
 
 	    beforeEach(function() {
 	    	mapDeferred.resolve();
-	    	deferred.resolve(mockRestaurantsResponse);
-
 	    	$rootScope.$apply();
 
 	    	$scope.loading = false;
@@ -222,8 +200,6 @@ describe('RestaurantsCtrl', function() {
 
 	    beforeEach(function() {
 	    	mapDeferred.resolve();
-	    	deferred.resolve(mockRestaurantsResponse);
-
 	    	$rootScope.$apply();
 
 	    	$scope.loading = false;
@@ -261,8 +237,7 @@ describe('RestaurantsCtrl', function() {
 
 	    beforeEach(function() {
 	    	mapDeferred.resolve();
-	    	deferred.resolve(mockRestaurantsResponse);
-
+			positionDeferred.resolve(mockPositionsResponse);
 	    	$rootScope.$apply();
 	    });
 

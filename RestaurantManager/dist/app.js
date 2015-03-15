@@ -20,39 +20,30 @@ angular.module('RestaurantManager.Restaurants', []);;angular.module('RestaurantM
 });angular.module('RestaurantManager').config(['$routeProvider', function ($routeProvider) {
 
 	$routeProvider.
-		when('/', {
+		when('/:southwestlatitude?/:northeastlongitude?/:northeastlatitude?/:southwestlongitude?', {
 			controller: 'RestaurantsCtrl',
 			templateUrl: 'views/restaurants/restaurants.html'
 		}).
 		otherwise({ redirectTo: '/' });
-}]);;angular.module('RestaurantManager.Restaurants').controller('RestaurantsCtrl', ['$scope', '$q', '$timeout', 'RestaurantFactory', 'PositionFactory', 'uiGmapGoogleMapApi',
-																	  function ($scope, $q, $timeout, RestaurantFactory, PositionFactory, uiGmapGoogleMapApi) {
-
+}]);;angular.module('RestaurantManager.Restaurants').controller('RestaurantsCtrl', ['$scope', '$q', '$timeout', '$routeParams', 'RestaurantFactory', 'PositionFactory', 'uiGmapGoogleMapApi',
+																	  function ($scope, $q, $timeout, $routeParams, RestaurantFactory, PositionFactory, uiGmapGoogleMapApi) {
 
 	var lastLatitude = 45;
 	var lastLongitude = 15;
-	$scope.map = { center: { latitude: lastLatitude, longitude: lastLongitude }, zoom: 3, bounds: {	northeast: { latitude: 68, longitude: 100 },	
-																									southwest: { latitude: -29,	longitude: -91 }}};
-
-	var restaurantsPromise = RestaurantFactory.get();
-	$scope.restaurantmarkers = [];
-
-
-	$q.all([restaurantsPromise.$promise, uiGmapGoogleMapApi]).then(function(data){
-		updateRestaurants(data[0]);	
-		centerWatcher();
-	}, function(reason) {
-		if (reason && reason.hasOwnProperty('data') && reason.data.hasOwnProperty('userMessage')) {
-			$scope.errorMessage = reason.data.userMessage;
-		} else {
-			$scope.errorMessage = "Fail to load google maps. Please try again";
-		}
-	});
-
-
-
 	var restaurantsTimeout;
 	var delay = 2000;
+
+
+	init = function() {
+		$scope.map = { center: { latitude: lastLatitude, longitude: lastLongitude }, zoom: 3, bounds: {	northeast: { latitude: 68, longitude: 100 },	
+																										southwest: { latitude: -29,	longitude: -91 }}};
+
+		if($routeParams.northeastlatitude && $routeParams.northeastlongitude && $routeParams.southwestlatitude && $routeParams.southwestlongitude) {
+		}
+		
+		getRestaurantsOnMap(null, true);
+	}
+
 
 	// Watch for map change and update restaurants when latitude or longitude change enoufh relative to zoom.
 	centerWatcher = function() {
@@ -82,7 +73,7 @@ angular.module('RestaurantManager.Restaurants', []);;angular.module('RestaurantM
 
 
 
-	getRestaurantsOnMap = function(serverParamsString) {
+	getRestaurantsOnMap = function(serverParamsString, firstTimeCalled) {
 		$scope.loading = true;
 
 		params = {
@@ -100,22 +91,24 @@ angular.module('RestaurantManager.Restaurants', []);;angular.module('RestaurantM
 		}
 
 		promise = PositionFactory.get(params);
-		promise.$promise.then(function (data) {
+		$q.all([promise.$promise, uiGmapGoogleMapApi]).then(function(data){
 
 			$scope.restaurantmarkers = [];
-			updateRestaurants(data);					
+			updateRestaurants(data[0]);					
 
 			restaurantsTimeout = $timeout(function() {
 				$scope.loading = false;
+				if (firstTimeCalled) {
+					centerWatcher();
+				}
 			}, delay);
 		}, function(reason) {
 			if (reason && reason.hasOwnProperty('data') && reason.data.hasOwnProperty('userMessage')) {
 				$scope.errorMessage = reason.data.userMessage;
 			} else {
-				$scope.errorMessage = "Fail to load restaurants. Please try again";
+				$scope.errorMessage = "Fail to load google maps. Please try again";
 			}
 		});
-
 	}
 
 
@@ -139,6 +132,9 @@ angular.module('RestaurantManager.Restaurants', []);;angular.module('RestaurantM
 		    });
 		}
 	}
+
+
+	init();
  }]);;angular.module('RestaurantManager.Restaurants').directive('temp', function () {
 	return {
 		template: 'test test test'
