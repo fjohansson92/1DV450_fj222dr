@@ -21,8 +21,8 @@ class Api::V1::ApplicationController < ActionController::Base
 		end
 
 		last_length = object.length % limit
-		last_length = limit if @last_length == 0
-
+		last_length = limit if last_length == 0
+		
 		@last_offset = object.length - last_length
 		@last_offset = 0 if @last_offset < 0	
 

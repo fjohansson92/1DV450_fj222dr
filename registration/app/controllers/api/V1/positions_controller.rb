@@ -23,10 +23,10 @@ class Api::V1::PositionsController < Api::V1::ApplicationController
 				render json: @error, status: :bad_request
 			end
 
-			lat_top = params[:lat_top].to_i
-			lat_bottom = params[:lat_bottom].to_i
-			lng_right = params[:lng_right].to_i
-			lng_left = params[:lng_left].to_i
+			lat_top = params[:lat_top].to_f
+			lat_bottom = params[:lat_bottom].to_f
+			lng_right = params[:lng_right].to_f
+			lng_left = params[:lng_left].to_f
 
 			@lat_range = Range.new(lat_bottom, lat_top) 
 

@@ -11,7 +11,7 @@
 		<button data-ng-disabled="lastUrl.length < 1 || nextUrl.length < 1" data-ng-click="paginate(lastUrl)">Last</button>
 	</div>
 	<div class="col-md-9 fullheight">
-		<ui-gmap-google-map center='map.center' zoom='map.zoom' bounds="map.bounds">
+		<ui-gmap-google-map center='map.center' zoom='map.zoom' bounds="map.bounds" control="map.control">
 			<ui-gmap-markers models="restaurantmarkers" coords="'self'" icon="'icon'"></ui-gmap-markers>
 		</ui-gmap-google-map>	
 	</div>
