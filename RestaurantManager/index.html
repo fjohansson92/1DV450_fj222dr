@@ -9,14 +9,18 @@
     </head>
     <body>
         <div class="container-fluid">
-            <div data-ng-view class="fullscreen"></div>
+            <div id="contents" app-view-segment="0"></div>
         </div>
 
              
 
         <script src="scripts/vendor/angular.js"></script>
+        
         <script src="scripts/vendor/angular-route.js"></script>
         <script src="scripts/vendor/angular-resource.js"></script>
+        <script src="scripts/vendor/angular-animate.js"></script>
+        <script src="scripts/vendor/angular-route-segment.min.js"></script>
+
 
         <script src='scripts/vendor/lodash.min.js'></script>
         <script src='scripts/vendor/angular-google-maps.js'></script>

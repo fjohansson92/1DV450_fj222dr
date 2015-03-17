@@ -1,0 +1,32 @@
+<div class="row fullheight">
+	<div class="col-md-3 fullheight">
+		
+		<a href="#{{ 's1' | routeSegmentUrl}}">Home</a>	
+		<a href="#{{ 's1.search' | routeSegmentUrl}}">Search</a>
+
+		<div app-view-segment="1"></div>
+
+		<ul>
+			<li data-ng-repeat="restaurant in restData.restaurants" >
+				{{restaurant.name}}
+			</li>
+		</ul>
+
+		<div class="paginationBtns">
+			<button class="btn btn-link" data-ng-disabled="restData.firstUrl.length < 1 || restData.prevUrl.length < 1" data-ng-click="paginate(restData.firstUrl)">&lt;&lt;</button>
+			<button class="btn btn-link" data-ng-disabled="restData.prevUrl.length < 1" data-ng-click="paginate(restData.prevUrl)">&lt;</button>
+			<button class="btn btn-link" data-ng-disabled="restData.nextUrl.length < 1" data-ng-click="paginate(restData.nextUrl)">&gt;</button>
+			<button class="btn btn-link" data-ng-disabled="restData.lastUrl.length < 1 || restData.nextUrl.length < 1" data-ng-click="paginate(restData.lastUrl)">&gt;&gt;</button>
+		</div>
+	</div>
+	<div class="col-md-9 fullheight">
+		<ui-gmap-google-map center='restData.map.center' zoom='restData.map.zoom' bounds="restData.map.bounds" control="restData.map.control">
+			<ui-gmap-markers models="restData.restaurantmarkers" coords="'self'" icon="'icon'"></ui-gmap-markers>
+		</ui-gmap-google-map>	
+	</div>
+</div>
+
+
+
+
+

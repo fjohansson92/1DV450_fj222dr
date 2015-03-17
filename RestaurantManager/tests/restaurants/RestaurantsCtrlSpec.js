@@ -1,392 +1,206 @@
-describe('RestaurantsCtrl', function() {
-	
-    var $q, $rootScope, $scope, mockPositionFactory, uiGmapIsReady, routeParams, mockLocation;
-    var mockPositionsResponse = { 
-    								restaurants: [
-    												{"id": 1 , "name": "test1", "latitude": "5.5", "longitude": "3.5"},
-    												{"id": 2 , "name": "test2", "latitude": "3.5", "longitude": "4.5"}
-    											 ],
-    								links: {
-												first: "http://api.lvh.me:3001/v...tions?limit=25&offset=0",
-												prev: null,
-												next: "http://api.lvh.me:3001/v...ions?limit=25&offset=25",
-												last: "http://api.lvh.me:3001/v...ons?limit=25&offset=100"
-    										}
-    							};
+describe('All restaurantcontrollers', function() {
 
-
+	var $q, $rootScope, $scope, $timeout, eventEmitted;
 
 	beforeEach(module('RestaurantManager'));
 
-	beforeEach(inject(function(_$q_, _$rootScope_) {
+	beforeEach(inject(function(_$q_, _$rootScope_, _$timeout_) {
 		$q = _$q_;
 		$rootScope = _$rootScope_;
+		$timeout = _$timeout_;
 	}));
 
 
-	describe('Without routeParams Startup', function() {
+	describe('RestaurantCtrl', function() {
 
 		beforeEach(inject(function ($controller) {
 			$scope = $rootScope.$new();
 
-			mockPositionFactory = {
-				get: function(parameters) {
-					positionDeferred = $q.defer();
-					requestParameters = parameters
-					return { $promise: positionDeferred.promise};
+			spyOn($scope, '$broadcast').andCallThrough();	
+
+			eventEmitted = false;
+			$scope.$on("paginate", function() {
+			   eventEmitted = true;
+			});
+
+			restaurantsData = {
+				map: {  control: {},
+						center: {},  
+						zoom: 3,
+						changer: false,
+						waitForRefresh: true,  
+						bounds: {	northeast: { latitude: 68, longitude: 100 },	
+									southwest: { latitude: -29,	longitude: -91 }}
 				}
 			}
-			spyOn(mockPositionFactory, 'get').andCallThrough();
 
-			mapDeferred = $q.defer();
-			uiGmapGoogleMapApi = mapDeferred.promise;
-
-			restaurantsCtrl = $controller('RestaurantsCtrl', { $scope: $scope, PositionFactory: mockPositionFactory, uiGmapGoogleMapApi: uiGmapGoogleMapApi });
-		}));
-
-
-		describe('RestaurantsCtrl Startup', function() {
-
-		    beforeEach(function() {
-		    	mapDeferred.resolve();
-		    	positionDeferred.resolve(mockPositionsResponse);
-		    	$rootScope.$apply();
-		    });
-
-
-			it('should get from Positionfactory', function() {
-				expect(mockPositionFactory.get).toHaveBeenCalled();
-			});
-
-
-			it('should set result to scope', function() {
-				expect($scope.restaurants).toBe(mockPositionsResponse.restaurants);
-			});
-
-			it('should set markers', function() {
-				restaurant1 = mockPositionsResponse.restaurants[0];
-				restaurant2 = mockPositionsResponse.restaurants[1];
-
-				expect(angular.equals($scope.restaurantmarkers[0], {
-																		title: restaurant1.name,
-																		id: parseInt(restaurant1.id),
-															            latitude: restaurant1.latitude,
-															            longitude: restaurant1.longitude
-															        })).toBe(true);
-				expect(angular.equals($scope.restaurantmarkers[1], {
-																		title: restaurant2.name,
-																		id: parseInt(restaurant2.id),
-															            latitude: restaurant2.latitude,
-															            longitude: restaurant2.longitude
-															        })).toBe(true);
-			});
-		});
-
-
-		describe('RestaurantsCtrl restaurants get fails', function() {
-
-		    beforeEach(function() {
-		    	mapDeferred.resolve();
-		    	positionDeferred.reject({ data: {userMessage: "error"} });
-		    	$rootScope.$apply();
-		    });
-
-			it('should set error message', function() {
-				expect($scope.errorMessage).toBe("error");
-			});
-		});
-
-		describe('Google map fails', function() {
-
-		    beforeEach(function() {
-		    	mapDeferred.reject({});
-		    	positionDeferred.resolve(mockPositionsResponse);
-		    	$rootScope.$apply();
-		    });
-
-			it('should set error message', function() {
-				expect($scope.errorMessage).toBe("Fail to load google maps. Please try again");
-			});
-		});
-
-
-		describe('RestaurantsCtrl map watch', function() {
-
-		    beforeEach(function() {
-		    	mapDeferred.resolve();
-		    	$rootScope.$apply();
-
-		    	$scope.loading = false;
-				$scope.map = {
-								zoom: 3,
-								center: {
-											latitude: 5,
-											longitude: 10	
-								},
-								bounds: {
-											northeast: {
-															latitude: 65,
-															longitude: 97
-														},
-											southwest: {
-															latitude: -56,
-															longitude: -106
-														}
-										}
-							};
-				$rootScope.$apply();
-
-				positionDeferred.resolve(mockPositionsResponse);
-		    	$rootScope.$apply();
-		    });
-
-
-			it('should get from RestaurantsFactory', function() {
-
-				expect(mockPositionFactory.get).toHaveBeenCalled();
-			});
-
-			it('should set markers', function() {
-				restaurant1 = mockPositionsResponse.restaurants[0];
-				restaurant2 = mockPositionsResponse.restaurants[1];
-
-				expect(angular.equals($scope.restaurantmarkers[0], {
-																		title: restaurant1.name,
-																		id: parseInt(restaurant1.id),
-															            latitude: restaurant1.latitude,
-															            longitude: restaurant1.longitude
-															        })).toBe(true);
-				expect(angular.equals($scope.restaurantmarkers[1], {
-																		title: restaurant2.name,
-																		id: parseInt(restaurant2.id),
-															            latitude: restaurant2.latitude,
-															            longitude: restaurant2.longitude
-															        })).toBe(true);
-			});
-
-			it('should set pagination urls', function() {
-				expect(angular.equals($scope.firstUrl, mockPositionsResponse.links.first.split('?')[1])).toBe(true);
-				expect(angular.equals($scope.nextUrl, mockPositionsResponse.links.next.split('?')[1])).toBe(true);
-				expect(angular.equals($scope.prevUrl, "")).toBe(true);
-				expect(angular.equals($scope.lastUrl, mockPositionsResponse.links.last.split('?')[1])).toBe(true);
-			});
-
-			it('should be able to next paginate', function() {
-				$scope.loading = false;
-				$scope.paginate($scope.nextUrl);
-				$rootScope.$apply();
-
-				positionDeferred.resolve(mockPositionsResponse);
-		    	$rootScope.$apply();
-
-				expect(angular.equals({offset: requestParameters.offset, limit: requestParameters.limit}, {offset: '25', limit: '25'})).toBe(true);
-			});
-
-			it('should be able to last paginate', function() {
-				$scope.loading = false;
-				$scope.paginate($scope.lastUrl);
-				$rootScope.$apply();
-
-				positionDeferred.resolve(mockPositionsResponse);
-		    	$rootScope.$apply();
-
-				expect(angular.equals({offset: requestParameters.offset, limit: requestParameters.limit}, {offset: '100', limit: '25'})).toBe(true);
-			});
-		});
-
-		
-		describe('Positionfactory.get fails', function() {
-
-		    beforeEach(function() {
-		    	mapDeferred.resolve();
-		    	$rootScope.$apply();
-
-		    	$scope.loading = false;
-				$scope.map = {
-								zoom: 3,
-								center: {
-											latitude: 5,
-											longitude: 10	
-								},
-								bounds: {
-											northeast: {
-															latitude: 65,
-															longitude: 97
-														},
-											southwest: {
-															latitude: -56,
-															longitude: -106
-														}
-										}
-							};
-				$rootScope.$apply();
-		    	positionDeferred.reject({ data: {userMessage: "error"} });
-		    	$rootScope.$apply();
-		    });
-
-			it('should set error message', function() {
-				expect($scope.errorMessage).toBe("error");
-			});
-		});
-
-
-
-
-		describe('paginate after startup', function() {
-
-		    beforeEach(function() {
-		    	mapDeferred.resolve();
-				positionDeferred.resolve(mockPositionsResponse);
-		    	$rootScope.$apply();
-		    });
-
-			it('should get from RestaurantsFactory', function() {
-
-				$scope.loading = false;
-				$scope.paginate($scope.nextUrl);
-				$rootScope.$apply();
-
-				positionDeferred.resolve(mockPositionsResponse);
-		    	$rootScope.$apply();
-
-				expect(angular.equals({offset: requestParameters.offset, limit: requestParameters.limit}, {offset: '25', limit: '25'})).toBe(true);
-			});
-		});
-
-	});
-
-
-
-	describe('RestaurantsCtrl Startup With Cords', function() {
-
-		beforeEach(inject(function ($controller) {
-			$scope = $rootScope.$new();
-
-			mockPositionFactory = {
-				get: function(parameters) {
-					positionDeferred = $q.defer();
-					requestParameters = parameters
-					return { $promise: positionDeferred.promise};
-				}
+			mockRestaurantDataFactory = {
+				restaurantsData: restaurantsData,
+				resolveGmap: function() {},
+				rejectGmap: function() {},
+				resolveGmapApi: function() {},
+				rejectGmapApi: function() {}
 			}
-			spyOn(mockPositionFactory, 'get').andCallThrough();
 
-			mapApiDeferred = $q.defer();
-			uiGmapGoogleMapApi = mapApiDeferred.promise;
+			spyOn(mockRestaurantDataFactory, 'resolveGmap').andCallThrough();
+			spyOn(mockRestaurantDataFactory, 'rejectGmap').andCallThrough();
+			spyOn(mockRestaurantDataFactory, 'resolveGmapApi').andCallThrough();
+			spyOn(mockRestaurantDataFactory, 'rejectGmapApi').andCallThrough();
 
 
-			routeParams = {
-				latitude: '35.5',
-				longitude: '35.5',
-				zoom: '5'
-			}
-			
-			uiGmapIsReady = {
+			mapDeferred = $q.defer()
+			mockuiGmap = {
 				promise: function() {
-					uiGmapIsReady = $q.defer();
-					return uiGmapIsReady.promise
+					return mapDeferred.promise
 				}
 			};
-			
+
+			mapApiDeferred = $q.defer();
+			mockuiGmapApi = mapApiDeferred.promise;
+
+			$route = { current: { $$route: { segment: 's1' }}};
+
 			mockLocation = {
 				search: function (name, value) {
-
+					return {
+						replace: function() {}
+					}
 				}
 			}
 			spyOn(mockLocation, 'search').andCallThrough();
 
-			restaurantsCtrl = $controller('RestaurantsCtrl', { $scope: $scope, 
-															   PositionFactory: mockPositionFactory, 
-															   uiGmapIsReady: uiGmapIsReady, 
-															   uiGmapGoogleMapApi: uiGmapGoogleMapApi, 
-															   $routeParams: routeParams,
-															   $location: mockLocation });
+			positionCtrl = $controller('RestaurantCtrl', { 	$scope: $scope,
+															$route: $route,
+															$location: mockLocation,
+															RestaurantDataFactory: mockRestaurantDataFactory, 
+															uiGmapIsReady: mockuiGmap, 
+															uiGmapGoogleMapApi: mockuiGmapApi });
 		}));
 
-		describe('Success', function() {
-	
-			beforeEach(function() {
-				$scope.map.control =  { refresh: function() { return null }}
-				spyOn($scope.map.control, 'refresh').andCallThrough();
-
-				uiGmapIsReady.resolve();
-				$rootScope.$apply();						
-			});
-
-
-			it('should refresh map', function() {
-				expect($scope.map.control.refresh).toHaveBeenCalled();
-			});
-
-
-			describe('Check scope values', function() {
-
-				beforeEach(function() {
-					$scope.map = {
-								center: { latitude: parseFloat(routeParams.latitude), longitude: parseFloat(routeParams.longitude) }, 
-								zoom: parseInt(routeParams.zoom),
-								bounds: {	northeast: { latitude: 75, longitude: 158 },	
-											southwest: { latitude: -39,	longitude: -88 }}
-					};
-					$rootScope.$apply();		
-				});
-
-				it('should update cords and zoom in url', function() {
-					
-					expect(mockLocation.search).toHaveBeenCalledWith('latitude', parseFloat(routeParams.latitude));
-					expect(mockLocation.search).toHaveBeenCalledWith('longitude', parseFloat(routeParams.longitude));
-					expect(mockLocation.search).toHaveBeenCalledWith('zoom', parseFloat(routeParams.zoom));
-				});
-
-
-				it('should get from Positionfactory', function() {
-					expect(mockPositionFactory.get).toHaveBeenCalled();
-				});
-			});
-
-
-
-
-			describe('Check when params is close to default values', function() {		
-
-				beforeEach(function() {
-					$scope.map = {
-								center: { latitude: 45.0, longitude: 16.0 }, 
-								zoom: parseInt(routeParams.zoom),
-								bounds: {	northeast: { latitude: 68, longitude: 100 },	
-											southwest: { latitude: -29,	longitude: -91 }}
-					};
-					$rootScope.$apply();		
-				});
-				
-				it('should get from Positionfactory', function() {
-					expect(mockPositionFactory.get).toHaveBeenCalled();
-				});
-			});
-		});
-		
-		describe('Fail', function() {
-	
-			beforeEach(function() {
-				$scope.map.control =  { refresh: function() { return null }}
-				spyOn($scope.map.control, 'refresh').andCallThrough();
-				uiGmapIsReady.reject({});
-				$rootScope.$apply();						
-			});
-
-
-			it('should refresh map', function() {
-				expect($scope.errorMessage).toBe("Fail to load google maps. Please try again");
-			});
+		it('should use RestaurantsFactory on startup', function() {
+			expect($scope.restData).toBe(restaurantsData);
 		});	
+
+		it('should resolve when map is ready', function() {
+			mapDeferred.resolve();
+			$rootScope.$apply();
+
+			expect(mockRestaurantDataFactory.resolveGmap).toHaveBeenCalled();
+		});
+
+		it('should reject when map fails', function() {
+			mapDeferred.reject();
+			$rootScope.$apply();
+
+			expect(mockRestaurantDataFactory.rejectGmap).toHaveBeenCalled();
+		});
+
+		it('should resolve when mapApi is ready', function() {
+			mapApiDeferred.resolve();
+			$rootScope.$apply();
+
+			expect(mockRestaurantDataFactory.resolveGmapApi).toHaveBeenCalled();
+		});
+
+		it('should reject when mapApi fails', function() {
+			mapApiDeferred.reject();
+			$rootScope.$apply();
+
+			expect(mockRestaurantDataFactory.rejectGmapApi).toHaveBeenCalled();
+		});
+
+
+		it('should update cords, zoom in url and broadcast mapChange', function() {
+
+			latitude = 5.3;
+			longitude = 4.2;
+			zoom = 5;
+
+			restaurantsData.map = { center: { latitude: latitude, 
+											  longitude: longitude },  
+									zoom: zoom }
+			$rootScope.$apply();		
+
+			expect(mockLocation.search).toHaveBeenCalledWith('latitude', latitude);
+			expect(mockLocation.search).toHaveBeenCalledWith('longitude', longitude);
+			expect(mockLocation.search).toHaveBeenCalledWith('zoom', zoom);
+
+			expect($scope.$broadcast).toHaveBeenCalledWith('mapChange', {newVal: { center: {latitude: latitude, longitude: longitude}, zoom: zoom}, 
+																		 oldVal: { center: {latitude: latitude, longitude: longitude}, zoom: zoom}});
+		});
+
+		it('paginate should broadcast', function() {
+
+			$scope.paginate('limit=5&offset=3');
+			$rootScope.$apply();
+
+			expect(eventEmitted).toBe(true);													
+		});
+	});
+
+
+	describe('SearchCtrl', function() {
+
+		beforeEach(inject(function ($controller) {
+			$scope = $rootScope.$new();
+
+			restaurantsData = {
+				map: {  control: {},
+						center: {},  
+						zoom: 3,
+						changer: false,
+						waitForRefresh: true,  
+						bounds: {	northeast: { latitude: 68, longitude: 100 },	
+									southwest: { latitude: -29,	longitude: -91 }}
+				}
+			}
+
+			mockRestaurantDataFactory = {
+				restaurantsData: restaurantsData,
+				updateMapFromRoutes: function() {}
+			}
+
+			spyOn(mockRestaurantDataFactory, 'updateMapFromRoutes').andCallThrough();
+
+			mockLocation = {
+				search: function (name, value) {
+					return {
+						replace: function() {}
+					}
+				}
+			}
+			spyOn(mockLocation, 'search').andCallThrough();
+
+			positionCtrl = $controller('SearchCtrl', { 	$scope: $scope,
+															$location: mockLocation,
+															RestaurantDataFactory: mockRestaurantDataFactory
+														 });
+		}));
+
+		it('should use RestaurantsFactory on startup', function() {
+			expect($scope.restData).toBe(restaurantsData);
+			expect(mockRestaurantDataFactory.updateMapFromRoutes).toHaveBeenCalled();
+		});	
+
+
+
 	});
 
 
 
 
-	describe('RestaurantsCtrl Startup With Bad Cords', function() {
 
-		describe('RestaurantsCtrl Startup With Bad latitude', function() {
+
+
+
+
+
+
+	describe('PositionCtrl', function() {
+
+		var mockPositionFactory, restaurantsData, mockRestaurantDataFactory;
+
+		describe('Default startup', function() {
 
 			beforeEach(inject(function ($controller) {
 				$scope = $rootScope.$new();
@@ -400,31 +214,80 @@ describe('RestaurantsCtrl', function() {
 				}
 				spyOn(mockPositionFactory, 'get').andCallThrough();
 
-				mapApiDeferred = $q.defer();
-				uiGmapGoogleMapApi = mapApiDeferred.promise;
 
-
-				routeParams = {
-					latitude: 'bad',
-					longitude: '35.5',
-					zoom: '5'
+				restaurantsData = {
+					map: {  control: {},  
+							zoom: 3,
+							changer: false,
+							waitForRefresh: true,  
+							bounds: {	northeast: { latitude: 68, longitude: 100 },	
+										southwest: { latitude: -29,	longitude: -91 }}
+					},
 				}
 
-				restaurantsCtrl = $controller('RestaurantsCtrl', { $scope: $scope, 
-																   PositionFactory: mockPositionFactory, 
-																   uiGmapIsReady: uiGmapIsReady, 
-																   uiGmapGoogleMapApi: uiGmapGoogleMapApi, 
-																   $routeParams: routeParams
-																  });
+				mockRestaurantDataFactory = {
+					restaurantsData: restaurantsData,				
+					updateMapFromRoutes: function() {},
+					loading: function() {},
+					setRestaurantData: function() {},
+					refreshMap: function() {},
+					stopLoading: function() {},
+					setErrorMessage: function() {}
+				}
+				spyOn(mockRestaurantDataFactory, 'updateMapFromRoutes').andCallThrough();
+				spyOn(mockRestaurantDataFactory, 'loading').andCallThrough();
+				spyOn(mockRestaurantDataFactory, 'setRestaurantData').andCallThrough();
+				spyOn(mockRestaurantDataFactory, 'refreshMap').andCallThrough();
+				spyOn(mockRestaurantDataFactory, 'stopLoading').andCallThrough();
+				spyOn(mockRestaurantDataFactory, 'setErrorMessage').andCallThrough();
+
+				positionCtrl = $controller('PositionCtrl', { $scope: $scope, PositionFactory: mockPositionFactory, RestaurantDataFactory: mockRestaurantDataFactory });
 			}));
 
-			it('should refresh map', function() {
+			it('should use RestaurantsFactory on startup', function() {
+
+				expect($scope.restData).toBe(restaurantsData);
+				expect(mockRestaurantDataFactory.updateMapFromRoutes).toHaveBeenCalled();
+			});		
+
+			it('should use get restaurants on startup', function() {
 				expect(mockPositionFactory.get).toHaveBeenCalled();
+			});	
+
+			it('should call with right parameters on startup', function() {
+
+				expect(angular.equals(requestParameters, { lat_top: 	restaurantsData.map.bounds.northeast.latitude,
+														   lat_bottom: 	restaurantsData.map.bounds.southwest.latitude,
+														   lng_right: 	restaurantsData.map.bounds.northeast.longitude,
+														   lng_left: 	restaurantsData.map.bounds.southwest.longitude	})).toBe(true);
+			});	
+
+			it('should set RestaurantsData after Positionfactory get', function() {
+
+				positionDeferred.resolve({test: "test"});
+				$rootScope.$apply();
+
+				expect(mockRestaurantDataFactory.setRestaurantData).toHaveBeenCalled();
+				expect(mockRestaurantDataFactory.refreshMap).toHaveBeenCalled();
+				$timeout.flush();
+				expect(mockRestaurantDataFactory.stopLoading).toHaveBeenCalled();
 			});
+
+
+			it('should set errormessage if RestaurantsData get fails', function() {
+
+				positionDeferred.reject({ data: {userMessage: "error"} });
+				$rootScope.$apply();
+
+				expect(mockRestaurantDataFactory.setErrorMessage).toHaveBeenCalled();	
+			});
+
 		});
 
 
-		describe('RestaurantsCtrl Startup With Bad longitude', function() {
+		describe('Startup with parameters', function() {
+
+			var newVal, oldVal, requestParameters;
 
 			beforeEach(inject(function ($controller) {
 				$scope = $rootScope.$new();
@@ -438,84 +301,133 @@ describe('RestaurantsCtrl', function() {
 				}
 				spyOn(mockPositionFactory, 'get').andCallThrough();
 
-				mapApiDeferred = $q.defer();
-				uiGmapGoogleMapApi = mapApiDeferred.promise;
 
-
-				routeParams = {
-					latitude: '40',
-					longitude: 'bad',
-					zoom: '5'
+				restaurantsData = {
+					loading: false,
+					cordsInParams: true,
+					map: {  control: {}, 
+							center: {}, 
+							zoom: 3,
+							waitForRefresh: true,
+							changer: false,
+							waitForRefresh: true,  
+							bounds: {	northeast: { latitude: 68, longitude: 100 },	
+										southwest: { latitude: -29,	longitude: -91 }}
+					},
 				}
 
-				restaurantsCtrl = $controller('RestaurantsCtrl', { $scope: $scope, 
-																   PositionFactory: mockPositionFactory, 
-																   uiGmapIsReady: uiGmapIsReady, 
-																   uiGmapGoogleMapApi: uiGmapGoogleMapApi, 
-																   $routeParams: routeParams
-																});
+				mockRestaurantDataFactory = {
+					restaurantsData: restaurantsData,				
+					updateMapFromRoutes: function() {},
+					loading: function() {},
+					setRestaurantData: function() {},
+					refreshMap: function() {},
+					stopLoading: function() {}
+				}
+				spyOn(mockRestaurantDataFactory, 'updateMapFromRoutes').andCallThrough();
+				spyOn(mockRestaurantDataFactory, 'loading').andCallThrough();
+				spyOn(mockRestaurantDataFactory, 'setRestaurantData').andCallThrough();
+				spyOn(mockRestaurantDataFactory, 'refreshMap').andCallThrough();
+				spyOn(mockRestaurantDataFactory, 'stopLoading').andCallThrough();
+
+				newVal = { control: {}, 
+								center: { latitude: 50, longitude: 60 }, 
+								zoom: 3,
+								bounds: {	northeast: { latitude: 30, longitude: 100 },	
+											southwest: { latitude: 20,	longitude: 0 }}
+				}
+				oldVal = { zoom: 10 }
+
+
+				positionCtrl = $controller('PositionCtrl', { $scope: $scope, PositionFactory: mockPositionFactory, RestaurantDataFactory: mockRestaurantDataFactory });
 			}));
 
-			it('should refresh map', function() {
+
+			it('should not use RestaurantsFactory on startup', function() {
+
+				expect(mockPositionFactory.get.callCount).toBe(0);
+			});
+
+			it('should use RestaurantsFactory on correct refresh', function() {
+				restaurantsData.map.waitForRefresh = false;
+				restaurantsData.map.center.latitude = 50;
+				$rootScope.$apply();
+
 				expect(mockPositionFactory.get).toHaveBeenCalled();
+			});	
+
+			it('mapChange should not use RestaurantsFactory before startup', function() {
+
+				expect(mockPositionFactory.get.callCount).toBe(0);
+
+				$scope.$broadcast('mapChange', {newVal: newVal, oldVal: oldVal});
+
+				expect(mockPositionFactory.get.callCount).toBe(0);
 			});
+
+			it('mapChange should use RestaurantsFactory after startup', function() {
+
+				restaurantsData.map.waitForRefresh = false;
+				restaurantsData.map.center.latitude = 50;
+				$rootScope.$apply();
+
+				expect(mockPositionFactory.get).toHaveBeenCalled();
+
+				$scope.$broadcast('mapChange', {newVal: newVal, oldVal: oldVal});
+
+				expect(mockPositionFactory.get.callCount).toBe(2);
+			});
+
+
+
+
+			it('paginate should not use RestaurantsFactory before startup', function() {
+
+				expect(mockPositionFactory.get.callCount).toBe(0);
+
+				$scope.$broadcast('paginate', {parameters: {param1: 'test'}});
+
+				expect(mockPositionFactory.get.callCount).toBe(0);
+			});
+
+			it('paginate should use RestaurantsFactory after startup', function() {
+
+				restaurantsData.map.waitForRefresh = false;
+				restaurantsData.map.center.latitude = 50;
+				$rootScope.$apply();
+
+				expect(mockPositionFactory.get).toHaveBeenCalled();
+
+				$scope.$broadcast('paginate', {param1: 'test'});
+
+				expect(mockPositionFactory.get.callCount).toBe(2);
+
+				expect(angular.equals(requestParameters, { param1: 'test',
+														   lat_top: 	restaurantsData.map.bounds.northeast.latitude,
+														   lat_bottom: restaurantsData.map.bounds.southwest.latitude,
+														   lng_right: 	restaurantsData.map.bounds.northeast.longitude,
+														   lng_left: 	restaurantsData.map.bounds.southwest.longitude	})).toBe(true);
+			});
+
+			it('paginate should not use RestaurantsFactory if loading', function() {
+
+				restaurantsData.map.waitForRefresh = false;
+				restaurantsData.map.center.latitude = 50;
+				$rootScope.$apply();
+
+				expect(mockPositionFactory.get).toHaveBeenCalled();
+
+				restaurantsData.loading = true;
+				$rootScope.$apply();
+
+				$scope.$broadcast('paginate', {param1: 'test'});
+
+				expect(mockPositionFactory.get.callCount).toBe(1);
+			});
+
+
 		});
-
-		describe('RestaurantsCtrl Startup With Bad zoom', function() {
-
-			beforeEach(inject(function ($controller) {
-				$scope = $rootScope.$new();
-
-				mockPositionFactory = {
-					get: function(parameters) {
-						positionDeferred = $q.defer();
-						requestParameters = parameters
-						return { $promise: positionDeferred.promise};
-					}
-				}
-				spyOn(mockPositionFactory, 'get').andCallThrough();
-
-				mapApiDeferred = $q.defer();
-				uiGmapGoogleMapApi = mapApiDeferred.promise;
-
-
-				routeParams = {
-					latitude: '40',
-					longitude: '40',
-					zoom: 'bad'
-				}
-
-				uiGmapIsReady = {
-					promise: function() {
-						uiGmapIsReady = $q.defer();
-						return uiGmapIsReady.promise
-					}
-				};
-				
-				restaurantsCtrl = $controller('RestaurantsCtrl', { $scope: $scope, 
-																   PositionFactory: mockPositionFactory, 
-																   uiGmapIsReady: uiGmapIsReady, 
-																   uiGmapGoogleMapApi: uiGmapGoogleMapApi, 
-																   $routeParams: routeParams
-																});
-			}));
-
-			beforeEach(function() {
-				$scope.map.control =  { refresh: function() { return null }}
-				spyOn($scope.map.control, 'refresh').andCallThrough();
-
-				uiGmapIsReady.resolve();
-				$rootScope.$apply();						
-			});
-
-
-			it('should refresh map', function() {
-				expect($scope.map.control.refresh).toHaveBeenCalled();
-			});
-		});
-
 	});
 });
-
 
 

@@ -1,10 +1,33 @@
-angular.module('RestaurantManager').config(['$routeProvider', function ($routeProvider) {
+angular.module('RestaurantManager').config(['$routeSegmentProvider', '$routeProvider', function ($routeSegmentProvider, $routeProvider) {
 
-	$routeProvider.
-		when('/:latitude?/:longitude?/:zoom?', {
-			controller: 'RestaurantsCtrl',
-			templateUrl: 'views/restaurants/restaurants.html',
-			reloadOnSearch: false
-		}).
-		otherwise({ redirectTo: '/' });
+$routeSegmentProvider
+
+    .when('/restaurants', 's1')
+    .when('/restaurants/search', 's1.search')
+
+
+    .segment('s1', {
+    	templateUrl: 'views/restaurants.html',
+    	controller: 'RestaurantCtrl'
+    })
+
+    .within()
+    	.segment('search', {
+    		controller: 'SearchCtrl',
+			templateUrl: 'views/restaurants/search.html'
+    	})
+
+
+    	.segment('home/:latitude?/:longitude?/:zoom?', {
+    		controller: 'PositionCtrl',
+			templateUrl: 'views/restaurants/positions.html',
+			'default': true
+    	})
+
+   	$routeProvider.otherwise({redirectTo: '/restaurants'});
 }]);
+
+
+
+
+

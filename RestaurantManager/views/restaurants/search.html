@@ -1,0 +1,12 @@
+<div>
+    <form data-ng-submit="search(searchWords)">
+        <div class="form-group has-feedback">
+        <input class="form-control" data-ng-model="searchWords" />
+         <i class="glyphicon glyphicon-search form-control-feedback"></i>
+        </div>
+    </form>
+
+    <p data-ng-if="latestSearch">
+        Result for search: {{latestSearch}}
+    </p>
+</div>
