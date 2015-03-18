@@ -208,17 +208,40 @@ $routeSegmentProvider
 		           
 	});
 
-}]);;angular.module('RestaurantManager.Restaurants').controller('SearchCtrl', ['$scope', 'RestaurantFactory', 'RestaurantDataFactory', '$location', 
-																   function ($scope, RestaurantFactory, RestaurantDataFactory, $location) {
+}]);;angular.module('RestaurantManager.Restaurants').controller('SearchCtrl', ['$scope', 'RestaurantFactory', 'RestaurantDataFactory', '$location', '$routeParams',
+																   function ($scope, RestaurantFactory, RestaurantDataFactory, $location, $routeParams) {
 
 	$scope.restData = RestaurantDataFactory.restaurantsData;
 	RestaurantDataFactory.updateMapFromRoutes();
 	RestaurantDataFactory.removeRestaurants();
 
+
+	var init = function() {
+		if ($routeParams.search) {
+			$scope.freeSearch($routeParams.search);
+		} else if ($routeParams.tag) {
+			$scope.tagSearch({ id: $routeParams.tag});
+		} else if ($routeParams.user) {
+			$scope.tagSearch({ id: $routeParams.user});
+		}
+	}
+
+
 	var restaurantsSearch = function(params) {
+		$scope.searchError = "";
+		RestaurantDataFactory.removeRestaurants();
+		$location.search('search', null).replace();
+		$location.search('tag', null).replace();
+		$location.search('user', null).replace();
+
+
 		promise = RestaurantFactory.get(params);
 		promise.$promise.then(function(data) {
-			RestaurantDataFactory.setRestaurantData(data);	
+			RestaurantDataFactory.setRestaurantData(data);			
+		}, function(reason) {
+			if (reason && reason.hasOwnProperty('data') && reason.data.hasOwnProperty('userMessage')) {
+				RestaurantDataFactory.setErrorMessage(reason.data.userMessage);
+			} 
 		});
 	}
 
@@ -226,34 +249,34 @@ $routeSegmentProvider
 	$scope.tagSearch = function(tag) {
 		if (tag && tag.id) {
 			restaurantsSearch({ tag_id: tag.id });
+			$location.search('tag', tag.id).replace();
 		} else {
-			$scope.tagSearchError = 'Fel';
+			$scope.searchError = 'Unvalid search. Please select from autocomplete.';
 		}
 	}
 	$scope.userSearch = function(user) {
 		if (user && user.id) {
 			restaurantsSearch({ apiuser_id: user.id });
+			$location.search('user', user.id).replace();
 		} else {
-			$scope.tagSearchError = 'Fel';
+			$scope.searchError = 'Unvalid search. Please select from autocomplete.';
 		}
 	}
-
-
 
 	$scope.freeSearch = function(searchWords) {
 		params = {}
 		if (searchWords) {
-			$location.search('search', searchWords).replace();
 			$scope.latestSearch = searchWords;
 			params.q = searchWords.replace(/\s/g, ' ');
 			restaurantsSearch(params);
+
+			$location.search('search', searchWords).replace();
+		} else {
+			$scope.searchError = "";
 		}
 	}
 
-
-
-
-
+	init();
 }]);;angular.module('RestaurantManager.Restaurants').directive('tagsAutocomplete', [  function () {
 	return {
 		restrict: 'E',
@@ -443,6 +466,7 @@ angular.module("../views/restaurants.html", []).run(["$templateCache", function(
     "\n" +
     "		<div app-view-segment=\"1\"></div>\n" +
     "\n" +
+    "		<p data-ng-show=\"!restData.restaurants.length\">Inga restauranger</p>\n" +
     "		<ul>\n" +
     "			<li data-ng-repeat=\"restaurant in restData.restaurants\" >\n" +
     "				{{restaurant.name}}\n" +
@@ -480,26 +504,33 @@ angular.module("../views/restaurants/positions.html", []).run(["$templateCache",
 angular.module("../views/restaurants/search.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("../views/restaurants/search.html",
     "<div>\n" +
-    "	<form data-ng-submit=\"freeSearch(searchWords)\">\n" +
-    "		<div class=\"form-group has-feedback\">\n" +
-    "			<input class=\"form-control\" data-ng-model=\"searchWords\" />\n" +
-    "			<i class=\"glyphicon glyphicon-search form-control-feedback\"></i>\n" +
-    "		</div>\n" +
-    "	</form>   \n" +
-    "\n" +
-    "	<form class=\"form-inline\">\n" +
-    "		<div class=\"form-group\">\n" +
-    "			<tags-autocomplete></tags-autocomplete>\n" +
-    "		</div>\n" +
-    "		<button type=\"submit\" data-ng-click=\"tagSearch(tagAutocomplete)\" class=\"btn btn-default\">Sök</button>\n" +
-    "	</form>\n" +
-    "	<form class=\"form-inline\">\n" +
-    "		<div class=\"form-group\">\n" +
-    "			<users-autocomplete></users-autocomplete>\n" +
-    "			<button type=\"submit\" data-ng-click=\"userSearch(userAutocomplete)\" class=\"btn btn-default\">Sök</button>\n" +
-    "		</div>\n" +
-    "	</form>\n" +
-    "\n" +
-    "	\n" +
+    "	<duv>\n" +
+    "		<form data-ng-submit=\"freeSearch(searchWords)\">\n" +
+    "			<div class=\"form-group has-feedback\">\n" +
+    "				<input class=\"form-control\" data-ng-model=\"searchWords\" />\n" +
+    "				<i class=\"glyphicon glyphicon-search form-control-feedback\"></i>\n" +
+    "			</div>\n" +
+    "		</form>   \n" +
+    "	</div>\n" +
+    "	<div>\n" +
+    "		<form class=\"form-inline\">\n" +
+    "			<div class=\"form-group\">\n" +
+    "				<tags-autocomplete></tags-autocomplete>\n" +
+    "			</div>\n" +
+    "			<button type=\"submit\" data-ng-click=\"tagSearch(tagAutocomplete)\" class=\"btn btn-default\">Sök</button>\n" +
+    "		</form>\n" +
+    "	</div>\n" +
+    "	<div>\n" +
+    "		<form class=\"form-inline\">\n" +
+    "			<div class=\"form-group\">\n" +
+    "				<users-autocomplete></users-autocomplete>\n" +
+    "				<button type=\"submit\" data-ng-click=\"userSearch(userAutocomplete)\" class=\"btn btn-default\">Sök</button>\n" +
+    "			</div>\n" +
+    "		</form>\n" +
+    "	</div>\n" +
+    "		\n" +
+    "	<div data-ng-if=\"searchError\" >\n" +
+    "		<p>{{searchError}}</p>\n" +
+    "	</div>	\n" +
     "</div>");
 }]);

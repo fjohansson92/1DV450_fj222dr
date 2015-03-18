@@ -6,6 +6,7 @@
 
 		<div app-view-segment="1"></div>
 
+		<p data-ng-show="!restData.restaurants.length">Inga restauranger</p>
 		<ul>
 			<li data-ng-repeat="restaurant in restData.restaurants" >
 				{{restaurant.name}}
