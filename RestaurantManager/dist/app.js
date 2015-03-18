@@ -185,7 +185,6 @@ $routeSegmentProvider
 
 
 	$scope.paginate = function(url) {
-		console.log("?");
 		urlParams = url.split('&');
 		params = {};
 		
@@ -216,19 +215,7 @@ $routeSegmentProvider
 	RestaurantDataFactory.updateMapFromRoutes();
 	RestaurantDataFactory.removeRestaurants();
 
-
-	$scope.search = function(searchWords) {
-
-		params = {}
-
-		$location.search('search', searchWords).replace();
-		$scope.latestSearch = searchWords;
-		params.q = searchWords.replace(/\s/g, ' ')
-
-		if ($scope.tagDropdown && $scope.tagDropdown.id) {
-			params.tag_id = $scope.tagDropdown.id;
-		}
-
+	var restaurantsSearch = function(params) {
 		promise = RestaurantFactory.get(params);
 		promise.$promise.then(function(data) {
 			RestaurantDataFactory.setRestaurantData(data);	
@@ -236,37 +223,99 @@ $routeSegmentProvider
 	}
 
 
-}]);;angular.module('RestaurantManager.Restaurants').directive('tagsSearcher', [  function () {
+	$scope.tagSearch = function(tag) {
+		if (tag && tag.id) {
+			restaurantsSearch({ tag_id: tag.id });
+		} else {
+			$scope.tagSearchError = 'Fel';
+		}
+	}
+	$scope.userSearch = function(user) {
+		if (user && user.id) {
+			restaurantsSearch({ apiuser_id: user.id });
+		} else {
+			$scope.tagSearchError = 'Fel';
+		}
+	}
+
+
+
+	$scope.freeSearch = function(searchWords) {
+		params = {}
+		if (searchWords) {
+			$location.search('search', searchWords).replace();
+			$scope.latestSearch = searchWords;
+			params.q = searchWords.replace(/\s/g, ' ');
+			restaurantsSearch(params);
+		}
+	}
+
+
+
+
+
+}]);;angular.module('RestaurantManager.Restaurants').directive('tagsAutocomplete', [  function () {
 	return {
 		restrict: 'E',
-		controller: ['$scope', '$q', '$timeout', 'TagFactory', function($scope, $q, $timeout, TagFactory) {
-			var timeout = 0;
-			
+		controller: ['$scope', 'AutocompleteFactory', function($scope, AutocompleteFactory) {
 			$scope.getTags = function(term) {
-				
-				$scope.tagAutocompleteError = '';
-				$timeout.cancel(timeout);
-				tagPromise = $q.defer()
-
-				timeout = $timeout(function() {
-					TagFactory.get({ term: term, limit: 8 }).$promise.then(function(data) {	
-						tagPromise.resolve(data.tags.map(function(item) {
-							return item;
-						}));
-					}, function() {
-						$scope.tagAutocompleteError = "Something went wrong.";
-					});
-				}, 200);
-				return tagPromise.promise;
+				promise = AutocompleteFactory.tags(term);
+				return promise;
 			}
 		}],
 		template: '<input type="text" data-ng-model="tagAutocomplete" placeholder="Hämta via tag"' +
-						 'typeahead="tag as tag.name for tag in getTags($viewValue)" typeahead-loading="loadingLocations" class="form-control">' +
-    				'<i ng-show="loadingLocations" class="glyphicon glyphicon-refresh"></i>' +
+						 'typeahead="tag as tag.name for tag in getTags($viewValue)" typeahead-loading="tagloadingLocations" class="form-control">' +
+    				'<i ng-show="tagloadingLocations" class="glyphicon glyphicon-refresh"></i>' +
     				'<p>{{ tagAutocompleteError }}</p>'
 	}
 }]);
-;angular.module('RestaurantManager.Restaurants').factory('PositionFactory', ['$resource', 'API', function ($resource, $API) {
+;angular.module('RestaurantManager.Restaurants').directive('usersAutocomplete', [  function () {
+	return {
+		restrict: 'E',
+		controller: ['$scope', 'AutocompleteFactory', function($scope, AutocompleteFactory) {
+			$scope.getUsers = function(term) {
+				promise = AutocompleteFactory.users(term);
+				return promise;
+			}
+		}],
+		template: '<input type="text" data-ng-model="userAutocomplete" placeholder="Hämta via användare"' +
+						 'typeahead="user as user.name for user in getUsers($viewValue)" typeahead-loading="userloadingLocations" class="form-control">' +
+    				'<i ng-show="userloadingLocations" class="glyphicon glyphicon-refresh"></i>' +
+    				'<p>{{ userAutocompleteError }}</p>'
+    }
+}]);
+;angular.module('RestaurantManager.Restaurants').factory('UserFactory', ['$resource', 'API', function ($resource, $API) {
+	return $resource($API + 'apiusers/:id', {}, {});
+ }]);;angular.module('RestaurantManager.Restaurants').factory('AutocompleteFactory', [ '$q', '$timeout', 'TagFactory', 'UserFactory', function ($q, $timeout, TagFactory, UserFactory) {
+	
+	var timeout = 0;
+
+	var autocomplete = function(factory, attr) {
+		$timeout.cancel(timeout);
+		defer = $q.defer()
+
+		timeout = $timeout(function() {
+			factory.$promise.then(function(data) {	
+				defer.resolve(data[attr].map(function(item) {
+					return item;
+				}));
+			}, function() {
+				defer.reject();
+			});
+		}, 200);
+		return defer.promise;
+	}
+
+	return {
+		tags: function(term) {
+			return autocomplete(TagFactory.get({ term: term, limit: 8 }), 'tags');
+		},
+		users: function(term) {
+			return autocomplete(UserFactory.get({ term: term, limit: 8 }), 'apiusers');	
+		}
+
+	}	
+}]);;angular.module('RestaurantManager.Restaurants').factory('PositionFactory', ['$resource', 'API', function ($resource, $API) {
 	return $resource($API + 'positions', {}, {});
  }]);;angular.module('RestaurantManager.Restaurants').factory('RestaurantDataFactory', [ '$q', '$routeParams', function ($q, $routeParams) {
 	
@@ -431,14 +480,26 @@ angular.module("../views/restaurants/positions.html", []).run(["$templateCache",
 angular.module("../views/restaurants/search.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("../views/restaurants/search.html",
     "<div>\n" +
-    "	<tags-searcher></tags-searcher>\n" +
-    "    {{tagAutocomplete}}\n" +
+    "	<form data-ng-submit=\"freeSearch(searchWords)\">\n" +
+    "		<div class=\"form-group has-feedback\">\n" +
+    "			<input class=\"form-control\" data-ng-model=\"searchWords\" />\n" +
+    "			<i class=\"glyphicon glyphicon-search form-control-feedback\"></i>\n" +
+    "		</div>\n" +
+    "	</form>   \n" +
     "\n" +
-    "    <form data-ng-submit=\"search(searchWords)\">\n" +
-    "        <div class=\"form-group has-feedback\">\n" +
-    "        <input class=\"form-control\" data-ng-model=\"searchWords\" />\n" +
-    "         <i class=\"glyphicon glyphicon-search form-control-feedback\"></i>\n" +
-    "        </div>\n" +
-    "    </form>    \n" +
+    "	<form class=\"form-inline\">\n" +
+    "		<div class=\"form-group\">\n" +
+    "			<tags-autocomplete></tags-autocomplete>\n" +
+    "		</div>\n" +
+    "		<button type=\"submit\" data-ng-click=\"tagSearch(tagAutocomplete)\" class=\"btn btn-default\">Sök</button>\n" +
+    "	</form>\n" +
+    "	<form class=\"form-inline\">\n" +
+    "		<div class=\"form-group\">\n" +
+    "			<users-autocomplete></users-autocomplete>\n" +
+    "			<button type=\"submit\" data-ng-click=\"userSearch(userAutocomplete)\" class=\"btn btn-default\">Sök</button>\n" +
+    "		</div>\n" +
+    "	</form>\n" +
+    "\n" +
+    "	\n" +
     "</div>");
 }]);

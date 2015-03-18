@@ -15,7 +15,7 @@ describe("RestaurantDirectives", function() {
 		beforeEach(inject(function ($compile) {
 			$scope = $rootScope.$new();
 
-			var element = angular.element("<tags-searcher></tags-searcher>")
+			var element = angular.element("<tags-autocomplete></tags-autocomplete>")
 
 			template = $compile(element)($scope);
 

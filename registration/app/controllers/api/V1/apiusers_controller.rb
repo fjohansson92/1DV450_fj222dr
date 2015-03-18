@@ -3,7 +3,15 @@ class Api::V1::ApiusersController < Api::V1::ApplicationController
 
 
 	def index
-		@apiusers = get_offset_limit Apiuser::all
+
+		apiuser = nil
+		if params[:term]
+			apiuser = Apiuser.where("name LIKE ?", "%#{params[:term]}%")
+		else
+			apiuser = Apiuser::all
+		end
+
+		@apiusers = get_offset_limit apiuser
 	end
 
 	def show

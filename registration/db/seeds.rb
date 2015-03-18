@@ -60,8 +60,13 @@ apiuser = Apiuser.first
 					  latitude: "#{ prng.rand(-89.0..90.0) }",
 					  apiuser_id: apiuser.id 
 		)
-	restaurant.tags << Tag.first
-	restaurant.tags << Tag.last
+	if n < 150
+		restaurant.tags << Tag.find(n)
+		restaurant.tags << Tag.find(n+1)
+	else
+		restaurant.tags << Tag.find(n - 150)
+		restaurant.tags << Tag.find(n+1 - 150)
+	end
 end
 
 

@@ -1,11 +1,27 @@
 <div>
-	<tags-searcher></tags-searcher>
-    {{tagAutocomplete}}
-
-    <form data-ng-submit="search(searchWords)">
-        <div class="form-group has-feedback">
-        <input class="form-control" data-ng-model="searchWords" />
-         <i class="glyphicon glyphicon-search form-control-feedback"></i>
-        </div>
-    </form>    
+	<duv>
+		<form data-ng-submit="freeSearch(searchWords)">
+			<div class="form-group has-feedback">
+				<input class="form-control" data-ng-model="searchWords" />
+				<i class="glyphicon glyphicon-search form-control-feedback"></i>
+			</div>
+		</form>   
+	</div>
+	<div>
+		<form class="form-inline">
+			<div class="form-group">
+				<tags-autocomplete></tags-autocomplete>
+			</div>
+			<button type="submit" data-ng-click="tagSearch(tagAutocomplete)" class="btn btn-default">Sök</button>
+		</form>
+	</div>
+	<div>
+		<form class="form-inline">
+			<div class="form-group">
+				<users-autocomplete></users-autocomplete>
+				<button type="submit" data-ng-click="userSearch(userAutocomplete)" class="btn btn-default">Sök</button>
+			</div>
+		</form>
+	</div>
+		
 </div>

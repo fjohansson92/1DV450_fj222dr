@@ -25,7 +25,6 @@ angular.module('RestaurantManager.Restaurants').controller('RestaurantCtrl', ['$
 
 
 	$scope.paginate = function(url) {
-		console.log("?");
 		urlParams = url.split('&');
 		params = {};
 		
