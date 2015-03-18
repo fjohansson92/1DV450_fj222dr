@@ -157,10 +157,12 @@ describe('All restaurantcontrollers', function() {
 
 			mockRestaurantDataFactory = {
 				restaurantsData: restaurantsData,
-				updateMapFromRoutes: function() {}
+				updateMapFromRoutes: function() {},
+				removeRestaurants: function() {}
 			}
 
 			spyOn(mockRestaurantDataFactory, 'updateMapFromRoutes').andCallThrough();
+			spyOn(mockRestaurantDataFactory, 'removeRestaurants').andCallThrough();
 
 			mockLocation = {
 				search: function (name, value) {
@@ -180,6 +182,7 @@ describe('All restaurantcontrollers', function() {
 		it('should use RestaurantsFactory on startup', function() {
 			expect($scope.restData).toBe(restaurantsData);
 			expect(mockRestaurantDataFactory.updateMapFromRoutes).toHaveBeenCalled();
+			expect(mockRestaurantDataFactory.removeRestaurants).toHaveBeenCalled();
 		});	
 
 

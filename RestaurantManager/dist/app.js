@@ -1,6 +1,7 @@
 angular.module('RestaurantManager.Restaurants', []);;angular.module('RestaurantManager', [
 										'ngRoute',
 										'ngAnimate',
+										'ui.bootstrap',
 										'route-segment', 
 										'view-segment',
 										'ngResource',
@@ -80,18 +81,18 @@ $routeSegmentProvider
 	centerWatcher = function(newVal, oldVal) {
 		updateRadio = getUpdateRadio(newVal.zoom);				
 
-			if (!$scope.restData.loading && (
-				(newVal.center.latitude > $scope.restData.lastLatitude && newVal.center.latitude - (10 - updateRadio ) > $scope.restData.lastLatitude) ||
-				(newVal.center.latitude < $scope.restData.lastLatitude && newVal.center.latitude + (10 - updateRadio ) < $scope.restData.lastLatitude) ||
-				(newVal.center.longitude > $scope.restData.lastLongitude && newVal.center.longitude - (10 - updateRadio ) > $scope.restData.lastLongitude) ||
-				(newVal.center.longitude < $scope.restData.lastLongitude && newVal.center.longitude + (10 - updateRadio ) < $scope.restData.lastLongitude) || 
-				newVal.zoom != oldVal.zoom)
-			) {	
-				update = false;
-				$scope.restData.lastLatitude = newVal.center.latitude;
-				$scope.restData.lastLongitude = newVal.center.longitude;
-				getRestaurantsOnMap(null);
-			}
+		if (!$scope.restData.loading && (
+			(newVal.center.latitude > $scope.restData.lastLatitude && newVal.center.latitude - (10 - updateRadio ) > $scope.restData.lastLatitude) ||
+			(newVal.center.latitude < $scope.restData.lastLatitude && newVal.center.latitude + (10 - updateRadio ) < $scope.restData.lastLatitude) ||
+			(newVal.center.longitude > $scope.restData.lastLongitude && newVal.center.longitude - (10 - updateRadio ) > $scope.restData.lastLongitude) ||
+			(newVal.center.longitude < $scope.restData.lastLongitude && newVal.center.longitude + (10 - updateRadio ) < $scope.restData.lastLongitude) || 
+			newVal.zoom != oldVal.zoom)
+		) {	
+			update = false;
+			$scope.restData.lastLatitude = newVal.center.latitude;
+			$scope.restData.lastLongitude = newVal.center.longitude;
+			getRestaurantsOnMap(null);
+		}
 	}
 
 	$scope.$on('mapChange', function(event, args) {
@@ -213,27 +214,59 @@ $routeSegmentProvider
 
 	$scope.restData = RestaurantDataFactory.restaurantsData;
 	RestaurantDataFactory.updateMapFromRoutes();
+	RestaurantDataFactory.removeRestaurants();
+
 
 	$scope.search = function(searchWords) {
 
+		params = {}
+
 		$location.search('search', searchWords).replace();
-
 		$scope.latestSearch = searchWords;
+		params.q = searchWords.replace(/\s/g, ' ')
 
-		q = searchWords.replace(/\s/g, ' ')
-		promise = RestaurantFactory.get({q: q});
+		if ($scope.tagDropdown && $scope.tagDropdown.id) {
+			params.tag_id = $scope.tagDropdown.id;
+		}
+
+		promise = RestaurantFactory.get(params);
 		promise.$promise.then(function(data) {
 			RestaurantDataFactory.setRestaurantData(data);	
 		});
 	}
 
 
-
-}]);;angular.module('RestaurantManager.Restaurants').directive('temp', function () {
+}]);;angular.module('RestaurantManager.Restaurants').directive('tagsSearcher', [  function () {
 	return {
-		template: 'test test test'
+		restrict: 'E',
+		controller: ['$scope', '$q', '$timeout', 'TagFactory', function($scope, $q, $timeout, TagFactory) {
+			var timeout = 0;
+			
+			$scope.getTags = function(term) {
+				
+				$scope.tagAutocompleteError = '';
+				$timeout.cancel(timeout);
+				tagPromise = $q.defer()
+
+				timeout = $timeout(function() {
+					TagFactory.get({ term: term, limit: 8 }).$promise.then(function(data) {	
+						tagPromise.resolve(data.tags.map(function(item) {
+							return item;
+						}));
+					}, function() {
+						$scope.tagAutocompleteError = "Something went wrong.";
+					});
+				}, 200);
+				return tagPromise.promise;
+			}
+		}],
+		template: '<input type="text" data-ng-model="tagAutocomplete" placeholder="Hämta via tag"' +
+						 'typeahead="tag as tag.name for tag in getTags($viewValue)" typeahead-loading="loadingLocations" class="form-control">' +
+    				'<i ng-show="loadingLocations" class="glyphicon glyphicon-refresh"></i>' +
+    				'<p>{{ tagAutocompleteError }}</p>'
 	}
-});angular.module('RestaurantManager.Restaurants').factory('PositionFactory', ['$resource', 'API', function ($resource, $API) {
+}]);
+;angular.module('RestaurantManager.Restaurants').factory('PositionFactory', ['$resource', 'API', function ($resource, $API) {
 	return $resource($API + 'positions', {}, {});
  }]);;angular.module('RestaurantManager.Restaurants').factory('RestaurantDataFactory', [ '$q', '$routeParams', function ($q, $routeParams) {
 	
@@ -334,6 +367,10 @@ $routeSegmentProvider
 		},
 		setErrorMessage: function(errorMessage) {
 			restaurantsData.errorMessage = errorMessage;
+		},
+		removeRestaurants: function() {
+			restaurantsData.restaurants = [];
+			restaurantsData.restaurantmarkers = [];
 		}
 
 	};
@@ -343,6 +380,8 @@ $routeSegmentProvider
 	return $resource($API + 'restaurants/:id', {}, {
 		'put':    {method:'PUT'}
 	});
+ }]);;angular.module('RestaurantManager.Restaurants').factory('TagFactory', ['$resource', 'API', function ($resource, $API) {
+	return $resource($API + 'tags/:id', {}, {});
  }]);;angular.module('templates-dist', ['../views/restaurants.html', '../views/restaurants/positions.html', '../views/restaurants/search.html']);
 
 angular.module("../views/restaurants.html", []).run(["$templateCache", function($templateCache) {
@@ -392,15 +431,14 @@ angular.module("../views/restaurants/positions.html", []).run(["$templateCache",
 angular.module("../views/restaurants/search.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("../views/restaurants/search.html",
     "<div>\n" +
+    "	<tags-searcher></tags-searcher>\n" +
+    "    {{tagAutocomplete}}\n" +
+    "\n" +
     "    <form data-ng-submit=\"search(searchWords)\">\n" +
     "        <div class=\"form-group has-feedback\">\n" +
     "        <input class=\"form-control\" data-ng-model=\"searchWords\" />\n" +
     "         <i class=\"glyphicon glyphicon-search form-control-feedback\"></i>\n" +
     "        </div>\n" +
-    "    </form>\n" +
-    "\n" +
-    "    <p data-ng-if=\"latestSearch\">\n" +
-    "        Result for search: {{latestSearch}}\n" +
-    "    </p>\n" +
+    "    </form>    \n" +
     "</div>");
 }]);

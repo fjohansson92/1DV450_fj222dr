@@ -2,7 +2,14 @@ class Api::V1::TagsController < Api::V1::ApplicationController
 	before_filter :partial_response, only: [:index, :show]
 
 	def index
-		@tags = get_offset_limit Tag::all
+
+		tags = nil
+		if params[:term]
+			tags = get_offset_limit Tag.where("name LIKE ?", "%#{params[:term]}%")
+		else
+			tags = get_offset_limit Tag::all
+		end
+		@tags = get_offset_limit tags
 	end
 
 	def show

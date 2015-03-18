@@ -25,18 +25,18 @@ angular.module('RestaurantManager.Restaurants').controller('PositionCtrl', ['$sc
 	centerWatcher = function(newVal, oldVal) {
 		updateRadio = getUpdateRadio(newVal.zoom);				
 
-			if (!$scope.restData.loading && (
-				(newVal.center.latitude > $scope.restData.lastLatitude && newVal.center.latitude - (10 - updateRadio ) > $scope.restData.lastLatitude) ||
-				(newVal.center.latitude < $scope.restData.lastLatitude && newVal.center.latitude + (10 - updateRadio ) < $scope.restData.lastLatitude) ||
-				(newVal.center.longitude > $scope.restData.lastLongitude && newVal.center.longitude - (10 - updateRadio ) > $scope.restData.lastLongitude) ||
-				(newVal.center.longitude < $scope.restData.lastLongitude && newVal.center.longitude + (10 - updateRadio ) < $scope.restData.lastLongitude) || 
-				newVal.zoom != oldVal.zoom)
-			) {	
-				update = false;
-				$scope.restData.lastLatitude = newVal.center.latitude;
-				$scope.restData.lastLongitude = newVal.center.longitude;
-				getRestaurantsOnMap(null);
-			}
+		if (!$scope.restData.loading && (
+			(newVal.center.latitude > $scope.restData.lastLatitude && newVal.center.latitude - (10 - updateRadio ) > $scope.restData.lastLatitude) ||
+			(newVal.center.latitude < $scope.restData.lastLatitude && newVal.center.latitude + (10 - updateRadio ) < $scope.restData.lastLatitude) ||
+			(newVal.center.longitude > $scope.restData.lastLongitude && newVal.center.longitude - (10 - updateRadio ) > $scope.restData.lastLongitude) ||
+			(newVal.center.longitude < $scope.restData.lastLongitude && newVal.center.longitude + (10 - updateRadio ) < $scope.restData.lastLongitude) || 
+			newVal.zoom != oldVal.zoom)
+		) {	
+			update = false;
+			$scope.restData.lastLatitude = newVal.center.latitude;
+			$scope.restData.lastLongitude = newVal.center.longitude;
+			getRestaurantsOnMap(null);
+		}
 	}
 
 	$scope.$on('mapChange', function(event, args) {

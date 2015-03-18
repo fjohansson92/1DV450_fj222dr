@@ -97,6 +97,10 @@ angular.module('RestaurantManager.Restaurants').factory('RestaurantDataFactory',
 		},
 		setErrorMessage: function(errorMessage) {
 			restaurantsData.errorMessage = errorMessage;
+		},
+		removeRestaurants: function() {
+			restaurantsData.restaurants = [];
+			restaurantsData.restaurantmarkers = [];
 		}
 
 	};
