@@ -5,7 +5,6 @@ $routeSegmentProvider
     .when('/restaurants', 's1')
     .when('/restaurants/search', 's1.search')
 
-
     .segment('s1', {
     	templateUrl: 'views/restaurants.html',
     	controller: 'RestaurantCtrl'

@@ -8,7 +8,8 @@
         <link rel="stylesheet" href="stylesheet/app.css" />
     </head>
     <body>
-        <div class="container-fluid">
+        <div class="container-fluid" data-ng-controller="LoginCtrl">
+            <div login-menu login="login()" logout="logout()"></div>
             <div id="contents" app-view-segment="0"></div>
         </div>
 

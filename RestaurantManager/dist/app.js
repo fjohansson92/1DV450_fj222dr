@@ -1,4 +1,5 @@
-angular.module('RestaurantManager.Restaurants', []);;angular.module('RestaurantManager', [
+angular.module('RestaurantManager.Restaurants', []);
+angular.module('RestaurantManager.Login', []);;angular.module('RestaurantManager', [
 										'ngRoute',
 										'ngAnimate',
 										'ui.bootstrap',
@@ -6,7 +7,8 @@ angular.module('RestaurantManager.Restaurants', []);;angular.module('RestaurantM
 										'view-segment',
 										'ngResource',
 										'uiGmapgoogle-maps',
-									 	'RestaurantManager.Restaurants'
+									 	'RestaurantManager.Restaurants',
+									 	'RestaurantManager.Login'
 									]
 );;angular.module('RestaurantManager')
 	.constant('API', 'http://api.lvh.me:3001/v1/');;angular.module('RestaurantManager').config(['$httpProvider', function ($httpProvider) {
@@ -27,7 +29,6 @@ $routeSegmentProvider
 
     .when('/restaurants', 's1')
     .when('/restaurants/search', 's1.search')
-
 
     .segment('s1', {
     	templateUrl: 'views/restaurants.html',
@@ -54,7 +55,92 @@ $routeSegmentProvider
 
 
 
-;angular.module('RestaurantManager.Restaurants').controller('PositionCtrl', ['$scope', '$q', '$timeout', 'PositionFactory', 'RestaurantDataFactory',
+;angular.module('RestaurantManager.Login').controller('LoginCtrl', ['$scope', '$location', '$routeParams', 'LoginFactory', function ($scope, $location, $routeParams, LoginFactory) {
+
+	var init = function() {
+		
+		if ($routeParams.auth_token && $routeParams.token_expires) {
+			LoginFactory.login($routeParams.auth_token);
+		}
+		$location.search('auth_token', null).replace();
+		$location.search('token_expires', null).replace();
+	}
+
+	listener = $scope.$on('$routeChangeSuccess', function() {
+    	init();
+    	listener();
+  	});
+
+	$scope.login = function() {
+
+		var user_token = "";
+		var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+		for( var i=0; i < 35; i++ )
+			user_token += possible.charAt(Math.floor(Math.random() * possible.length));
+
+		LoginFactory.setUserToken(user_token);
+		
+		callback = encodeURIComponent($location.absUrl());
+		url = "http://www.api.lvh.me:3001/v1/authenticate?user_token=" + user_token + '&callback=' + callback;
+		window.location.href = url;
+	}
+
+	$scope.logout = function() {
+		LoginFactory.logout();
+	}
+
+	
+}]);;angular.module('RestaurantManager.Login').directive('loginMenu', ['LoginFactory', function (LoginFactory) {
+	return {
+		restrict: 'A',
+		scope: {
+			logout: '&',
+			login: '&'
+		},
+		link: function(scope) {
+			scope.user = LoginFactory.user;
+		},
+		template: '<button data-ng-if="user.loggedin" data-ng-click="logout()">Logout</button>' +
+				  '<button data-ng-if="!user.loggedin" data-ng-click="login()">Login</button>'
+    }
+}]);
+;angular.module('RestaurantManager.Login').factory('LoginFactory', [ function () {
+	
+	var user_token_localstorage = 'user_token';
+	var auth_token_localstorage = 'auth_token';
+
+	saved_user_token = localStorage.getItem(user_token_localstorage);
+	saved_auth_token = localStorage.getItem(auth_token_localstorage);
+	
+	var user = {
+					user_token: saved_user_token,
+					auth_token: saved_auth_token,
+					loggedin: false
+				};
+
+	if (saved_user_token && saved_auth_token) {
+		user.loggedin = true;
+	}
+
+	return {
+		user: user,
+		setUserToken: function(user_token) {
+			localStorage.setItem(user_token_localstorage, user_token);
+		},
+		login: function(auth_token) {
+			localStorage.setItem(auth_token_localstorage, auth_token);
+			user.loggedin = true;
+		},
+		logout: function() {
+			localStorage.removeItem(user_token_localstorage);
+			localStorage.removeItem(auth_token_localstorage);
+
+			user.user_token = null;
+			user.auth_token = null;
+			user.loggedin = false;
+		}  
+	}	
+}]);;angular.module('RestaurantManager.Restaurants').controller('PositionCtrl', ['$scope', '$q', '$timeout', 'PositionFactory', 'RestaurantDataFactory',
 																	  function ($scope, $q, $timeout, PositionFactory, RestaurantDataFactory) {
 
 	$scope.restData = RestaurantDataFactory.restaurantsData;
@@ -463,7 +549,7 @@ angular.module("../views/restaurants.html", []).run(["$templateCache", function(
     "		\n" +
     "		<a href=\"#{{ 's1' | routeSegmentUrl}}\">Home</a>	\n" +
     "		<a href=\"#{{ 's1.search' | routeSegmentUrl}}\">Search</a>\n" +
-    "\n" +
+    "				\n" +
     "		<div app-view-segment=\"1\"></div>\n" +
     "\n" +
     "		<p data-ng-show=\"!restData.restaurants.length\">Inga restauranger</p>\n" +

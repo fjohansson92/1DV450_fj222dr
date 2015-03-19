@@ -19,7 +19,9 @@ class Api::V1::SessionsController < Api::V1::ApplicationController
 			apiuser = Apiuser.find_by_provider_and_uid(auth["provider"], auth["uid"]) || Apiuser.create_with_github_omniauth(auth)
 			apiuser.update_token @user_token
 			if apiuser.save
-				redirect_to "#{@url}?auth_token=#{apiuser.auth_token}&token_expires=#{Rack::Utils.escape(apiuser.token_expires.to_s)}"
+				bindSymbol = @url.include?('?') ? '&' : '?';	
+				puts YAML::dump(@url)							
+				redirect_to "#{@url}#{bindSymbol}auth_token=#{apiuser.auth_token}&token_expires=#{Rack::Utils.escape(apiuser.token_expires.to_s)}"
 			else
 				@error = ErrorMessage.new("Couldn't create user, see user messages.", apiuser.errors.messages, "2004")
 				render json: @error, status: :bad_request

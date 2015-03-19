@@ -6,6 +6,7 @@ angular.module('RestaurantManager', [
 										'view-segment',
 										'ngResource',
 										'uiGmapgoogle-maps',
-									 	'RestaurantManager.Restaurants'
+									 	'RestaurantManager.Restaurants',
+									 	'RestaurantManager.Login'
 									]
 );
