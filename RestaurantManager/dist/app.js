@@ -32,6 +32,7 @@ $routeSegmentProvider
     .when('/restaurants', 's1')
     .when('/restaurants/search', 's1.search')
     .when('/restaurants/create', 's1.create')
+    .when('/restaurants/created', 's1.created')
 
     .segment('s1', {
     	templateUrl: 'views/restaurants.html',
@@ -47,6 +48,10 @@ $routeSegmentProvider
             controller: 'CreateCtrl',
             templateUrl: 'views/restaurants/create.html'
         })
+        .segment('created', {
+            controller: 'CreatedCtrl',
+            templateUrl: 'views/restaurants/created.html'
+        })
     	.segment('home/:latitude?/:longitude?/:zoom?', {
     		controller: 'PositionCtrl',
 			templateUrl: 'views/restaurants/positions.html',
@@ -60,11 +65,12 @@ $routeSegmentProvider
 
 	var init = function() {
 		
-		if ($routeParams.auth_token && $routeParams.token_expires) {
-			LoginFactory.login($routeParams.auth_token);
+		if ($routeParams.auth_token && $routeParams.token_expires && $routeParams.apiuser_id) {
+			LoginFactory.login($routeParams.auth_token, $routeParams.apiuser_id);
 		}
 		$location.search('auth_token', null).replace();
 		$location.search('token_expires', null).replace();
+		$location.search('apiuser_id', null).replace();
 	}
 
 	listener = $scope.$on('$routeChangeSuccess', function() {
@@ -109,17 +115,20 @@ $routeSegmentProvider
 	
 	var user_token_localstorage = 'user_token';
 	var auth_token_localstorage = 'auth_token';
+	var apiuser_id_localstorage = 'apiuser_id';
 
 	saved_user_token = localStorage.getItem(user_token_localstorage);
 	saved_auth_token = localStorage.getItem(auth_token_localstorage);
+	saved_apiuser_id = localStorage.getItem(apiuser_id_localstorage);
 	
 	var user = {
 					user_token: saved_user_token,
 					auth_token: saved_auth_token,
+					apiuser_id: saved_apiuser_id,
 					loggedin: false
 				};
 
-	if (saved_user_token && saved_auth_token) {
+	if (saved_user_token && saved_auth_token && saved_apiuser_id) {
 		user.loggedin = true;
 	}
 
@@ -128,17 +137,21 @@ $routeSegmentProvider
 		setUserToken: function(user_token) {
 			localStorage.setItem(user_token_localstorage, user_token);
 		},
-		login: function(auth_token) {
+		login: function(auth_token, apiuser_id) {
 			localStorage.setItem(auth_token_localstorage, auth_token);
+			localStorage.setItem(apiuser_id_localstorage, apiuser_id);
 			user.auth_token = auth_token;
+			user.apiuser_id = apiuser_id;
 			user.loggedin = true;
 		},
 		logout: function() {
 			localStorage.removeItem(user_token_localstorage);
 			localStorage.removeItem(auth_token_localstorage);
+			localStorage.removeItem(apiuser_id_localstorage);
 
 			user.user_token = null;
 			user.auth_token = null;
+			user.apiuser_id = null;
 			user.loggedin = false;
 		}  
 	}	
@@ -197,7 +210,25 @@ $routeSegmentProvider
 	}
 
 }]);
-;angular.module('RestaurantManager.Restaurants').controller('PositionCtrl', ['$scope', '$q', '$timeout', 'PositionFactory', 'RestaurantDataFactory',
+;angular.module('RestaurantManager.Restaurants').controller('CreatedCtrl', ['$scope', 'RestaurantFactory', 'RestaurantDataFactory',
+																   function ($scope, RestaurantFactory, RestaurantDataFactory) {
+
+	$scope.restData = RestaurantDataFactory.restaurantsData;
+	RestaurantDataFactory.updateMapFromRoutes();
+	RestaurantDataFactory.removeRestaurants();
+
+
+	ownRestaurants = RestaurantFactory.getOwn();
+	ownRestaurants.$promise.then(function(data) {
+		RestaurantDataFactory.setRestaurantData(data);			
+	}, function(reason) {
+		if (reason && reason.hasOwnProperty('data') && reason.data.hasOwnProperty('userMessage')) {
+			RestaurantDataFactory.setErrorMessage(reason.data.userMessage);
+		} 
+	});
+
+
+}]);																   	;angular.module('RestaurantManager.Restaurants').controller('PositionCtrl', ['$scope', '$q', '$timeout', 'PositionFactory', 'RestaurantDataFactory',
 																	  function ($scope, $q, $timeout, PositionFactory, RestaurantDataFactory) {
 
 	$scope.restData = RestaurantDataFactory.restaurantsData;
@@ -628,12 +659,13 @@ $routeSegmentProvider
  }]);;angular.module('RestaurantManager.Restaurants').factory('RestaurantFactory', ['$resource', 'API', 'LoginFactory', function ($resource, $API, LoginFactory) {
 	return $resource($API + 'restaurants/:id', {}, {
 		'save': {method: 'POST', headers: { user_token: LoginFactory.user.user_token, 
-											auth_token: LoginFactory.user.auth_token} },  
+											auth_token: LoginFactory.user.auth_token} },
+		'getOwn': {method: 'GET', params: { apiuser_id: LoginFactory.user.apiuser_id }},  
 		'put': {method:'PUT'}
 	});
  }]);;angular.module('RestaurantManager.Restaurants').factory('TagFactory', ['$resource', 'API', function ($resource, $API) {
 	return $resource($API + 'tags/:id', {}, {});
- }]);;angular.module('templates-dist', ['../views/restaurants.html', '../views/restaurants/create.html', '../views/restaurants/positions.html', '../views/restaurants/search.html']);
+ }]);;angular.module('templates-dist', ['../views/restaurants.html', '../views/restaurants/create.html', '../views/restaurants/created.html', '../views/restaurants/positions.html', '../views/restaurants/search.html']);
 
 angular.module("../views/restaurants.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("../views/restaurants.html",
@@ -643,6 +675,7 @@ angular.module("../views/restaurants.html", []).run(["$templateCache", function(
     "		<a href=\"#{{ 's1' | routeSegmentUrl}}\">Home</a>	\n" +
     "		<a href=\"#{{ 's1.search' | routeSegmentUrl}}\">Search</a>\n" +
     "		<a href=\"#{{ 's1.create' | routeSegmentUrl}}\">Create</a>\n" +
+    "		<a href=\"#{{ 's1.created' | routeSegmentUrl}}\">My restaurants</a>\n" +
     "				\n" +
     "		<div app-view-segment=\"1\"></div>\n" +
     "\n" +
@@ -736,6 +769,11 @@ angular.module("../views/restaurants/create.html", []).run(["$templateCache", fu
     "	<button type=\"submit\" data-ng-click=\"submit()\" data-ng-disabled=\"restForm.$invalid\" class=\"btn btn-default\">Submit</button>\n" +
     "</form>\n" +
     "");
+}]);
+
+angular.module("../views/restaurants/created.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("../views/restaurants/created.html",
+    "hej");
 }]);
 
 angular.module("../views/restaurants/positions.html", []).run(["$templateCache", function($templateCache) {

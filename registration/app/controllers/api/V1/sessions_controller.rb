@@ -21,7 +21,7 @@ class Api::V1::SessionsController < Api::V1::ApplicationController
 			if apiuser.save
 				bindSymbol = @url.include?('?') ? '&' : '?';	
 				puts YAML::dump(@url)							
-				redirect_to "#{@url}#{bindSymbol}auth_token=#{apiuser.auth_token}&token_expires=#{Rack::Utils.escape(apiuser.token_expires.to_s)}"
+				redirect_to "#{@url}#{bindSymbol}auth_token=#{apiuser.auth_token}&token_expires=#{Rack::Utils.escape(apiuser.token_expires.to_s)}&apiuser_id=#{apiuser.id}"
 			else
 				@error = ErrorMessage.new("Couldn't create user, see user messages.", apiuser.errors.messages, "2004")
 				render json: @error, status: :bad_request
