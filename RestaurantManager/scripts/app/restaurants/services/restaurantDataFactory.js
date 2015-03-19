@@ -36,6 +36,8 @@ angular.module('RestaurantManager.Restaurants').factory('RestaurantDataFactory',
 			restaurantsData.lastLatitude = parseFloat($routeParams.latitude) - 20;
 			restaurantsData.cordsInParams = true;
 
+
+
 			restaurantsData.uiGmapPromise.then(function(data){
 				restaurantsData.map.waitForRefresh = false;
 				restaurantsData.map.control.refresh({latitude: parseFloat($routeParams.latitude), 
@@ -101,6 +103,16 @@ angular.module('RestaurantManager.Restaurants').factory('RestaurantDataFactory',
 		removeRestaurants: function() {
 			restaurantsData.restaurants = [];
 			restaurantsData.restaurantmarkers = [];
+		},
+		addSelectMarker: function() {
+			restaurantsData.selectmarker = {
+				id: 0,
+				coords: {
+					latitude: restaurantsData.map.center.latitude,
+					longitude: restaurantsData.map.center.longitude
+				},
+				options: { draggable: true }				
+			};
 		}
 
 	};

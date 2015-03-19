@@ -1,0 +1,57 @@
+<form class="form-horizontal creatRestaurant" name="restForm" novalidate>
+	<ul>
+		<li data-ng-repeat="(key, error) in restData.errorMessage">
+			{{key}}: {{error[0]}}
+		</li>
+	</ul>
+
+	
+	<div class="form-group" data-ng-class="{'has-error': restForm.name.$invalid && restForm.name.$touched}">
+		<label for="name" class="col-sm-2 control-label">Name</label>
+		<input type="text" class="form-control" id="name" name="name" data-ng-model="restaurant.name" required placeholder="Ex Harrys">		
+	</div>
+
+	<div class="form-group" data-ng-class="{'has-error': restForm.phone.$invalid && restForm.phone.$touched}">
+		<label for="phone" class="col-sm-2 control-label">Phone</label>
+		<input type="text" class="form-control" name="phone" data-ng-model="restaurant.phone" required id="phone">		
+	</div>
+	<div class="form-group" data-ng-class="{'has-error': restForm.address.$invalid && restForm.address.$touched}">
+		<label for="address" class="col-sm-2 control-label">Address</label>
+		<input type="text" class="form-control" name="address" data-ng-model="restaurant.address" id="address" required placeholder="Ex Road 2, Kalmar 333 00">		
+	</div>
+	<div class="form-group" data-ng-class="{'has-error': restForm.description.$invalid && restForm.description.$touched}">
+		<label for="description" class="col-sm-2 control-label">Description</label>
+		<textarea rows="3" type="text" class="form-control" name="description" data-ng-model="restaurant.description" 
+			required id="description" placeholder="Tell us about your restaurant!"></textarea>		
+	</div>
+	<div class="form-group">
+		<label for="longitude" class="col-sm-4 control-label">Longitude</label>
+		<div class="col-sm-8">
+			<input type="text" class="form-control" id="longitude" readonly data-ng-model="restData.selectmarker.coords.longitude">				
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="latitude" class="col-sm-4 control-label">Latitude</label>
+		<div class="col-sm-8">
+			<input type="text" class="form-control" id="latitude" readonly data-ng-model="restData.selectmarker.coords.latitude">				
+		</div>
+	</div>
+	<ul class="tagList">
+		<li data-ng-repeat="tag in newTags">
+			{{tag}}
+			<button type="button" class="btn btn-default btn-xs">
+				<span class="glyphicon glyphicon-remove" aria-hidden="true" data-ng-click="removeTag(tag)"></span>
+			</button>
+		</li>
+	</ul>
+	<div>
+		<form class="form-inline">
+			<div class="form-group">
+				<tags-autocomplete></tags-autocomplete>
+			</div>
+			<button type="submit" data-ng-click="addTag(tagAutocomplete)" class="btn btn-default">Add</button>
+		</form>
+	</div>
+
+	<button type="submit" data-ng-click="submit()" data-ng-disabled="restForm.$invalid" class="btn btn-default">Submit</button>
+</form>

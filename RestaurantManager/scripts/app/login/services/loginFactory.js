@@ -23,6 +23,7 @@ angular.module('RestaurantManager.Login').factory('LoginFactory', [ function () 
 		},
 		login: function(auth_token) {
 			localStorage.setItem(auth_token_localstorage, auth_token);
+			user.auth_token = auth_token;
 			user.loggedin = true;
 		},
 		logout: function() {

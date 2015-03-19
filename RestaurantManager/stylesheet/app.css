@@ -24,3 +24,9 @@ html, body, #contents {
 	height: 70px;
 	padding: 0;
 }
+
+
+.creatRestaurant .tagList {
+	max-height: 200px;
+	overflow-y: scroll;
+}

@@ -3,6 +3,7 @@
 		
 		<a href="#{{ 's1' | routeSegmentUrl}}">Home</a>	
 		<a href="#{{ 's1.search' | routeSegmentUrl}}">Search</a>
+		<a href="#{{ 's1.create' | routeSegmentUrl}}">Create</a>
 				
 		<div app-view-segment="1"></div>
 
@@ -21,9 +22,11 @@
 		</div>
 	</div>
 	<div class="col-md-9 fullheight">
-		<ui-gmap-google-map center='restData.map.center' zoom='restData.map.zoom' bounds="restData.map.bounds" control="restData.map.control">
-			<ui-gmap-markers models="restData.restaurantmarkers" coords="'self'" icon="'icon'"></ui-gmap-markers>
+		<ui-gmap-google-map center='restData.map.center' zoom='restData.map.zoom' bounds="restData.map.bounds" draggable="true" control="restData.map.control">
+			<ui-gmap-markers models="restData.restaurantmarkers" coords="'self'" dra icon="'icon'"></ui-gmap-markers>
+			<ui-gmap-marker coords="restData.selectmarker.coords" options="restData.selectmarker.options" events="restData.selectmarker.events" idkey="restData.selectmarker.id">
 		</ui-gmap-google-map>	
+		
 	</div>
 </div>
 

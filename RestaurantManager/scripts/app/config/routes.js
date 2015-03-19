@@ -4,6 +4,7 @@ $routeSegmentProvider
 
     .when('/restaurants', 's1')
     .when('/restaurants/search', 's1.search')
+    .when('/restaurants/create', 's1.create')
 
     .segment('s1', {
     	templateUrl: 'views/restaurants.html',
@@ -15,8 +16,10 @@ $routeSegmentProvider
     		controller: 'SearchCtrl',
 			templateUrl: 'views/restaurants/search.html'
     	})
-
-
+        .segment('create', {
+            controller: 'CreateCtrl',
+            templateUrl: 'views/restaurants/create.html'
+        })
     	.segment('home/:latitude?/:longitude?/:zoom?', {
     		controller: 'PositionCtrl',
 			templateUrl: 'views/restaurants/positions.html',
@@ -25,8 +28,4 @@ $routeSegmentProvider
 
    	$routeProvider.otherwise({redirectTo: '/restaurants'});
 }]);
-
-
-
-
 
