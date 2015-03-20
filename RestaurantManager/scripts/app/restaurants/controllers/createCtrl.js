@@ -26,8 +26,8 @@ angular.module('RestaurantManager.Restaurants').controller('CreateCtrl', ['$scop
 			} 
 		});
 	} else {
-		ownRestaurant = $scope.defer();
-		ownRestaurant.reolve();
+		ownRestaurant = $q.defer();
+		ownRestaurant.resolve;
 	}
 
 

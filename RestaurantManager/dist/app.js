@@ -189,8 +189,8 @@ $routeSegmentProvider
 			} 
 		});
 	} else {
-		ownRestaurant = $scope.defer();
-		ownRestaurant.reolve();
+		ownRestaurant = $q.defer();
+		ownRestaurant.resolve;
 	}
 
 
@@ -268,6 +268,18 @@ $routeSegmentProvider
 		if (reason && reason.hasOwnProperty('data') && reason.data.hasOwnProperty('userMessage')) {
 			RestaurantDataFactory.setErrorMessage(reason.data.userMessage);
 		} 
+	});
+
+	$scope.$on('removeRestaurant', function(event, id) {
+		
+		ownRestaurant = RestaurantFactory.remove({id: id.id});
+		ownRestaurant.$promise.then(function(data) {
+			//RestaurantDataFactory.setRestaurantData(data);			
+		}, function(reason) {
+			if (reason && reason.hasOwnProperty('data') && reason.data.hasOwnProperty('userMessage')) {
+				RestaurantDataFactory.setErrorMessage(reason.data.userMessage);
+			} 
+		});
 	});
 
 
@@ -400,6 +412,10 @@ $routeSegmentProvider
 		$location.search('zoom', newVal.zoom).replace();
 		$scope.$broadcast('mapChange', {newVal: newVal, oldVal: oldVal});
 	}, true);
+
+	$scope.remove = function(id) {
+		$scope.$broadcast('removeRestaurant', {id: id});
+	}
 
 
 	$scope.paginate = function(url) {
@@ -714,7 +730,9 @@ $routeSegmentProvider
 											auth_token: LoginFactory.user.auth_token} },
 		'getOwn': {method: 'GET', params: { apiuser_id: LoginFactory.user.apiuser_id }},  
 		'put': {method:'PUT', headers: { user_token: LoginFactory.user.user_token, 
-							  			 auth_token: LoginFactory.user.auth_token} }
+							  			 auth_token: LoginFactory.user.auth_token} },
+		'remove': {method:'DELETE', headers: { user_token: LoginFactory.user.user_token, 
+							  			 	   auth_token: LoginFactory.user.auth_token} }
 	});
  }]);;angular.module('RestaurantManager.Restaurants').factory('TagFactory', ['$resource', 'API', function ($resource, $API) {
 	return $resource($API + 'tags/:id', {}, {});
@@ -739,7 +757,14 @@ angular.module("../views/restaurants.html", []).run(["$templateCache", function(
     "				<div data-ng-click=\"showMoreInfo = !showMoreInfo\">\n" +
     "					<p>{{restaurant.name}}</p>\n" +
     "					<p>Tel: {{restaurant.phone}}</p>\n" +
-    "					<a data-ng-if=\"restData.ownRestaurants\" href=\"#{{ 's1.edit' | routeSegmentUrl: {id: restaurant.id} }}\">Edit</a>\n" +
+    "				</div>\n" +
+    "				<div data-ng-if=\"restData.ownRestaurants\" class=\"btn-group\" role=\"group\" aria-label=\"...\">\n" +
+    "					<a href=\"#{{ 's1.edit' | routeSegmentUrl: {id: restaurant.id} }}\" type=\"button\" class=\"btn btn-success btn-xs\">\n" +
+    "						<span class=\"glyphicon glyphicon-edit\" aria-hidden=\"true\"></span>\n" +
+    "					</a>\n" +
+    "					<button data-ng-click=\"remove(restaurant.id)\" type=\"button\" class=\"btn btn-danger btn-xs\">\n" +
+    "						<span class=\"glyphicon glyphicon-remove\" aria-hidden=\"true\"></span>\n" +
+    "					</button>\n" +
     "				</div>\n" +
     "				<div data-ng-show=\"showMoreInfo\">\n" +
     "					<p>Address: {{restaurant.restaurants}}</p>\n" +
@@ -764,11 +789,6 @@ angular.module("../views/restaurants.html", []).run(["$templateCache", function(
     "		\n" +
     "	</div>\n" +
     "</div>\n" +
-    "\n" +
-    "\n" +
-    "\n" +
-    "\n" +
-    "\n" +
     "");
 }]);
 

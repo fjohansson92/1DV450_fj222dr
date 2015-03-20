@@ -15,7 +15,14 @@
 				<div data-ng-click="showMoreInfo = !showMoreInfo">
 					<p>{{restaurant.name}}</p>
 					<p>Tel: {{restaurant.phone}}</p>
-					<a data-ng-if="restData.ownRestaurants" href="#{{ 's1.edit' | routeSegmentUrl: {id: restaurant.id} }}">Edit</a>
+				</div>
+				<div data-ng-if="restData.ownRestaurants" class="btn-group" role="group" aria-label="...">
+					<a href="#{{ 's1.edit' | routeSegmentUrl: {id: restaurant.id} }}" type="button" class="btn btn-success btn-xs">
+						<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+					</a>
+					<button data-ng-click="remove(restaurant.id)" type="button" class="btn btn-danger btn-xs">
+						<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+					</button>
 				</div>
 				<div data-ng-show="showMoreInfo">
 					<p>Address: {{restaurant.restaurants}}</p>
@@ -40,8 +47,3 @@
 		
 	</div>
 </div>
-
-
-
-
-

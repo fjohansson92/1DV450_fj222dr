@@ -23,6 +23,10 @@ angular.module('RestaurantManager.Restaurants').controller('RestaurantCtrl', ['$
 		$scope.$broadcast('mapChange', {newVal: newVal, oldVal: oldVal});
 	}, true);
 
+	$scope.remove = function(id) {
+		$scope.$broadcast('removeRestaurant', {id: id});
+	}
+
 
 	$scope.paginate = function(url) {
 		urlParams = url.split('&');
