@@ -4,7 +4,7 @@ angular.module('RestaurantManager.Restaurants').controller('CreatedCtrl', ['$sco
 	$scope.restData = RestaurantDataFactory.restaurantsData;
 	RestaurantDataFactory.updateMapFromRoutes();
 	RestaurantDataFactory.removeRestaurants();
-
+	RestaurantDataFactory.setOwnRestaurants();
 
 	ownRestaurants = RestaurantFactory.getOwn();
 	ownRestaurants.$promise.then(function(data) {
@@ -16,4 +16,4 @@ angular.module('RestaurantManager.Restaurants').controller('CreatedCtrl', ['$sco
 	});
 
 
-}]);																   	
+}]);															

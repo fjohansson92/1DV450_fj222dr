@@ -3,6 +3,7 @@ angular.module('RestaurantManager.Restaurants').controller('PositionCtrl', ['$sc
 
 	$scope.restData = RestaurantDataFactory.restaurantsData;
 	RestaurantDataFactory.updateMapFromRoutes();
+	RestaurantDataFactory.removeRestaurants();
 	var allowWatch = false;
 
 	init = function() {

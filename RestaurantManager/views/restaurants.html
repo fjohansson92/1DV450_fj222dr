@@ -9,9 +9,19 @@
 		<div app-view-segment="1"></div>
 
 		<p data-ng-show="!restData.restaurants.length">Inga restauranger</p>
-		<ul>
+		
+		<ul data-ng-if="restData.restaurants.length" class="restaurantList list-unstyled">
 			<li data-ng-repeat="restaurant in restData.restaurants" >
-				{{restaurant.name}}
+				<div data-ng-click="showMoreInfo = !showMoreInfo">
+					<p>{{restaurant.name}}</p>
+					<p>Tel: {{restaurant.phone}}</p>
+					<a data-ng-if="restData.ownRestaurants" href="#{{ 's1.edit' | routeSegmentUrl: {id: restaurant.id} }}">Edit</a>
+				</div>
+				<div data-ng-show="showMoreInfo">
+					<p>Address: {{restaurant.restaurants}}</p>
+					<p>{{restaurant.description}}</p>
+				</div>
+
 			</li>
 		</ul>
 
@@ -25,7 +35,7 @@
 	<div class="col-md-9 fullheight">
 		<ui-gmap-google-map center='restData.map.center' zoom='restData.map.zoom' bounds="restData.map.bounds" draggable="true" control="restData.map.control">
 			<ui-gmap-markers models="restData.restaurantmarkers" coords="'self'" dra icon="'icon'"></ui-gmap-markers>
-			<ui-gmap-marker coords="restData.selectmarker.coords" options="restData.selectmarker.options" events="restData.selectmarker.events" idkey="restData.selectmarker.id">
+			<ui-gmap-marker data-ng-if="restData.selectmarker.show" coords="restData.selectmarker.coords" options="restData.selectmarker.options" events="restData.selectmarker.events" idkey="restData.selectmarker.id">
 		</ui-gmap-google-map>	
 		
 	</div>

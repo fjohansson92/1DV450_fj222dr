@@ -3,6 +3,7 @@ angular.module('RestaurantManager.Restaurants').factory('RestaurantFactory', ['$
 		'save': {method: 'POST', headers: { user_token: LoginFactory.user.user_token, 
 											auth_token: LoginFactory.user.auth_token} },
 		'getOwn': {method: 'GET', params: { apiuser_id: LoginFactory.user.apiuser_id }},  
-		'put': {method:'PUT'}
+		'put': {method:'PUT', headers: { user_token: LoginFactory.user.user_token, 
+							  			 auth_token: LoginFactory.user.auth_token} }
 	});
  }]);

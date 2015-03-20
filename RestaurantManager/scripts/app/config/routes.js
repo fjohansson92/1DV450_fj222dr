@@ -5,6 +5,7 @@ $routeSegmentProvider
     .when('/restaurants', 's1')
     .when('/restaurants/search', 's1.search')
     .when('/restaurants/create', 's1.create')
+    .when('/restaurants/edit/:id', 's1.edit')
     .when('/restaurants/created', 's1.created')
 
     .segment('s1', {
@@ -20,6 +21,11 @@ $routeSegmentProvider
         .segment('create', {
             controller: 'CreateCtrl',
             templateUrl: 'views/restaurants/create.html'
+        })
+        .segment('edit', {
+            controller: 'CreateCtrl',
+            templateUrl: 'views/restaurants/create.html',
+            dependencies: ['id']
         })
         .segment('created', {
             controller: 'CreatedCtrl',

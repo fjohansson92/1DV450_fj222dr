@@ -32,6 +32,7 @@ $routeSegmentProvider
     .when('/restaurants', 's1')
     .when('/restaurants/search', 's1.search')
     .when('/restaurants/create', 's1.create')
+    .when('/restaurants/edit/:id', 's1.edit')
     .when('/restaurants/created', 's1.created')
 
     .segment('s1', {
@@ -47,6 +48,11 @@ $routeSegmentProvider
         .segment('create', {
             controller: 'CreateCtrl',
             templateUrl: 'views/restaurants/create.html'
+        })
+        .segment('edit', {
+            controller: 'CreateCtrl',
+            templateUrl: 'views/restaurants/create.html',
+            dependencies: ['id']
         })
         .segment('created', {
             controller: 'CreatedCtrl',
@@ -155,8 +161,8 @@ $routeSegmentProvider
 			user.loggedin = false;
 		}  
 	}	
-}]);;angular.module('RestaurantManager.Restaurants').controller('CreateCtrl', ['$scope', 'RestaurantFactory', 'RestaurantDataFactory',
-																   function ($scope, RestaurantFactory, RestaurantDataFactory) {
+}]);;angular.module('RestaurantManager.Restaurants').controller('CreateCtrl', ['$scope', '$q','$routeParams', 'RestaurantFactory', 'RestaurantDataFactory',
+																   function ($scope, $q, $routeParams, RestaurantFactory, RestaurantDataFactory) {
 
 	$scope.restData = RestaurantDataFactory.restaurantsData;
 	RestaurantDataFactory.removeRestaurants();
@@ -164,6 +170,32 @@ $routeSegmentProvider
 	$scope.newTags = [];
 	$scope.restaurant = {};
 	var original = $scope.restaurant;
+
+	var ownRestaurant;
+	var edit = false;
+
+	if ($routeParams.id) {
+		edit = true;
+		ownRestaurant = RestaurantFactory.get({id: $routeParams.id}).$promise;
+		ownRestaurant.then(function(data) {
+			$scope.restaurant = data.restaurant;
+			for (var key in data.restaurant.tags) {
+				tag = data.restaurant.tags[key]
+				$scope.newTags.push(tag["name"]);
+			}
+		}, function(reason) {
+			if (reason && reason.hasOwnProperty('data') && reason.data.hasOwnProperty('userMessage')) {
+				RestaurantDataFactory.setErrorMessage(reason.data.userMessage);
+			} 
+		});
+	} else {
+		ownRestaurant = $scope.defer();
+		ownRestaurant.reolve();
+	}
+
+
+
+
 
 	$scope.addTag = function(tag) {
 		if (tag) {
@@ -184,27 +216,38 @@ $routeSegmentProvider
 
 	$scope.submit = function() {
 		
-		restaurant = $scope.restaurant;
-		restaurant.latitude = $scope.restData.selectmarker.coords.latitude;
-		restaurant.longitude = $scope.restData.selectmarker.coords.longitude;
-		restaurant.tags_attributes = [];
-		for (var key in $scope.newTags) {
-			tag = $scope.newTags[key]
+		ownRestaurant.then(function() {
+			restaurant = $scope.restaurant;
+			restaurant.latitude = $scope.restData.selectmarker.coords.latitude;
+			restaurant.longitude = $scope.restData.selectmarker.coords.longitude;
+			restaurant.tags_attributes = [];
+			for (var key in $scope.newTags) {
+				tag = $scope.newTags[key]
 
-			restaurant.tags_attributes.push({
-				name: tag				
+				restaurant.tags_attributes.push({
+					name: tag				
+				});
+			}
+
+			var restaurantPost;
+			if (edit) {
+				restaurantPost = RestaurantFactory.put({ id: restaurant.id},{ restaurant: restaurant });
+				
+			} else {
+				restaurantPost = RestaurantFactory.save({ restaurant: restaurant });
+			}
+
+			restaurantPost.$promise.then(function(data) {
+				if (!edit) {
+					$scope.newTags = [];
+					$scope.restaurant = angular.copy(original);
+					$scope.restForm.$setUntouched();
+				}
+			}, function(reason) {
+				if (reason && reason.hasOwnProperty('data') && reason.data.hasOwnProperty('userMessage')) {
+					RestaurantDataFactory.setErrorMessage(reason.data.userMessage);
+				} 
 			});
-		}
-
-		restaurantPost = RestaurantFactory.save({ restaurant: restaurant });
-		restaurantPost.$promise.then(function(data) {
-			$scope.newTags = [];
-			$scope.restaurant = angular.copy(original);
-			$scope.restForm.$setUntouched();
-		}, function(reason) {
-			if (reason && reason.hasOwnProperty('data') && reason.data.hasOwnProperty('userMessage')) {
-				RestaurantDataFactory.setErrorMessage(reason.data.userMessage);
-			} 
 		});
 
 	}
@@ -216,7 +259,7 @@ $routeSegmentProvider
 	$scope.restData = RestaurantDataFactory.restaurantsData;
 	RestaurantDataFactory.updateMapFromRoutes();
 	RestaurantDataFactory.removeRestaurants();
-
+	RestaurantDataFactory.setOwnRestaurants();
 
 	ownRestaurants = RestaurantFactory.getOwn();
 	ownRestaurants.$promise.then(function(data) {
@@ -228,11 +271,12 @@ $routeSegmentProvider
 	});
 
 
-}]);																   	;angular.module('RestaurantManager.Restaurants').controller('PositionCtrl', ['$scope', '$q', '$timeout', 'PositionFactory', 'RestaurantDataFactory',
+}]);															;angular.module('RestaurantManager.Restaurants').controller('PositionCtrl', ['$scope', '$q', '$timeout', 'PositionFactory', 'RestaurantDataFactory',
 																	  function ($scope, $q, $timeout, PositionFactory, RestaurantDataFactory) {
 
 	$scope.restData = RestaurantDataFactory.restaurantsData;
 	RestaurantDataFactory.updateMapFromRoutes();
+	RestaurantDataFactory.removeRestaurants();
 	var allowWatch = false;
 
 	init = function() {
@@ -544,10 +588,12 @@ $routeSegmentProvider
 	var lastLongitude = 15.0;
 
 	var restaurantsData = {
+		ownRestaurants: false,
 		errorMessage: null,
 		loading: false,
 		restaurants: [],
 		restaurantmarkers: [],
+		selectmarker: {},
 		watchMap: true,
 		uiGmapPromise: uiGmapDeferred.promise,
 		uiGmapApiPromise: uiGmapApiDeferred.promise,
@@ -641,16 +687,22 @@ $routeSegmentProvider
 		removeRestaurants: function() {
 			restaurantsData.restaurants = [];
 			restaurantsData.restaurantmarkers = [];
+			restaurantsData.selectmarker.show = false;
+			restaurantsData.ownRestaurants = false;
 		},
 		addSelectMarker: function() {
 			restaurantsData.selectmarker = {
 				id: 0,
+				show: true,
 				coords: {
 					latitude: restaurantsData.map.center.latitude,
 					longitude: restaurantsData.map.center.longitude
 				},
 				options: { draggable: true }				
 			};
+		},
+		setOwnRestaurants: function() {
+			restaurantsData.ownRestaurants = true;	
 		}
 
 	};
@@ -661,7 +713,8 @@ $routeSegmentProvider
 		'save': {method: 'POST', headers: { user_token: LoginFactory.user.user_token, 
 											auth_token: LoginFactory.user.auth_token} },
 		'getOwn': {method: 'GET', params: { apiuser_id: LoginFactory.user.apiuser_id }},  
-		'put': {method:'PUT'}
+		'put': {method:'PUT', headers: { user_token: LoginFactory.user.user_token, 
+							  			 auth_token: LoginFactory.user.auth_token} }
 	});
  }]);;angular.module('RestaurantManager.Restaurants').factory('TagFactory', ['$resource', 'API', function ($resource, $API) {
 	return $resource($API + 'tags/:id', {}, {});
@@ -680,9 +733,19 @@ angular.module("../views/restaurants.html", []).run(["$templateCache", function(
     "		<div app-view-segment=\"1\"></div>\n" +
     "\n" +
     "		<p data-ng-show=\"!restData.restaurants.length\">Inga restauranger</p>\n" +
-    "		<ul>\n" +
+    "		\n" +
+    "		<ul data-ng-if=\"restData.restaurants.length\" class=\"restaurantList list-unstyled\">\n" +
     "			<li data-ng-repeat=\"restaurant in restData.restaurants\" >\n" +
-    "				{{restaurant.name}}\n" +
+    "				<div data-ng-click=\"showMoreInfo = !showMoreInfo\">\n" +
+    "					<p>{{restaurant.name}}</p>\n" +
+    "					<p>Tel: {{restaurant.phone}}</p>\n" +
+    "					<a data-ng-if=\"restData.ownRestaurants\" href=\"#{{ 's1.edit' | routeSegmentUrl: {id: restaurant.id} }}\">Edit</a>\n" +
+    "				</div>\n" +
+    "				<div data-ng-show=\"showMoreInfo\">\n" +
+    "					<p>Address: {{restaurant.restaurants}}</p>\n" +
+    "					<p>{{restaurant.description}}</p>\n" +
+    "				</div>\n" +
+    "\n" +
     "			</li>\n" +
     "		</ul>\n" +
     "\n" +
@@ -696,7 +759,7 @@ angular.module("../views/restaurants.html", []).run(["$templateCache", function(
     "	<div class=\"col-md-9 fullheight\">\n" +
     "		<ui-gmap-google-map center='restData.map.center' zoom='restData.map.zoom' bounds=\"restData.map.bounds\" draggable=\"true\" control=\"restData.map.control\">\n" +
     "			<ui-gmap-markers models=\"restData.restaurantmarkers\" coords=\"'self'\" dra icon=\"'icon'\"></ui-gmap-markers>\n" +
-    "			<ui-gmap-marker coords=\"restData.selectmarker.coords\" options=\"restData.selectmarker.options\" events=\"restData.selectmarker.events\" idkey=\"restData.selectmarker.id\">\n" +
+    "			<ui-gmap-marker data-ng-if=\"restData.selectmarker.show\" coords=\"restData.selectmarker.coords\" options=\"restData.selectmarker.options\" events=\"restData.selectmarker.events\" idkey=\"restData.selectmarker.id\">\n" +
     "		</ui-gmap-google-map>	\n" +
     "		\n" +
     "	</div>\n" +

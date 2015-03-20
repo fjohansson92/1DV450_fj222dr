@@ -1,14 +1,17 @@
-html, body, #contents {
-    height: 100%;
+#contents {
+    height: calc( 100% - 30px);
 }
 
-.fullscreen {
-	height: calc( 100% - 30px);
-    min-height: calc( 100% - 30px);
+html, body, .fullscreen {
+	height: calc( 100% );
+    min-height: calc( 100% );
 }
 .container-fluid, .fullheight, .angular-google-map-container, .angular-google-map {    
 	height: 100%;
     min-height: 100%; 
+}
+.fullheight {
+	padding: 0;
 }
 
 
@@ -24,6 +27,18 @@ html, body, #contents {
 	height: 70px;
 	padding: 0;
 }
+
+
+
+.restaurantList {
+	height: calc(80% - 150px);
+	overflow-y: scroll;
+	position: absolute;
+	width: 100%;
+	bottom: 50px;
+	left: 0;
+}
+
 
 
 .creatRestaurant .tagList {

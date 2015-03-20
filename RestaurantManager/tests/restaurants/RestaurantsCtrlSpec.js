@@ -235,7 +235,8 @@ describe('All restaurantcontrollers', function() {
 					setRestaurantData: function() {},
 					refreshMap: function() {},
 					stopLoading: function() {},
-					setErrorMessage: function() {}
+					setErrorMessage: function() {},
+					removeRestaurants: function() {}
 				}
 				spyOn(mockRestaurantDataFactory, 'updateMapFromRoutes').andCallThrough();
 				spyOn(mockRestaurantDataFactory, 'loading').andCallThrough();
@@ -243,6 +244,7 @@ describe('All restaurantcontrollers', function() {
 				spyOn(mockRestaurantDataFactory, 'refreshMap').andCallThrough();
 				spyOn(mockRestaurantDataFactory, 'stopLoading').andCallThrough();
 				spyOn(mockRestaurantDataFactory, 'setErrorMessage').andCallThrough();
+				spyOn(mockRestaurantDataFactory, 'removeRestaurants').andCallThrough();
 
 				positionCtrl = $controller('PositionCtrl', { $scope: $scope, PositionFactory: mockPositionFactory, RestaurantDataFactory: mockRestaurantDataFactory });
 			}));
@@ -325,13 +327,15 @@ describe('All restaurantcontrollers', function() {
 					loading: function() {},
 					setRestaurantData: function() {},
 					refreshMap: function() {},
-					stopLoading: function() {}
+					stopLoading: function() {},
+					removeRestaurants: function() {}
 				}
 				spyOn(mockRestaurantDataFactory, 'updateMapFromRoutes').andCallThrough();
 				spyOn(mockRestaurantDataFactory, 'loading').andCallThrough();
 				spyOn(mockRestaurantDataFactory, 'setRestaurantData').andCallThrough();
 				spyOn(mockRestaurantDataFactory, 'refreshMap').andCallThrough();
 				spyOn(mockRestaurantDataFactory, 'stopLoading').andCallThrough();
+				spyOn(mockRestaurantDataFactory, 'removeRestaurants').andCallThrough();
 
 				newVal = { control: {}, 
 								center: { latitude: 50, longitude: 60 }, 

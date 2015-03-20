@@ -6,10 +6,12 @@ angular.module('RestaurantManager.Restaurants').factory('RestaurantDataFactory',
 	var lastLongitude = 15.0;
 
 	var restaurantsData = {
+		ownRestaurants: false,
 		errorMessage: null,
 		loading: false,
 		restaurants: [],
 		restaurantmarkers: [],
+		selectmarker: {},
 		watchMap: true,
 		uiGmapPromise: uiGmapDeferred.promise,
 		uiGmapApiPromise: uiGmapApiDeferred.promise,
@@ -103,16 +105,22 @@ angular.module('RestaurantManager.Restaurants').factory('RestaurantDataFactory',
 		removeRestaurants: function() {
 			restaurantsData.restaurants = [];
 			restaurantsData.restaurantmarkers = [];
+			restaurantsData.selectmarker.show = false;
+			restaurantsData.ownRestaurants = false;
 		},
 		addSelectMarker: function() {
 			restaurantsData.selectmarker = {
 				id: 0,
+				show: true,
 				coords: {
 					latitude: restaurantsData.map.center.latitude,
 					longitude: restaurantsData.map.center.longitude
 				},
 				options: { draggable: true }				
 			};
+		},
+		setOwnRestaurants: function() {
+			restaurantsData.ownRestaurants = true;	
 		}
 
 	};
