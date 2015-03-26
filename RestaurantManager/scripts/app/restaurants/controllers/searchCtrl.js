@@ -12,13 +12,15 @@ angular.module('RestaurantManager.Restaurants').controller('SearchCtrl', ['$scop
 		} else if ($routeParams.tag) {
 			$scope.tagSearch({ id: $routeParams.tag});
 		} else if ($routeParams.user) {
-			$scope.tagSearch({ id: $routeParams.user});
+			$scope.userSearch({ id: $routeParams.user});
 		}
 	}
 
 
 	var restaurantsSearch = function(params) {
-		$scope.searchError = "";
+		$scope.tagError = "";
+		$scope.userError = "";
+
 		RestaurantDataFactory.removeRestaurants();
 		$location.search('search', null).replace();
 		$location.search('tag', null).replace();
@@ -41,17 +43,29 @@ angular.module('RestaurantManager.Restaurants').controller('SearchCtrl', ['$scop
 			restaurantsSearch({ tag_id: tag.id });
 			$location.search('tag', tag.id).replace();
 		} else {
-			$scope.searchError = 'Unvalid search. Please select from autocomplete.';
+			$scope.userError = "";
+			$scope.tagError = 'Invalid search. Please select from autocomplete.';
 		}
 	}
+
+	$scope.$on('tagChange', function(event, args) {
+		$scope.tagSearch(args.tag);
+	});
+
+
 	$scope.userSearch = function(user) {
 		if (user && user.id) {
 			restaurantsSearch({ apiuser_id: user.id });
 			$location.search('user', user.id).replace();
 		} else {
-			$scope.searchError = 'Unvalid search. Please select from autocomplete.';
+			$scope.tagError = "";
+			$scope.userError = 'Invalid search. Please select from autocomplete.';
 		}
 	}
+
+	$scope.$on('userChange', function(event, args) {
+		$scope.userSearch(args.user);
+	});
 
 	$scope.freeSearch = function(searchWords) {
 		params = {}
@@ -62,7 +76,8 @@ angular.module('RestaurantManager.Restaurants').controller('SearchCtrl', ['$scop
 
 			$location.search('search', searchWords).replace();
 		} else {
-			$scope.searchError = "";
+			$scope.tagError = "";
+			$scope.userError = "";
 		}
 	}
 

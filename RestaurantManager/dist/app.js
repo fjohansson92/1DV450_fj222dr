@@ -77,6 +77,10 @@ $routeSegmentProvider
 		$location.search('auth_token', null).replace();
 		$location.search('token_expires', null).replace();
 		$location.search('apiuser_id', null).replace();
+
+		$scope.$on('userNotValid', function() {
+			LoginFactory.logout();	
+	  	});
 	}
 
 	listener = $scope.$on('$routeChangeSuccess', function() {
@@ -113,8 +117,8 @@ $routeSegmentProvider
 		link: function(scope) {
 			scope.user = LoginFactory.user;
 		},
-		template: '<button data-ng-if="user.loggedin" data-ng-click="logout()">Logout</button>' +
-				  '<button data-ng-if="!user.loggedin" data-ng-click="login()">Login</button>'
+		template: '<button class="btn btn-default navbar-btn" data-ng-if="user.loggedin" data-ng-click="logout()">Logout</button>' +
+				  '<button class="btn btn-default navbar-btn" data-ng-if="!user.loggedin" data-ng-click="login()">Login with GitHub</button>'
     }
 }]);
 ;angular.module('RestaurantManager.Login').factory('LoginFactory', [ function () {
@@ -179,23 +183,24 @@ $routeSegmentProvider
 		ownRestaurant = RestaurantFactory.get({id: $routeParams.id}).$promise;
 		ownRestaurant.then(function(data) {
 			$scope.restaurant = data.restaurant;
+			$scope.restData.selectmarker.coords.latitude = data.restaurant.latitude;
+ 			$scope.restData.selectmarker.coords.longitude = data.restaurant.longitude;
+
 			for (var key in data.restaurant.tags) {
 				tag = data.restaurant.tags[key]
 				$scope.newTags.push(tag["name"]);
 			}
 		}, function(reason) {
 			if (reason && reason.hasOwnProperty('data') && reason.data.hasOwnProperty('userMessage')) {
-				RestaurantDataFactory.setErrorMessage(reason.data.userMessage);
+				$scope.errorMessage = reason.data.userMessage;
 			} 
 		});
-	} else {
-		ownRestaurant = $q.defer();
-		ownRestaurant.resolve;
 	}
 
+	$scope.errorMessageisString = function() {
 
-
-
+		return angular.isString($scope.errorMessage);
+	}
 
 	$scope.addTag = function(tag) {
 		if (tag) {
@@ -214,42 +219,56 @@ $routeSegmentProvider
 		$scope.newTags.splice(index, 1);
 	}
 
-	$scope.submit = function() {
-		
-		ownRestaurant.then(function() {
-			restaurant = $scope.restaurant;
-			restaurant.latitude = $scope.restData.selectmarker.coords.latitude;
-			restaurant.longitude = $scope.restData.selectmarker.coords.longitude;
-			restaurant.tags_attributes = [];
-			for (var key in $scope.newTags) {
-				tag = $scope.newTags[key]
+	var saveRestaurant = function() {
+		$scope.successMessage = false;
+		delete $scope.errorMessage; 
+		restaurant = $scope.restaurant;
+		restaurant.latitude = $scope.restData.selectmarker.coords.latitude;
+		restaurant.longitude = $scope.restData.selectmarker.coords.longitude;
+		restaurant.tags_attributes = [];
+		for (var key in $scope.newTags) {
+			tag = $scope.newTags[key]
 
-				restaurant.tags_attributes.push({
-					name: tag				
-				});
-			}
-
-			var restaurantPost;
-			if (edit) {
-				restaurantPost = RestaurantFactory.put({ id: restaurant.id},{ restaurant: restaurant });
-				
-			} else {
-				restaurantPost = RestaurantFactory.save({ restaurant: restaurant });
-			}
-
-			restaurantPost.$promise.then(function(data) {
-				if (!edit) {
-					$scope.newTags = [];
-					$scope.restaurant = angular.copy(original);
-					$scope.restForm.$setUntouched();
-				}
-			}, function(reason) {
-				if (reason && reason.hasOwnProperty('data') && reason.data.hasOwnProperty('userMessage')) {
-					RestaurantDataFactory.setErrorMessage(reason.data.userMessage);
-				} 
+			restaurant.tags_attributes.push({
+				name: tag				
 			});
-		});
+		}
 
+		var restaurantPost;
+		if (edit) {
+			restaurantPost = RestaurantFactory.put({ id: restaurant.id},{ restaurant: restaurant });
+			
+		} else {
+			restaurantPost = RestaurantFactory.save({ restaurant: restaurant });
+		}
+
+		restaurantPost.$promise.then(function(data) {
+			if (!edit) {
+				$scope.newTags = [];
+				$scope.restaurant = angular.copy(original);
+				$scope.restForm.$setUntouched();
+			}
+			$scope.successMessage = true;
+		}, function(reason) {
+			if (reason && reason.hasOwnProperty('data') && reason.data.hasOwnProperty('userMessage')) {
+				$scope.errorMessage = reason.data.userMessage;
+
+				if (reason.data.errorCode == '1401') {
+					$scope.$emit('userNotValid');
+				}
+			} 
+		});
+	}
+
+
+	$scope.submit = function() {
+		if ($routeParams.id) {
+			ownRestaurant.then(function() {
+				saveRestaurant();
+			});
+		} else {
+			saveRestaurant();
+		}
 	}
 
 }]);
@@ -274,7 +293,9 @@ $routeSegmentProvider
 		
 		ownRestaurant = RestaurantFactory.remove({id: id.id});
 		ownRestaurant.$promise.then(function(data) {
-			//RestaurantDataFactory.setRestaurantData(data);			
+
+			// TODO: Remove
+
 		}, function(reason) {
 			if (reason && reason.hasOwnProperty('data') && reason.data.hasOwnProperty('userMessage')) {
 				RestaurantDataFactory.setErrorMessage(reason.data.userMessage);
@@ -388,10 +409,11 @@ $routeSegmentProvider
 
 
 	init();
- }]);;angular.module('RestaurantManager.Restaurants').controller('RestaurantCtrl', ['$scope', '$route', '$location', 'RestaurantDataFactory', 'uiGmapIsReady', 'uiGmapGoogleMapApi',
-																   function ($scope, $route, $location, RestaurantDataFactory, uiGmapIsReady, uiGmapGoogleMapApi) {
+ }]);;angular.module('RestaurantManager.Restaurants').controller('RestaurantCtrl', ['$scope', '$route', '$location', '$routeSegment', 'RestaurantDataFactory', 'uiGmapIsReady', 'uiGmapGoogleMapApi',
+																   function ($scope, $route, $location, $routeSegment, RestaurantDataFactory, uiGmapIsReady, uiGmapGoogleMapApi) {
 
 	$scope.restData = RestaurantDataFactory.restaurantsData;
+	var allowReload = false;
 
 	uiGmapIsReady.promise().then(function(data){
 		RestaurantDataFactory.resolveGmap();
@@ -413,8 +435,20 @@ $routeSegmentProvider
 		$scope.$broadcast('mapChange', {newVal: newVal, oldVal: oldVal});
 	}, true);
 
-	$scope.remove = function(id) {
+	$scope.remove = function(id, event) {
+		event.stopPropagation();
+		event.preventDefault();
 		$scope.$broadcast('removeRestaurant', {id: id});
+	}
+
+	$scope.tagSearch = function(tag) {
+		$location.path($routeSegment.getSegmentUrl('s1.search')).search({ tag: tag.id});
+		$scope.$broadcast('tagChange', {tag: tag});	
+	}
+
+	$scope.userSearch = function(user) {
+		$location.path($routeSegment.getSegmentUrl('s1.search')).search({ user: user.id});
+		$scope.$broadcast('userChange', {user: user});	
 	}
 
 
@@ -438,8 +472,7 @@ $routeSegmentProvider
 			$route.current = lastRoute;
 		} else {
 			lastRoute = $route.current;
-		}
-		           
+		}        
 	});
 
 }]);;angular.module('RestaurantManager.Restaurants').controller('SearchCtrl', ['$scope', 'RestaurantFactory', 'RestaurantDataFactory', '$location', '$routeParams',
@@ -456,13 +489,15 @@ $routeSegmentProvider
 		} else if ($routeParams.tag) {
 			$scope.tagSearch({ id: $routeParams.tag});
 		} else if ($routeParams.user) {
-			$scope.tagSearch({ id: $routeParams.user});
+			$scope.userSearch({ id: $routeParams.user});
 		}
 	}
 
 
 	var restaurantsSearch = function(params) {
-		$scope.searchError = "";
+		$scope.tagError = "";
+		$scope.userError = "";
+
 		RestaurantDataFactory.removeRestaurants();
 		$location.search('search', null).replace();
 		$location.search('tag', null).replace();
@@ -485,17 +520,29 @@ $routeSegmentProvider
 			restaurantsSearch({ tag_id: tag.id });
 			$location.search('tag', tag.id).replace();
 		} else {
-			$scope.searchError = 'Unvalid search. Please select from autocomplete.';
+			$scope.userError = "";
+			$scope.tagError = 'Invalid search. Please select from autocomplete.';
 		}
 	}
+
+	$scope.$on('tagChange', function(event, args) {
+		$scope.tagSearch(args.tag);
+	});
+
+
 	$scope.userSearch = function(user) {
 		if (user && user.id) {
 			restaurantsSearch({ apiuser_id: user.id });
 			$location.search('user', user.id).replace();
 		} else {
-			$scope.searchError = 'Unvalid search. Please select from autocomplete.';
+			$scope.tagError = "";
+			$scope.userError = 'Invalid search. Please select from autocomplete.';
 		}
 	}
+
+	$scope.$on('userChange', function(event, args) {
+		$scope.userSearch(args.user);
+	});
 
 	$scope.freeSearch = function(searchWords) {
 		params = {}
@@ -506,7 +553,8 @@ $routeSegmentProvider
 
 			$location.search('search', searchWords).replace();
 		} else {
-			$scope.searchError = "";
+			$scope.tagError = "";
+			$scope.userError = "";
 		}
 	}
 
@@ -743,37 +791,63 @@ angular.module("../views/restaurants.html", []).run(["$templateCache", function(
     "<div class=\"row fullheight\">\n" +
     "	<div class=\"col-md-3 fullheight\">\n" +
     "		\n" +
-    "		<a href=\"#{{ 's1' | routeSegmentUrl}}\">Home</a>	\n" +
-    "		<a href=\"#{{ 's1.search' | routeSegmentUrl}}\">Search</a>\n" +
-    "		<a href=\"#{{ 's1.create' | routeSegmentUrl}}\">Create</a>\n" +
-    "		<a href=\"#{{ 's1.created' | routeSegmentUrl}}\">My restaurants</a>\n" +
-    "				\n" +
-    "		<div app-view-segment=\"1\"></div>\n" +
-    "\n" +
-    "		<p data-ng-show=\"!restData.restaurants.length\">Inga restauranger</p>\n" +
-    "		\n" +
-    "		<ul data-ng-if=\"restData.restaurants.length\" class=\"restaurantList list-unstyled\">\n" +
-    "			<li data-ng-repeat=\"restaurant in restData.restaurants\" >\n" +
-    "				<div data-ng-click=\"showMoreInfo = !showMoreInfo\">\n" +
-    "					<p>{{restaurant.name}}</p>\n" +
-    "					<p>Tel: {{restaurant.phone}}</p>\n" +
-    "				</div>\n" +
-    "				<div data-ng-if=\"restData.ownRestaurants\" class=\"btn-group\" role=\"group\" aria-label=\"...\">\n" +
-    "					<a href=\"#{{ 's1.edit' | routeSegmentUrl: {id: restaurant.id} }}\" type=\"button\" class=\"btn btn-success btn-xs\">\n" +
-    "						<span class=\"glyphicon glyphicon-edit\" aria-hidden=\"true\"></span>\n" +
-    "					</a>\n" +
-    "					<button data-ng-click=\"remove(restaurant.id)\" type=\"button\" class=\"btn btn-danger btn-xs\">\n" +
-    "						<span class=\"glyphicon glyphicon-remove\" aria-hidden=\"true\"></span>\n" +
-    "					</button>\n" +
-    "				</div>\n" +
-    "				<div data-ng-show=\"showMoreInfo\">\n" +
-    "					<p>Address: {{restaurant.restaurants}}</p>\n" +
-    "					<p>{{restaurant.description}}</p>\n" +
-    "				</div>\n" +
-    "\n" +
-    "			</li>\n" +
+    "		<ul class=\"nav nav-tabs\">\n" +
+    "			<li data-ng-class=\"{active: ('s1.home' | routeSegmentStartsWith)}\" class=\"presentation\"><a href=\"#{{ 's1' | routeSegmentUrl}}\">Home</a></li>\n" +
+    "			<li data-ng-class=\"{active: ('s1.search' | routeSegmentEqualsTo)}\" class=\"presentation\"><a href=\"#{{ 's1.search' | routeSegmentUrl}}\">Search</a></li>\n" +
+    "			<li data-ng-class=\"{active: ('s1.create' | routeSegmentEqualsTo)}\" class=\"presentation\"><a href=\"#{{ 's1.create' | routeSegmentUrl}}\">Create</a></li>\n" +
+    "			<li data-ng-class=\"{active: ('s1.created' | routeSegmentEqualsTo)}\" class=\"presentation\"><a href=\"#{{ 's1.created' | routeSegmentUrl}}\">My restaurants</a></li>\n" +
     "		</ul>\n" +
     "\n" +
+    "		<div class=\"sideContent\">\n" +
+    "			<div class=\"restaurantForms\" app-view-segment=\"1\"></div>\n" +
+    "			<!--<p data-ng-show=\"!restData.restaurants.length && !restData.selectmarker.show\">Inga restauranger</p>-->\n" +
+    "			<ul data-ng-if=\"restData.restaurants.length\" class=\"restaurantList list-unstyled\">\n" +
+    "				<li data-ng-repeat=\"restaurant in restData.restaurants\" >\n" +
+    "					<div data-ng-click=\"showMoreInfo = !showMoreInfo\">\n" +
+    "						<p data-ng-class=\"{shortWithMoreInfo: showMoreInfo}\" class=\"restaurantName\" >{{restaurant.name}}</p>\n" +
+    "						<div data-ng-if=\"restData.ownRestaurants\" class=\"btn-group restaurantEditBtns\" role=\"group\" aria-label=\"...\">\n" +
+    "							<a href=\"#{{ 's1.edit' | routeSegmentUrl: {id: restaurant.id} }}\" type=\"button\" class=\"btn btn-success btn-xs\">\n" +
+    "								<span class=\"glyphicon glyphicon-edit\" aria-hidden=\"true\"></span>\n" +
+    "							</a>\n" +
+    "							<button data-ng-click=\"remove(restaurant.id, $event)\" type=\"button\" class=\"btn btn-danger btn-xs\">\n" +
+    "								<span class=\"glyphicon glyphicon-remove\" aria-hidden=\"true\"></span>\n" +
+    "							</button>\n" +
+    "						</div>\n" +
+    "					</div>\n" +
+    "					<div class=\"restaurantMoreInfo\" data-ng-show=\"showMoreInfo\">\n" +
+    "						<div class=\"row\">\n" +
+    "							<div class=\"col-sm-4 attributeDescription\">Phone:</div>\n" +
+    "							<div class=\"col-sm-8\"><p>{{restaurant.phone}}</p></div>\n" +
+    "						</div>\n" +
+    "						<div class=\"row\">\n" +
+    "							<div class=\"col-sm-4 attributeDescription\">Address:</div>\n" +
+    "							<div class=\"col-sm-8\"><p>{{restaurant.address}}</p></div>\n" +
+    "						</div>						\n" +
+    "						<div class=\"row\">\n" +
+    "							<div class=\"col-sm-4 attributeDescription\">Description:</div>\n" +
+    "							<div class=\"col-sm-8\"><p>{{restaurant.description}}</p></div>\n" +
+    "						</div>\n" +
+    "						<div class=\"row\">\n" +
+    "							<div class=\"col-sm-4 attributeDescription\">Publisher:</div>\n" +
+    "							<div class=\"col-sm-8\">\n" +
+    "								<p><a class=\"restaurantUser\" data-ng-click=\"userSearch(restaurant.apiuser)\">\n" +
+    "									{{restaurant.apiuser.name}}\n" +
+    "								</a></p>\n" +
+    "							</div>\n" +
+    "						</div>\n" +
+    "						<div class=\"row\">\n" +
+    "							<div class=\"col-sm-4 attributeDescription\">Tags:</div>\n" +
+    "							<div class=\"col-sm-8\">\n" +
+    "								<a class=\"restaurantTags\" data-ng-repeat=\"tag in restaurant.tags\"  data-ng-click=\"tagSearch(tag)\">\n" +
+    "									{{tag.name}}\n" +
+    "								</a>\n" +
+    "							</div>\n" +
+    "						</div>\n" +
+    "					</div>\n" +
+    "\n" +
+    "				</li>\n" +
+    "			</ul>\n" +
+    "		</div>\n" +
     "		<div class=\"paginationBtns\">\n" +
     "			<button class=\"btn btn-link\" data-ng-disabled=\"restData.firstUrl.length < 1 || restData.prevUrl.length < 1\" data-ng-click=\"paginate(restData.firstUrl)\">&lt;&lt;</button>\n" +
     "			<button class=\"btn btn-link\" data-ng-disabled=\"restData.prevUrl.length < 1\" data-ng-click=\"paginate(restData.prevUrl)\">&lt;</button>\n" +
@@ -783,7 +857,13 @@ angular.module("../views/restaurants.html", []).run(["$templateCache", function(
     "	</div>\n" +
     "	<div class=\"col-md-9 fullheight\">\n" +
     "		<ui-gmap-google-map center='restData.map.center' zoom='restData.map.zoom' bounds=\"restData.map.bounds\" draggable=\"true\" control=\"restData.map.control\">\n" +
-    "			<ui-gmap-markers models=\"restData.restaurantmarkers\" coords=\"'self'\" dra icon=\"'icon'\"></ui-gmap-markers>\n" +
+    "			<ui-gmap-markers models=\"restData.restaurantmarkers\" coords=\"'self'\" dra icon=\"'icon'\">\n" +
+    "				<ui-gmap-windows show=\"'showWindow'\" closeClick=\"'closeClick'\" ng-cloak>\n" +
+    "				 	<div>\n" +
+    "				 		<h4>{{self}}</h4>\n" +
+    "				 	</div>\n" +
+    "            	</ui-gmap-windows>\n" +
+    "			</ui-gmap-markers>\n" +
     "			<ui-gmap-marker data-ng-if=\"restData.selectmarker.show\" coords=\"restData.selectmarker.coords\" options=\"restData.selectmarker.options\" events=\"restData.selectmarker.events\" idkey=\"restData.selectmarker.id\">\n" +
     "		</ui-gmap-google-map>	\n" +
     "		\n" +
@@ -795,107 +875,132 @@ angular.module("../views/restaurants.html", []).run(["$templateCache", function(
 angular.module("../views/restaurants/create.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("../views/restaurants/create.html",
     "<form class=\"form-horizontal creatRestaurant\" name=\"restForm\" novalidate>\n" +
-    "	<ul>\n" +
-    "		<li data-ng-repeat=\"(key, error) in restData.errorMessage\">\n" +
-    "			{{key}}: {{error[0]}}\n" +
-    "		</li>\n" +
-    "	</ul>\n" +
-    "\n" +
+    "	<div class=\"alert alert-danger\" role=\"alert\" data-ng-if=\"errorMessage\">\n" +
+    "		<ul data-ng-if=\"!errorMessageisString()\">\n" +
+    "			<li data-ng-repeat=\"(key, error) in errorMessage\">\n" +
+    "				{{key}}: {{error[0]}}\n" +
+    "			</li>\n" +
+    "		</ul>\n" +
+    "		<p data-ng-if=\"errorMessageisString()\">\n" +
+    "			{{errorMessage}}\n" +
+    "		</p>\n" +
+    "	</div>\n" +
     "	\n" +
     "	<div class=\"form-group\" data-ng-class=\"{'has-error': restForm.name.$invalid && restForm.name.$touched}\">\n" +
-    "		<label for=\"name\" class=\"col-sm-2 control-label\">Name</label>\n" +
-    "		<input type=\"text\" class=\"form-control\" id=\"name\" name=\"name\" data-ng-model=\"restaurant.name\" required placeholder=\"Ex Harrys\">		\n" +
+    "		<label for=\"name\" class=\"col-sm-3 control-label\">Name</label>\n" +
+    "		<div class=\"col-sm-9\">\n" +
+    "			<input type=\"text\" class=\"form-control\" id=\"name\" name=\"name\" data-ng-model=\"restaurant.name\" required placeholder=\"Ex Harrys\">		\n" +
+    "		</div>\n" +
     "	</div>\n" +
     "\n" +
     "	<div class=\"form-group\" data-ng-class=\"{'has-error': restForm.phone.$invalid && restForm.phone.$touched}\">\n" +
-    "		<label for=\"phone\" class=\"col-sm-2 control-label\">Phone</label>\n" +
-    "		<input type=\"text\" class=\"form-control\" name=\"phone\" data-ng-model=\"restaurant.phone\" required id=\"phone\">		\n" +
+    "		<label for=\"phone\" class=\"col-sm-3 control-label\">Phone</label>\n" +
+    "		<div class=\"col-sm-9\">\n" +
+    "			<input type=\"text\" class=\"form-control\" name=\"phone\" data-ng-model=\"restaurant.phone\" required id=\"phone\">		\n" +
+    "		</div>\n" +
     "	</div>\n" +
     "	<div class=\"form-group\" data-ng-class=\"{'has-error': restForm.address.$invalid && restForm.address.$touched}\">\n" +
-    "		<label for=\"address\" class=\"col-sm-2 control-label\">Address</label>\n" +
-    "		<input type=\"text\" class=\"form-control\" name=\"address\" data-ng-model=\"restaurant.address\" id=\"address\" required placeholder=\"Ex Road 2, Kalmar 333 00\">		\n" +
+    "		<label for=\"address\" class=\"col-sm-3 control-label\">Address</label>\n" +
+    "		<div class=\"col-sm-9\">\n" +
+    "			<input type=\"text\" class=\"form-control\" name=\"address\" data-ng-model=\"restaurant.address\" id=\"address\" required placeholder=\"Ex Road 2, Kalmar 333 00\">		\n" +
+    "		</div>\n" +
     "	</div>\n" +
     "	<div class=\"form-group\" data-ng-class=\"{'has-error': restForm.description.$invalid && restForm.description.$touched}\">\n" +
-    "		<label for=\"description\" class=\"col-sm-2 control-label\">Description</label>\n" +
-    "		<textarea rows=\"3\" type=\"text\" class=\"form-control\" name=\"description\" data-ng-model=\"restaurant.description\" \n" +
-    "			required id=\"description\" placeholder=\"Tell us about your restaurant!\"></textarea>		\n" +
+    "		<label for=\"description\" class=\"col-sm-3 control-label\">Description</label>\n" +
+    "		<div class=\"col-sm-9\">\n" +
+    "			<textarea rows=\"3\" type=\"text\" class=\"form-control\" name=\"description\" data-ng-model=\"restaurant.description\" \n" +
+    "				required id=\"description\" placeholder=\"Tell us about your restaurant!\"></textarea>		\n" +
+    "		</div>\n" +
     "	</div>\n" +
     "	<div class=\"form-group\">\n" +
-    "		<label for=\"longitude\" class=\"col-sm-4 control-label\">Longitude</label>\n" +
-    "		<div class=\"col-sm-8\">\n" +
+    "		<label for=\"longitude\" class=\"col-sm-3 control-label\">Longitude</label>\n" +
+    "		<div class=\"col-sm-9\">\n" +
     "			<input type=\"text\" class=\"form-control\" id=\"longitude\" readonly data-ng-model=\"restData.selectmarker.coords.longitude\">				\n" +
     "		</div>\n" +
     "	</div>\n" +
     "	<div class=\"form-group\">\n" +
-    "		<label for=\"latitude\" class=\"col-sm-4 control-label\">Latitude</label>\n" +
-    "		<div class=\"col-sm-8\">\n" +
+    "		<label for=\"latitude\" class=\"col-sm-3 control-label\">Latitude</label>\n" +
+    "		<div class=\"col-sm-9\">\n" +
     "			<input type=\"text\" class=\"form-control\" id=\"latitude\" readonly data-ng-model=\"restData.selectmarker.coords.latitude\">				\n" +
     "		</div>\n" +
     "	</div>\n" +
-    "	<ul class=\"tagList\">\n" +
-    "		<li data-ng-repeat=\"tag in newTags\">\n" +
-    "			{{tag}}\n" +
-    "			<button type=\"button\" class=\"btn btn-default btn-xs\">\n" +
-    "				<span class=\"glyphicon glyphicon-remove\" aria-hidden=\"true\" data-ng-click=\"removeTag(tag)\"></span>\n" +
-    "			</button>\n" +
-    "		</li>\n" +
-    "	</ul>\n" +
-    "	<div>\n" +
-    "		<form class=\"form-inline\">\n" +
-    "			<div class=\"form-group\">\n" +
-    "				<tags-autocomplete></tags-autocomplete>\n" +
-    "			</div>\n" +
-    "			<button type=\"submit\" data-ng-click=\"addTag(tagAutocomplete)\" class=\"btn btn-default\">Add</button>\n" +
-    "		</form>\n" +
+    "	<div class=\"form-group\">\n" +
+    "		<div class=\"col-sm-9\">\n" +
+    "			<tags-autocomplete></tags-autocomplete>\n" +
+    "		</div>\n" +
+    "		<button type=\"submit\" data-ng-click=\"addTag(tagAutocomplete)\" class=\"btn btn-default addTagBtn\">Add</button>\n" +
     "	</div>\n" +
-    "\n" +
-    "	<button type=\"submit\" data-ng-click=\"submit()\" data-ng-disabled=\"restForm.$invalid\" class=\"btn btn-default\">Submit</button>\n" +
+    "	<div class=\"form-group\">\n" +
+    "		<div class=\"col-sm-9\">\n" +
+    "			<ul class=\"tagList\" data-ng-if=\"newTags.length\">\n" +
+    "				<li data-ng-repeat=\"tag in newTags\">\n" +
+    "					{{tag}}\n" +
+    "					<button type=\"button\" class=\"btn btn-default btn-xs removeTagBtn\" data-ng-click=\"removeTag(tag)\">\n" +
+    "						<span class=\"glyphicon glyphicon-remove\" aria-hidden=\"true\" ></span>\n" +
+    "					</button>\n" +
+    "				</li>\n" +
+    "			</ul>\n" +
+    "		</div>\n" +
+    "	</div>\n" +
+    "	<div class=\"form-group\">\n" +
+    "		<div class=\"col-sm-8\">\n" +
+    "			<div data-ng-if=\"successMessage\" class=\"alert alert-success\" role=\"alert\">\n" +
+    "				<p>Restaurangen sparades!</p>\n" +
+    "			</div>\n" +
+    "		</div>\n" +
+    "		<button type=\"submit\" data-ng-click=\"submit()\" data-ng-disabled=\"restForm.$invalid\" class=\"btn btn-success pull-right\">Submit</button>\n" +
+    "	</div>\n" +
     "</form>\n" +
     "");
 }]);
 
 angular.module("../views/restaurants/created.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("../views/restaurants/created.html",
-    "hej");
+    "<div class=\"createdInfo\">\n" +
+    "	<p>Edit or remove the restaurants you created.</p>\n" +
+    "</div>");
 }]);
 
 angular.module("../views/restaurants/positions.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("../views/restaurants/positions.html",
-    "Info om hur man letar runt. \n" +
-    "<p>{{restaurantsError}}</p>\n" +
-    "");
+    "<div class=\"positionsInfo\">\n" +
+    "	<p>Please navigate the map and restaurants will load relevant to your position!</p>\n" +
+    "</div>");
 }]);
 
 angular.module("../views/restaurants/search.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("../views/restaurants/search.html",
-    "<div>\n" +
-    "	<duv>\n" +
-    "		<form data-ng-submit=\"freeSearch(searchWords)\">\n" +
+    "<div class=\"searchForms\" >\n" +
+    "	<div class=\"freeSearchForm\">\n" +
+    "		<form class=\"form-inline\" data-ng-submit=\"freeSearch(searchWords)\">\n" +
     "			<div class=\"form-group has-feedback\">\n" +
-    "				<input class=\"form-control\" data-ng-model=\"searchWords\" />\n" +
+    "				<input class=\"form-control\" id=\"searchWords\" data-ng-model=\"searchWords\" />\n" +
     "				<i class=\"glyphicon glyphicon-search form-control-feedback\"></i>\n" +
     "			</div>\n" +
     "		</form>   \n" +
     "	</div>\n" +
-    "	<div>\n" +
+    "	<div class=\"tagSearchForm\">\n" +
     "		<form class=\"form-inline\">\n" +
     "			<div class=\"form-group\">\n" +
     "				<tags-autocomplete></tags-autocomplete>\n" +
     "			</div>\n" +
-    "			<button type=\"submit\" data-ng-click=\"tagSearch(tagAutocomplete)\" class=\"btn btn-default\">Sök</button>\n" +
+    "			<button type=\"submit\" data-ng-click=\"tagSearch(tagAutocomplete)\" class=\"btn btn-default\">Search</button>\n" +
     "		</form>\n" +
+    "		<div data-ng-if=\"tagError\" >\n" +
+    "			<p class=\"autoCompleteError\">{{tagError}}</p>\n" +
+    "		</div>	\n" +
     "	</div>\n" +
-    "	<div>\n" +
+    "	<div class=\"userSearchForm\">\n" +
     "		<form class=\"form-inline\">\n" +
     "			<div class=\"form-group\">\n" +
     "				<users-autocomplete></users-autocomplete>\n" +
-    "				<button type=\"submit\" data-ng-click=\"userSearch(userAutocomplete)\" class=\"btn btn-default\">Sök</button>\n" +
     "			</div>\n" +
+    "			<button type=\"submit\" data-ng-click=\"userSearch(userAutocomplete)\" class=\"btn btn-default\">Search</button>\n" +
     "		</form>\n" +
+    "		<div data-ng-if=\"userError\" >\n" +
+    "			<p class=\"autoCompleteError\">{{userError}}</p>\n" +
+    "		</div>\n" +
     "	</div>\n" +
     "		\n" +
-    "	<div data-ng-if=\"searchError\" >\n" +
-    "		<p>{{searchError}}</p>\n" +
-    "	</div>	\n" +
     "</div>");
 }]);

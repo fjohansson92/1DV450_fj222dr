@@ -1,30 +1,33 @@
-<div>
-	<duv>
-		<form data-ng-submit="freeSearch(searchWords)">
+<div class="searchForms" >
+	<div class="freeSearchForm">
+		<form class="form-inline" data-ng-submit="freeSearch(searchWords)">
 			<div class="form-group has-feedback">
-				<input class="form-control" data-ng-model="searchWords" />
+				<input class="form-control" id="searchWords" data-ng-model="searchWords" />
 				<i class="glyphicon glyphicon-search form-control-feedback"></i>
 			</div>
 		</form>   
 	</div>
-	<div>
+	<div class="tagSearchForm">
 		<form class="form-inline">
 			<div class="form-group">
 				<tags-autocomplete></tags-autocomplete>
 			</div>
-			<button type="submit" data-ng-click="tagSearch(tagAutocomplete)" class="btn btn-default">Sök</button>
+			<button type="submit" data-ng-click="tagSearch(tagAutocomplete)" class="btn btn-default">Search</button>
 		</form>
+		<div data-ng-if="tagError" >
+			<p class="autoCompleteError">{{tagError}}</p>
+		</div>	
 	</div>
-	<div>
+	<div class="userSearchForm">
 		<form class="form-inline">
 			<div class="form-group">
 				<users-autocomplete></users-autocomplete>
-				<button type="submit" data-ng-click="userSearch(userAutocomplete)" class="btn btn-default">Sök</button>
 			</div>
+			<button type="submit" data-ng-click="userSearch(userAutocomplete)" class="btn btn-default">Search</button>
 		</form>
+		<div data-ng-if="userError" >
+			<p class="autoCompleteError">{{userError}}</p>
+		</div>
 	</div>
 		
-	<div data-ng-if="searchError" >
-		<p>{{searchError}}</p>
-	</div>	
 </div>

@@ -19,7 +19,9 @@ angular.module('RestaurantManager.Restaurants').controller('CreatedCtrl', ['$sco
 		
 		ownRestaurant = RestaurantFactory.remove({id: id.id});
 		ownRestaurant.$promise.then(function(data) {
-			//RestaurantDataFactory.setRestaurantData(data);			
+
+			// TODO: Remove
+
 		}, function(reason) {
 			if (reason && reason.hasOwnProperty('data') && reason.data.hasOwnProperty('userMessage')) {
 				RestaurantDataFactory.setErrorMessage(reason.data.userMessage);

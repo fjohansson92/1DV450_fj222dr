@@ -8,6 +8,10 @@ angular.module('RestaurantManager.Login').controller('LoginCtrl', ['$scope', '$l
 		$location.search('auth_token', null).replace();
 		$location.search('token_expires', null).replace();
 		$location.search('apiuser_id', null).replace();
+
+		$scope.$on('userNotValid', function() {
+			LoginFactory.logout();	
+	  	});
 	}
 
 	listener = $scope.$on('$routeChangeSuccess', function() {

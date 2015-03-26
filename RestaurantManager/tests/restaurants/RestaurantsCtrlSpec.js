@@ -69,9 +69,12 @@ describe('All restaurantcontrollers', function() {
 			}
 			spyOn(mockLocation, 'search').andCallThrough();
 
+			routeSegment = {};
+
 			positionCtrl = $controller('RestaurantCtrl', { 	$scope: $scope,
 															$route: $route,
 															$location: mockLocation,
+															$routeSegment: routeSegment,
 															RestaurantDataFactory: mockRestaurantDataFactory, 
 															uiGmapIsReady: mockuiGmap, 
 															uiGmapGoogleMapApi: mockuiGmapApi });

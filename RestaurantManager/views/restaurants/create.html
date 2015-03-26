@@ -1,57 +1,77 @@
 <form class="form-horizontal creatRestaurant" name="restForm" novalidate>
-	<ul>
-		<li data-ng-repeat="(key, error) in restData.errorMessage">
-			{{key}}: {{error[0]}}
-		</li>
-	</ul>
-
+	<div class="alert alert-danger" role="alert" data-ng-if="errorMessage">
+		<ul data-ng-if="!errorMessageisString()">
+			<li data-ng-repeat="(key, error) in errorMessage">
+				{{key}}: {{error[0]}}
+			</li>
+		</ul>
+		<p data-ng-if="errorMessageisString()">
+			{{errorMessage}}
+		</p>
+	</div>
 	
 	<div class="form-group" data-ng-class="{'has-error': restForm.name.$invalid && restForm.name.$touched}">
-		<label for="name" class="col-sm-2 control-label">Name</label>
-		<input type="text" class="form-control" id="name" name="name" data-ng-model="restaurant.name" required placeholder="Ex Harrys">		
+		<label for="name" class="col-sm-3 control-label">Name</label>
+		<div class="col-sm-9">
+			<input type="text" class="form-control" id="name" name="name" data-ng-model="restaurant.name" required placeholder="Ex Harrys">		
+		</div>
 	</div>
 
 	<div class="form-group" data-ng-class="{'has-error': restForm.phone.$invalid && restForm.phone.$touched}">
-		<label for="phone" class="col-sm-2 control-label">Phone</label>
-		<input type="text" class="form-control" name="phone" data-ng-model="restaurant.phone" required id="phone">		
+		<label for="phone" class="col-sm-3 control-label">Phone</label>
+		<div class="col-sm-9">
+			<input type="text" class="form-control" name="phone" data-ng-model="restaurant.phone" required id="phone">		
+		</div>
 	</div>
 	<div class="form-group" data-ng-class="{'has-error': restForm.address.$invalid && restForm.address.$touched}">
-		<label for="address" class="col-sm-2 control-label">Address</label>
-		<input type="text" class="form-control" name="address" data-ng-model="restaurant.address" id="address" required placeholder="Ex Road 2, Kalmar 333 00">		
+		<label for="address" class="col-sm-3 control-label">Address</label>
+		<div class="col-sm-9">
+			<input type="text" class="form-control" name="address" data-ng-model="restaurant.address" id="address" required placeholder="Ex Road 2, Kalmar 333 00">		
+		</div>
 	</div>
 	<div class="form-group" data-ng-class="{'has-error': restForm.description.$invalid && restForm.description.$touched}">
-		<label for="description" class="col-sm-2 control-label">Description</label>
-		<textarea rows="3" type="text" class="form-control" name="description" data-ng-model="restaurant.description" 
-			required id="description" placeholder="Tell us about your restaurant!"></textarea>		
+		<label for="description" class="col-sm-3 control-label">Description</label>
+		<div class="col-sm-9">
+			<textarea rows="3" type="text" class="form-control" name="description" data-ng-model="restaurant.description" 
+				required id="description" placeholder="Tell us about your restaurant!"></textarea>		
+		</div>
 	</div>
 	<div class="form-group">
-		<label for="longitude" class="col-sm-4 control-label">Longitude</label>
-		<div class="col-sm-8">
+		<label for="longitude" class="col-sm-3 control-label">Longitude</label>
+		<div class="col-sm-9">
 			<input type="text" class="form-control" id="longitude" readonly data-ng-model="restData.selectmarker.coords.longitude">				
 		</div>
 	</div>
 	<div class="form-group">
-		<label for="latitude" class="col-sm-4 control-label">Latitude</label>
-		<div class="col-sm-8">
+		<label for="latitude" class="col-sm-3 control-label">Latitude</label>
+		<div class="col-sm-9">
 			<input type="text" class="form-control" id="latitude" readonly data-ng-model="restData.selectmarker.coords.latitude">				
 		</div>
 	</div>
-	<ul class="tagList">
-		<li data-ng-repeat="tag in newTags">
-			{{tag}}
-			<button type="button" class="btn btn-default btn-xs">
-				<span class="glyphicon glyphicon-remove" aria-hidden="true" data-ng-click="removeTag(tag)"></span>
-			</button>
-		</li>
-	</ul>
-	<div>
-		<form class="form-inline">
-			<div class="form-group">
-				<tags-autocomplete></tags-autocomplete>
-			</div>
-			<button type="submit" data-ng-click="addTag(tagAutocomplete)" class="btn btn-default">Add</button>
-		</form>
+	<div class="form-group">
+		<div class="col-sm-9">
+			<tags-autocomplete></tags-autocomplete>
+		</div>
+		<button type="submit" data-ng-click="addTag(tagAutocomplete)" class="btn btn-default addTagBtn">Add</button>
 	</div>
-
-	<button type="submit" data-ng-click="submit()" data-ng-disabled="restForm.$invalid" class="btn btn-default">Submit</button>
+	<div class="form-group">
+		<div class="col-sm-9">
+			<ul class="tagList" data-ng-if="newTags.length">
+				<li data-ng-repeat="tag in newTags">
+					{{tag}}
+					<button type="button" class="btn btn-default btn-xs removeTagBtn" data-ng-click="removeTag(tag)">
+						<span class="glyphicon glyphicon-remove" aria-hidden="true" ></span>
+					</button>
+				</li>
+			</ul>
+		</div>
+	</div>
+	<div class="form-group">
+		<div class="col-sm-8">
+			<div data-ng-if="successMessage" class="alert alert-success" role="alert">
+				<p>Restaurangen sparades!</p>
+			</div>
+		</div>
+		<button type="submit" data-ng-click="submit()" data-ng-disabled="restForm.$invalid" class="btn btn-success pull-right">Submit</button>
+	</div>
 </form>

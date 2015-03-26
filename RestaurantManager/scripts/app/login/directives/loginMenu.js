@@ -8,7 +8,7 @@ angular.module('RestaurantManager.Login').directive('loginMenu', ['LoginFactory'
 		link: function(scope) {
 			scope.user = LoginFactory.user;
 		},
-		template: '<button data-ng-if="user.loggedin" data-ng-click="logout()">Logout</button>' +
-				  '<button data-ng-if="!user.loggedin" data-ng-click="login()">Login</button>'
+		template: '<button class="btn btn-default navbar-btn" data-ng-if="user.loggedin" data-ng-click="logout()">Logout</button>' +
+				  '<button class="btn btn-default navbar-btn" data-ng-if="!user.loggedin" data-ng-click="login()">Login with GitHub</button>'
     }
 }]);

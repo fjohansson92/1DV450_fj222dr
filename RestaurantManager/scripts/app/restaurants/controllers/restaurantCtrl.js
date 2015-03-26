@@ -1,7 +1,8 @@
-angular.module('RestaurantManager.Restaurants').controller('RestaurantCtrl', ['$scope', '$route', '$location', 'RestaurantDataFactory', 'uiGmapIsReady', 'uiGmapGoogleMapApi',
-																   function ($scope, $route, $location, RestaurantDataFactory, uiGmapIsReady, uiGmapGoogleMapApi) {
+angular.module('RestaurantManager.Restaurants').controller('RestaurantCtrl', ['$scope', '$route', '$location', '$routeSegment', 'RestaurantDataFactory', 'uiGmapIsReady', 'uiGmapGoogleMapApi',
+																   function ($scope, $route, $location, $routeSegment, RestaurantDataFactory, uiGmapIsReady, uiGmapGoogleMapApi) {
 
 	$scope.restData = RestaurantDataFactory.restaurantsData;
+	var allowReload = false;
 
 	uiGmapIsReady.promise().then(function(data){
 		RestaurantDataFactory.resolveGmap();
@@ -23,8 +24,20 @@ angular.module('RestaurantManager.Restaurants').controller('RestaurantCtrl', ['$
 		$scope.$broadcast('mapChange', {newVal: newVal, oldVal: oldVal});
 	}, true);
 
-	$scope.remove = function(id) {
+	$scope.remove = function(id, event) {
+		event.stopPropagation();
+		event.preventDefault();
 		$scope.$broadcast('removeRestaurant', {id: id});
+	}
+
+	$scope.tagSearch = function(tag) {
+		$location.path($routeSegment.getSegmentUrl('s1.search')).search({ tag: tag.id});
+		$scope.$broadcast('tagChange', {tag: tag});	
+	}
+
+	$scope.userSearch = function(user) {
+		$location.path($routeSegment.getSegmentUrl('s1.search')).search({ user: user.id});
+		$scope.$broadcast('userChange', {user: user});	
 	}
 
 
@@ -48,8 +61,7 @@ angular.module('RestaurantManager.Restaurants').controller('RestaurantCtrl', ['$
 			$route.current = lastRoute;
 		} else {
 			lastRoute = $route.current;
-		}
-		           
+		}        
 	});
 
 }]);

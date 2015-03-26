@@ -1,37 +1,63 @@
 <div class="row fullheight">
 	<div class="col-md-3 fullheight">
 		
-		<a href="#{{ 's1' | routeSegmentUrl}}">Home</a>	
-		<a href="#{{ 's1.search' | routeSegmentUrl}}">Search</a>
-		<a href="#{{ 's1.create' | routeSegmentUrl}}">Create</a>
-		<a href="#{{ 's1.created' | routeSegmentUrl}}">My restaurants</a>
-				
-		<div app-view-segment="1"></div>
-
-		<p data-ng-show="!restData.restaurants.length">Inga restauranger</p>
-		
-		<ul data-ng-if="restData.restaurants.length" class="restaurantList list-unstyled">
-			<li data-ng-repeat="restaurant in restData.restaurants" >
-				<div data-ng-click="showMoreInfo = !showMoreInfo">
-					<p>{{restaurant.name}}</p>
-					<p>Tel: {{restaurant.phone}}</p>
-				</div>
-				<div data-ng-if="restData.ownRestaurants" class="btn-group" role="group" aria-label="...">
-					<a href="#{{ 's1.edit' | routeSegmentUrl: {id: restaurant.id} }}" type="button" class="btn btn-success btn-xs">
-						<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-					</a>
-					<button data-ng-click="remove(restaurant.id)" type="button" class="btn btn-danger btn-xs">
-						<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-					</button>
-				</div>
-				<div data-ng-show="showMoreInfo">
-					<p>Address: {{restaurant.restaurants}}</p>
-					<p>{{restaurant.description}}</p>
-				</div>
-
-			</li>
+		<ul class="nav nav-tabs">
+			<li data-ng-class="{active: ('s1.home' | routeSegmentStartsWith)}" class="presentation"><a href="#{{ 's1' | routeSegmentUrl}}">Home</a></li>
+			<li data-ng-class="{active: ('s1.search' | routeSegmentEqualsTo)}" class="presentation"><a href="#{{ 's1.search' | routeSegmentUrl}}">Search</a></li>
+			<li data-ng-class="{active: ('s1.create' | routeSegmentEqualsTo)}" class="presentation"><a href="#{{ 's1.create' | routeSegmentUrl}}">Create</a></li>
+			<li data-ng-class="{active: ('s1.created' | routeSegmentEqualsTo)}" class="presentation"><a href="#{{ 's1.created' | routeSegmentUrl}}">My restaurants</a></li>
 		</ul>
 
+		<div class="sideContent">
+			<div class="restaurantForms" app-view-segment="1"></div>
+			<!--<p data-ng-show="!restData.restaurants.length && !restData.selectmarker.show">Inga restauranger</p>-->
+			<ul data-ng-if="restData.restaurants.length" class="restaurantList list-unstyled">
+				<li data-ng-repeat="restaurant in restData.restaurants" >
+					<div data-ng-click="showMoreInfo = !showMoreInfo">
+						<p data-ng-class="{shortWithMoreInfo: showMoreInfo}" class="restaurantName" >{{restaurant.name}}</p>
+						<div data-ng-if="restData.ownRestaurants" class="btn-group restaurantEditBtns" role="group" aria-label="...">
+							<a href="#{{ 's1.edit' | routeSegmentUrl: {id: restaurant.id} }}" type="button" class="btn btn-success btn-xs">
+								<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
+							</a>
+							<button data-ng-click="remove(restaurant.id, $event)" type="button" class="btn btn-danger btn-xs">
+								<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+							</button>
+						</div>
+					</div>
+					<div class="restaurantMoreInfo" data-ng-show="showMoreInfo">
+						<div class="row">
+							<div class="col-sm-4 attributeDescription">Phone:</div>
+							<div class="col-sm-8"><p>{{restaurant.phone}}</p></div>
+						</div>
+						<div class="row">
+							<div class="col-sm-4 attributeDescription">Address:</div>
+							<div class="col-sm-8"><p>{{restaurant.address}}</p></div>
+						</div>						
+						<div class="row">
+							<div class="col-sm-4 attributeDescription">Description:</div>
+							<div class="col-sm-8"><p>{{restaurant.description}}</p></div>
+						</div>
+						<div class="row">
+							<div class="col-sm-4 attributeDescription">Publisher:</div>
+							<div class="col-sm-8">
+								<p><a class="restaurantUser" data-ng-click="userSearch(restaurant.apiuser)">
+									{{restaurant.apiuser.name}}
+								</a></p>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col-sm-4 attributeDescription">Tags:</div>
+							<div class="col-sm-8">
+								<a class="restaurantTags" data-ng-repeat="tag in restaurant.tags"  data-ng-click="tagSearch(tag)">
+									{{tag.name}}
+								</a>
+							</div>
+						</div>
+					</div>
+
+				</li>
+			</ul>
+		</div>
 		<div class="paginationBtns">
 			<button class="btn btn-link" data-ng-disabled="restData.firstUrl.length < 1 || restData.prevUrl.length < 1" data-ng-click="paginate(restData.firstUrl)">&lt;&lt;</button>
 			<button class="btn btn-link" data-ng-disabled="restData.prevUrl.length < 1" data-ng-click="paginate(restData.prevUrl)">&lt;</button>
@@ -41,7 +67,13 @@
 	</div>
 	<div class="col-md-9 fullheight">
 		<ui-gmap-google-map center='restData.map.center' zoom='restData.map.zoom' bounds="restData.map.bounds" draggable="true" control="restData.map.control">
-			<ui-gmap-markers models="restData.restaurantmarkers" coords="'self'" dra icon="'icon'"></ui-gmap-markers>
+			<ui-gmap-markers models="restData.restaurantmarkers" coords="'self'" dra icon="'icon'">
+				<ui-gmap-windows show="'showWindow'" closeClick="'closeClick'" ng-cloak>
+				 	<div>
+				 		<h4>{{self}}</h4>
+				 	</div>
+            	</ui-gmap-windows>
+			</ui-gmap-markers>
 			<ui-gmap-marker data-ng-if="restData.selectmarker.show" coords="restData.selectmarker.coords" options="restData.selectmarker.options" events="restData.selectmarker.events" idkey="restData.selectmarker.id">
 		</ui-gmap-google-map>	
 		

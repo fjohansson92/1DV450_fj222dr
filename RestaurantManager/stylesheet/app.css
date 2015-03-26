@@ -1,10 +1,16 @@
+textarea {
+	resize: none;
+}
+
+
 #contents {
-    height: calc( 100% - 30px);
+    height: calc( 100% - 50px);
+    margin-top: 50px;
 }
 
 html, body, .fullscreen {
-	height: calc( 100% );
-    min-height: calc( 100% );
+	height: 100%;
+    min-height: 100%;
 }
 .container-fluid, .fullheight, .angular-google-map-container, .angular-google-map {    
 	height: 100%;
@@ -27,21 +33,163 @@ html, body, .fullscreen {
 	height: 70px;
 	padding: 0;
 }
-
-
-
-.restaurantList {
-	height: calc(80% - 150px);
-	overflow-y: scroll;
-	position: absolute;
-	width: 100%;
-	bottom: 50px;
-	left: 0;
+.sideContent {
+	height: calc(100% - 112px);
+}
+.restaurantForms {
+	height: 25%;
 }
 
 
 
+
+
+.restaurantList {
+	height: 75%;
+	overflow-y: scroll;
+	width: 100%;
+	left: 0px;
+	background-color: rgb(25, 30, 40);
+}
+.restaurantList li {
+	background-color: #393F4F;
+	margin: 3px;
+	border-radius: 4px;
+	padding: 5px;
+}
+
+.restaurantName {
+	font-size: 1em;
+	cursor: pointer;
+	color: #FFF;
+	margin: 0px 0px 0px 10px;
+	display: inline-block;
+	padding: 5px;
+	border-radius: 5px 5px 0px 0px;
+}
+.shortWithMoreInfo {
+	background-color: #EDEDED;
+	color: rgb(25, 30, 40);
+}
+.restaurantMoreInfo {
+	background-color: #EDEDED;
+	padding: 5px;
+	border-radius: 0 5px 5px;
+	margin: 0px 10px;
+}
+.restaurantMoreInfo .attributeDescription {
+	text-align: right;
+}
+.restaurantEditBtns {
+	float: right;
+	right: 15px;
+}
+.restaurantTags {
+	margin: 2px;
+	padding: 2px;
+	color: #fff;
+	background-color: #337ab7;
+	cursor: pointer;
+	line-height: 180%;
+}
+.restaurantTags:hover, .restaurantTags:active {
+	color: #fff;
+	text-decoration: underline;
+}
+
+.restaurantUser {
+	cursor: pointer;
+	text-decoration: underline;
+}
+
+
+
+
+
+
+
+.positionsInfo, .createdInfo {
+	height: 100%;
+	padding: 5px 30px;
+	text-align: center;
+	position: relative;
+}
+.positionsInfo p, .createdInfo p{ 
+	position: absolute;
+	top: 0px;
+	bottom: 0px;
+	margin: auto;
+	height: 30px;
+	left: 5%;
+	right: 5%;
+}
+
+
+
+
+.searchForms {
+	height: 100%;
+	padding: 20px 20px 0;
+}
+
+.searchForms > div{
+	height: 33%;
+}
+.searchForms form{
+	height: 100%;
+}
+.freeSearchForm .form-group{ 
+	width: 75%;
+}
+.searchForms .freeSearchForm input {
+	width: 100%;
+}
+.tagSearchForm .btn, .userSearchForm .btn{
+	margin-top: -23px; 
+}
+.tagSearchForm .form-group, .userSearchForm .form-group{
+	width: 58%;
+	height: 100%;
+}
+.tagSearchForm .form-group input, .userSearchForm .form-group input{
+	width: 100%;
+}
+.autoCompleteError {
+	margin: -25px 0 0 0px;
+	color: #8F0000;
+}
+
+
+
+
+
+.creatRestaurant {
+	height: 350%;
+	padding: 20px;
+}
 .creatRestaurant .tagList {
 	max-height: 200px;
 	overflow-y: scroll;
+	list-style: none;
+	padding: 0;
+}
+.creatRestaurant .tagList li {
+	padding: 3px;
+	background-color: rgb(25, 30, 40);
+	color: #fff;
+}
+.creatRestaurant .tagList li:nth-child(even) {
+	background-color: #393F4F;
+}
+
+
+.removeTagBtn {
+	float: right;
+	margin-top: -1px;
+}
+.addTagBtn {
+	margin-left: 10px;
+}
+.creatRestaurant .btn-success {
+	margin-right: 20px;
 }
