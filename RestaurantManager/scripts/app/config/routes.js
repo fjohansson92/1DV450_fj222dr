@@ -20,16 +20,25 @@ $routeSegmentProvider
     	})
         .segment('create', {
             controller: 'CreateCtrl',
-            templateUrl: 'views/restaurants/create.html'
+            templateUrl: 'views/restaurants/create.html',
+            resolve: {
+                resolvedData: checkUser
+            }
         })
         .segment('edit', {
             controller: 'CreateCtrl',
             templateUrl: 'views/restaurants/create.html',
-            dependencies: ['id']
+            dependencies: ['id'],
+            resolve: {
+                resolvedData: checkUser
+            }
         })
         .segment('created', {
             controller: 'CreatedCtrl',
-            templateUrl: 'views/restaurants/created.html'
+            templateUrl: 'views/restaurants/created.html',
+            resolve: {
+                resolvedData: checkUser
+            }
         })
     	.segment('home/:latitude?/:longitude?/:zoom?', {
     		controller: 'PositionCtrl',
@@ -39,4 +48,11 @@ $routeSegmentProvider
 
    	$routeProvider.otherwise({redirectTo: '/restaurants'});
 }]);
+
+var checkUser = ['LoginFactory', '$location', function(LoginFactory, $location) {
+    if (!LoginFactory.user.loggedin) {
+        LoginFactory.setShowMessage();
+        $location.path('/restaurants');
+    }
+}];
 

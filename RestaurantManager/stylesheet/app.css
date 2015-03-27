@@ -21,6 +21,29 @@ html, body, .fullscreen {
 }
 
 
+.loginMessage {
+	position: fixed;
+	margin-top: 50px;
+	z-index: 50;
+	text-align: center;
+	background-color: #393F4F;
+	width: 40%;
+	margin: 50px auto;
+	left: 0;
+	right: 0;
+	padding: 50px;
+	color: #fff;
+	min-width: 300px;
+	border-radius: 0 0 15px 15px;
+}
+.loginMessage .closeBtn {
+	float: right;
+	margin-top: -40px;
+	margin-right: -40px;
+}
+
+
+
 .paginationBtns {
 	position: absolute;
 	bottom: 0;

@@ -27,7 +27,14 @@
                     </div>
                 </div>
             </nav>
-            <div class="container-fluid">
+            <div class="loginMessage" data-ng-if="user.showMessage">
+                <button type="button" class="btn btn-default closeBtn" data-ng-click="user.showMessage = false;">
+                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                </button>
+                <p>You tried to access a restricted page please login</p>
+                <div login-menu login="login()" logout="logout()"></div>                
+            </div>
+            <div class="container-fluid">                
                 <div id="contents" app-view-segment="0"></div>
             </div>
         </div>

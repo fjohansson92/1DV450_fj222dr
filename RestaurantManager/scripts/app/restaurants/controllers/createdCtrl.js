@@ -15,16 +15,19 @@ angular.module('RestaurantManager.Restaurants').controller('CreatedCtrl', ['$sco
 		} 
 	});
 
-	$scope.$on('removeRestaurant', function(event, id) {
+	$scope.$on('removeRestaurant', function(event, restaurant) {
 		
-		ownRestaurant = RestaurantFactory.remove({id: id.id});
+		ownRestaurant = RestaurantFactory.remove({id: restaurant.id});
 		ownRestaurant.$promise.then(function(data) {
 
-			// TODO: Remove
-
+			RestaurantDataFactory.removeRestaurant(restaurant.id)
 		}, function(reason) {
 			if (reason && reason.hasOwnProperty('data') && reason.data.hasOwnProperty('userMessage')) {
 				RestaurantDataFactory.setErrorMessage(reason.data.userMessage);
+
+				if (reason.data.errorCode == '1401') {
+					$scope.$emit('userNotValid');
+				}
 			} 
 		});
 	});

@@ -1,4 +1,4 @@
-angular.module('RestaurantManager.Login').factory('LoginFactory', [ function () {
+angular.module('RestaurantManager.Login').factory('LoginFactory', ['$q', function ($q) {
 	
 	var user_token_localstorage = 'user_token';
 	var auth_token_localstorage = 'auth_token';
@@ -12,7 +12,8 @@ angular.module('RestaurantManager.Login').factory('LoginFactory', [ function () 
 					user_token: saved_user_token,
 					auth_token: saved_auth_token,
 					apiuser_id: saved_apiuser_id,
-					loggedin: false
+					loggedin: false,
+					showMessage: false
 				};
 
 	if (saved_user_token && saved_auth_token && saved_apiuser_id) {
@@ -40,6 +41,9 @@ angular.module('RestaurantManager.Login').factory('LoginFactory', [ function () 
 			user.auth_token = null;
 			user.apiuser_id = null;
 			user.loggedin = false;
-		}  
+		},
+		setShowMessage: function() {
+			user.showMessage = true;
+		}
 	}	
 }]);

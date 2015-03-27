@@ -1,4 +1,4 @@
-angular.module('RestaurantManager.Login').controller('LoginCtrl', ['$scope', '$location', '$routeParams', 'LoginFactory', function ($scope, $location, $routeParams, LoginFactory) {
+angular.module('RestaurantManager.Login').controller('LoginCtrl', ['$scope', '$location', '$routeParams', 'LoginFactory', '$routeSegment', function ($scope, $location, $routeParams, LoginFactory, $routeSegment) {
 
 	var init = function() {
 		
@@ -10,8 +10,10 @@ angular.module('RestaurantManager.Login').controller('LoginCtrl', ['$scope', '$l
 		$location.search('apiuser_id', null).replace();
 
 		$scope.$on('userNotValid', function() {
-			LoginFactory.logout();	
+			$scope.login();	
 	  	});
+
+	  	$scope.user = LoginFactory.user;
 	}
 
 	listener = $scope.$on('$routeChangeSuccess', function() {
@@ -20,7 +22,6 @@ angular.module('RestaurantManager.Login').controller('LoginCtrl', ['$scope', '$l
   	});
 
 	$scope.login = function() {
-
 		var user_token = "";
 		var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 		for( var i=0; i < 35; i++ )
@@ -35,7 +36,7 @@ angular.module('RestaurantManager.Login').controller('LoginCtrl', ['$scope', '$l
 
 	$scope.logout = function() {
 		LoginFactory.logout();
+		$location.path($routeSegment.getSegmentUrl('s1'));
 	}
-
 	
 }]);

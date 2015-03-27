@@ -1,11 +1,14 @@
 <div class="row fullheight">
 	<div class="col-md-3 fullheight">
-		
 		<ul class="nav nav-tabs">
 			<li data-ng-class="{active: ('s1.home' | routeSegmentStartsWith)}" class="presentation"><a href="#{{ 's1' | routeSegmentUrl}}">Home</a></li>
 			<li data-ng-class="{active: ('s1.search' | routeSegmentEqualsTo)}" class="presentation"><a href="#{{ 's1.search' | routeSegmentUrl}}">Search</a></li>
-			<li data-ng-class="{active: ('s1.create' | routeSegmentEqualsTo)}" class="presentation"><a href="#{{ 's1.create' | routeSegmentUrl}}">Create</a></li>
-			<li data-ng-class="{active: ('s1.created' | routeSegmentEqualsTo)}" class="presentation"><a href="#{{ 's1.created' | routeSegmentUrl}}">My restaurants</a></li>
+			<li data-ng-if="user.loggedin" data-ng-class="{active: ('s1.create' | routeSegmentEqualsTo)}" class="presentation">
+				<a href="#{{ 's1.create' | routeSegmentUrl}}">Create</a>
+			</li>
+			<li data-ng-if="user.loggedin" data-ng-class="{active: ('s1.created' | routeSegmentEqualsTo)}" class="presentation">
+				<a href="#{{ 's1.created' | routeSegmentUrl}}">My restaurants</a>
+			</li>
 		</ul>
 
 		<div class="sideContent">

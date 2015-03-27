@@ -121,9 +121,22 @@ angular.module('RestaurantManager.Restaurants').factory('RestaurantDataFactory',
 		},
 		setOwnRestaurants: function() {
 			restaurantsData.ownRestaurants = true;	
+		},
+		removeRestaurant: function(id) {
+
+			for(var i=0; i<restaurantsData.restaurants.length; i++){
+				if(restaurantsData.restaurants[i].id == id){
+					restaurantsData.restaurants.splice(i, 1);
+					break;
+				}
+			}
+
+			for(var i=0; i<restaurantsData.restaurantmarkers.length; i++){
+				if(restaurantsData.restaurantmarkers[i].id == id){
+					restaurantsData.restaurantmarkers.splice(i, 1);
+					break;
+				}
+			}
 		}
-
 	};
-
-
  }]);

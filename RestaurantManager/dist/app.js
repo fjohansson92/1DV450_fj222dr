@@ -47,16 +47,25 @@ $routeSegmentProvider
     	})
         .segment('create', {
             controller: 'CreateCtrl',
-            templateUrl: 'views/restaurants/create.html'
+            templateUrl: 'views/restaurants/create.html',
+            resolve: {
+                resolvedData: checkUser
+            }
         })
         .segment('edit', {
             controller: 'CreateCtrl',
             templateUrl: 'views/restaurants/create.html',
-            dependencies: ['id']
+            dependencies: ['id'],
+            resolve: {
+                resolvedData: checkUser
+            }
         })
         .segment('created', {
             controller: 'CreatedCtrl',
-            templateUrl: 'views/restaurants/created.html'
+            templateUrl: 'views/restaurants/created.html',
+            resolve: {
+                resolvedData: checkUser
+            }
         })
     	.segment('home/:latitude?/:longitude?/:zoom?', {
     		controller: 'PositionCtrl',
@@ -67,7 +76,14 @@ $routeSegmentProvider
    	$routeProvider.otherwise({redirectTo: '/restaurants'});
 }]);
 
-;angular.module('RestaurantManager.Login').controller('LoginCtrl', ['$scope', '$location', '$routeParams', 'LoginFactory', function ($scope, $location, $routeParams, LoginFactory) {
+var checkUser = ['LoginFactory', '$location', function(LoginFactory, $location) {
+    if (!LoginFactory.user.loggedin) {
+        LoginFactory.setShowMessage();
+        $location.path('/restaurants');
+    }
+}];
+
+;angular.module('RestaurantManager.Login').controller('LoginCtrl', ['$scope', '$location', '$routeParams', 'LoginFactory', '$routeSegment', function ($scope, $location, $routeParams, LoginFactory, $routeSegment) {
 
 	var init = function() {
 		
@@ -79,8 +95,10 @@ $routeSegmentProvider
 		$location.search('apiuser_id', null).replace();
 
 		$scope.$on('userNotValid', function() {
-			LoginFactory.logout();	
+			$scope.login();	
 	  	});
+
+	  	$scope.user = LoginFactory.user;
 	}
 
 	listener = $scope.$on('$routeChangeSuccess', function() {
@@ -89,7 +107,6 @@ $routeSegmentProvider
   	});
 
 	$scope.login = function() {
-
 		var user_token = "";
 		var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 		for( var i=0; i < 35; i++ )
@@ -104,8 +121,8 @@ $routeSegmentProvider
 
 	$scope.logout = function() {
 		LoginFactory.logout();
+		$location.path($routeSegment.getSegmentUrl('s1'));
 	}
-
 	
 }]);;angular.module('RestaurantManager.Login').directive('loginMenu', ['LoginFactory', function (LoginFactory) {
 	return {
@@ -121,7 +138,7 @@ $routeSegmentProvider
 				  '<button class="btn btn-default navbar-btn" data-ng-if="!user.loggedin" data-ng-click="login()">Login with GitHub</button>'
     }
 }]);
-;angular.module('RestaurantManager.Login').factory('LoginFactory', [ function () {
+;angular.module('RestaurantManager.Login').factory('LoginFactory', ['$q', function ($q) {
 	
 	var user_token_localstorage = 'user_token';
 	var auth_token_localstorage = 'auth_token';
@@ -135,7 +152,8 @@ $routeSegmentProvider
 					user_token: saved_user_token,
 					auth_token: saved_auth_token,
 					apiuser_id: saved_apiuser_id,
-					loggedin: false
+					loggedin: false,
+					showMessage: false
 				};
 
 	if (saved_user_token && saved_auth_token && saved_apiuser_id) {
@@ -163,7 +181,10 @@ $routeSegmentProvider
 			user.auth_token = null;
 			user.apiuser_id = null;
 			user.loggedin = false;
-		}  
+		},
+		setShowMessage: function() {
+			user.showMessage = true;
+		}
 	}	
 }]);;angular.module('RestaurantManager.Restaurants').controller('CreateCtrl', ['$scope', '$q','$routeParams', 'RestaurantFactory', 'RestaurantDataFactory',
 																   function ($scope, $q, $routeParams, RestaurantFactory, RestaurantDataFactory) {
@@ -289,16 +310,19 @@ $routeSegmentProvider
 		} 
 	});
 
-	$scope.$on('removeRestaurant', function(event, id) {
+	$scope.$on('removeRestaurant', function(event, restaurant) {
 		
-		ownRestaurant = RestaurantFactory.remove({id: id.id});
+		ownRestaurant = RestaurantFactory.remove({id: restaurant.id});
 		ownRestaurant.$promise.then(function(data) {
 
-			// TODO: Remove
-
+			RestaurantDataFactory.removeRestaurant(restaurant.id)
 		}, function(reason) {
 			if (reason && reason.hasOwnProperty('data') && reason.data.hasOwnProperty('userMessage')) {
 				RestaurantDataFactory.setErrorMessage(reason.data.userMessage);
+
+				if (reason.data.errorCode == '1401') {
+					$scope.$emit('userNotValid');
+				}
 			} 
 		});
 	});
@@ -767,11 +791,24 @@ $routeSegmentProvider
 		},
 		setOwnRestaurants: function() {
 			restaurantsData.ownRestaurants = true;	
+		},
+		removeRestaurant: function(id) {
+
+			for(var i=0; i<restaurantsData.restaurants.length; i++){
+				if(restaurantsData.restaurants[i].id == id){
+					restaurantsData.restaurants.splice(i, 1);
+					break;
+				}
+			}
+
+			for(var i=0; i<restaurantsData.restaurantmarkers.length; i++){
+				if(restaurantsData.restaurantmarkers[i].id == id){
+					restaurantsData.restaurantmarkers.splice(i, 1);
+					break;
+				}
+			}
 		}
-
 	};
-
-
  }]);;angular.module('RestaurantManager.Restaurants').factory('RestaurantFactory', ['$resource', 'API', 'LoginFactory', function ($resource, $API, LoginFactory) {
 	return $resource($API + 'restaurants/:id', {}, {
 		'save': {method: 'POST', headers: { user_token: LoginFactory.user.user_token, 
@@ -790,12 +827,15 @@ angular.module("../views/restaurants.html", []).run(["$templateCache", function(
   $templateCache.put("../views/restaurants.html",
     "<div class=\"row fullheight\">\n" +
     "	<div class=\"col-md-3 fullheight\">\n" +
-    "		\n" +
     "		<ul class=\"nav nav-tabs\">\n" +
     "			<li data-ng-class=\"{active: ('s1.home' | routeSegmentStartsWith)}\" class=\"presentation\"><a href=\"#{{ 's1' | routeSegmentUrl}}\">Home</a></li>\n" +
     "			<li data-ng-class=\"{active: ('s1.search' | routeSegmentEqualsTo)}\" class=\"presentation\"><a href=\"#{{ 's1.search' | routeSegmentUrl}}\">Search</a></li>\n" +
-    "			<li data-ng-class=\"{active: ('s1.create' | routeSegmentEqualsTo)}\" class=\"presentation\"><a href=\"#{{ 's1.create' | routeSegmentUrl}}\">Create</a></li>\n" +
-    "			<li data-ng-class=\"{active: ('s1.created' | routeSegmentEqualsTo)}\" class=\"presentation\"><a href=\"#{{ 's1.created' | routeSegmentUrl}}\">My restaurants</a></li>\n" +
+    "			<li data-ng-if=\"user.loggedin\" data-ng-class=\"{active: ('s1.create' | routeSegmentEqualsTo)}\" class=\"presentation\">\n" +
+    "				<a href=\"#{{ 's1.create' | routeSegmentUrl}}\">Create</a>\n" +
+    "			</li>\n" +
+    "			<li data-ng-if=\"user.loggedin\" data-ng-class=\"{active: ('s1.created' | routeSegmentEqualsTo)}\" class=\"presentation\">\n" +
+    "				<a href=\"#{{ 's1.created' | routeSegmentUrl}}\">My restaurants</a>\n" +
+    "			</li>\n" +
     "		</ul>\n" +
     "\n" +
     "		<div class=\"sideContent\">\n" +
