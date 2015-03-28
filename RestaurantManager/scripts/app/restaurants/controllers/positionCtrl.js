@@ -9,8 +9,8 @@ angular.module('RestaurantManager.Restaurants').controller('PositionCtrl', ['$sc
 	init = function() {
 		
 		if($scope.restData.cordsInParams) {
-			var unregister = $scope.$watch('restData.map', function(newVal, oldVal) {
-				if (!$scope.restData.map.waitForRefresh) {
+			var unregister = $scope.$watch('restData.map.center', function(newVal, oldVal) {
+				if (!$scope.restData.waitForRefresh) {					
 					getRestaurantsOnMap(null);
 					unregister();
 					allowWatch = true;
@@ -24,7 +24,7 @@ angular.module('RestaurantManager.Restaurants').controller('PositionCtrl', ['$sc
 
 	// Watch for map change and update restaurants when latitude or longitude change enoufh relative to zoom.
 	centerWatcher = function(newVal, oldVal) {
-		updateRadio = getUpdateRadio(newVal.zoom);				
+		updateRadio = getUpdateRatio(newVal.zoom);				
 
 		if (!$scope.restData.loading && (
 			(newVal.center.latitude > $scope.restData.lastLatitude && newVal.center.latitude - (10 - updateRadio ) > $scope.restData.lastLatitude) ||
@@ -55,13 +55,12 @@ angular.module('RestaurantManager.Restaurants').controller('PositionCtrl', ['$sc
 
 	getRestaurantsOnMap = function(serverParamsString, firstTimeCalled) {
 		RestaurantDataFactory.loading();
-		params = serverParamsString ? serverParamsString : {};
 
+		params = serverParamsString ? serverParamsString : {};
 		params.lat_top = $scope.restData.map.bounds.northeast.latitude;
 		params.lat_bottom = $scope.restData.map.bounds.southwest.latitude;
 		params.lng_right = $scope.restData.map.bounds.northeast.longitude;
 		params.lng_left = $scope.restData.map.bounds.southwest.longitude;
-
 
 		promise = PositionFactory.get(params);
 		$q.all([promise.$promise, $scope.restData.uiGmapApiPromise]).then(function(data){
@@ -82,7 +81,7 @@ angular.module('RestaurantManager.Restaurants').controller('PositionCtrl', ['$sc
 	}
 
 
-	getUpdateRadio = function(zoom) {
+	getUpdateRatio = function(zoom) {
 		var x = 9
 		if (zoom < 10) {
 			x = zoom;

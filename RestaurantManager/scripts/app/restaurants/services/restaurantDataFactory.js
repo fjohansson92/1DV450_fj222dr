@@ -10,16 +10,15 @@ angular.module('RestaurantManager.Restaurants').factory('RestaurantDataFactory',
 		errorMessage: null,
 		loading: false,
 		restaurants: [],
-		restaurantmarkers: [],
 		selectmarker: {},
 		watchMap: true,
 		uiGmapPromise: uiGmapDeferred.promise,
 		uiGmapApiPromise: uiGmapApiDeferred.promise,
+		waitForRefresh: true,
 		map: {  control: {}, 
 				center: { latitude: lastLatitude, longitude: lastLongitude }, 
 				zoom: 3,
-				changer: false,
-				waitForRefresh: true,  
+				changer: false,				  
 				bounds: {	northeast: { latitude: 68, longitude: 100 },	
 							southwest: { latitude: -29,	longitude: -91 }}
 		},
@@ -41,7 +40,7 @@ angular.module('RestaurantManager.Restaurants').factory('RestaurantDataFactory',
 
 
 			restaurantsData.uiGmapPromise.then(function(data){
-				restaurantsData.map.waitForRefresh = false;
+				restaurantsData.waitForRefresh = false;
 				restaurantsData.map.control.refresh({latitude: parseFloat($routeParams.latitude), 
 													 longitude: parseFloat($routeParams.longitude)});
 			});
@@ -60,20 +59,25 @@ angular.module('RestaurantManager.Restaurants').factory('RestaurantDataFactory',
 			restaurantsData.prevUrl = data.links.prev ? data.links.prev.split('?')[1] : "";
 			restaurantsData.lastUrl = data.links.last ? data.links.last.split('?')[1] : "";
 
-			restaurantsData.restaurants = data.restaurants;
-			restaurantsData.restaurantmarkers = [];
+			var openRestaurants = [];
+			var openRestaurantsIds = [];
+
+			for (var key in restaurantsData.restaurants) {
+				restaurant = restaurantsData.restaurants[key]
+				if(restaurant.showMoreInfo) {
+					openRestaurants.push(restaurant);
+					openRestaurantsIds.push(restaurant.id);
+				}
+			}
 
 			for (var key in data.restaurants) {
-				restaurant = data.restaurants[key]
-
-				restaurantsData.restaurantmarkers.push({
-					title: restaurant.name,
-					id: parseInt(restaurant.id),
-					latitude: restaurant.latitude,
-					longitude: restaurant.longitude
-			    });
+				restaurant = data.restaurants[key];
+				if (openRestaurantsIds.indexOf(restaurant.id) < 0) {
+					openRestaurants.push(restaurant);
+				}
 			}
-			
+						
+			restaurantsData.restaurants = openRestaurants;				
 		},
 		resolveGmap: function() {
 			uiGmapDeferred.resolve();
@@ -104,7 +108,6 @@ angular.module('RestaurantManager.Restaurants').factory('RestaurantDataFactory',
 		},
 		removeRestaurants: function() {
 			restaurantsData.restaurants = [];
-			restaurantsData.restaurantmarkers = [];
 			restaurantsData.selectmarker.show = false;
 			restaurantsData.ownRestaurants = false;
 		},
@@ -127,13 +130,6 @@ angular.module('RestaurantManager.Restaurants').factory('RestaurantDataFactory',
 			for(var i=0; i<restaurantsData.restaurants.length; i++){
 				if(restaurantsData.restaurants[i].id == id){
 					restaurantsData.restaurants.splice(i, 1);
-					break;
-				}
-			}
-
-			for(var i=0; i<restaurantsData.restaurantmarkers.length; i++){
-				if(restaurantsData.restaurantmarkers[i].id == id){
-					restaurantsData.restaurantmarkers.splice(i, 1);
 					break;
 				}
 			}

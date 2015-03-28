@@ -53,6 +53,15 @@ angular.module('RestaurantManager.Restaurants').controller('RestaurantCtrl', ['$
 		$scope.$broadcast('paginate', params);
 	}
 
+	$scope.showRestaurantInfo = function(marker) {
+		if (!marker.showMoreInfo) {
+			marker.showMoreInfo = true;
+			document.getElementById('restaurantList').scrollTop = 0;
+			from = $scope.restData.restaurants.indexOf(marker);
+			$scope.restData.restaurants.splice(0, 0, $scope.restData.restaurants.splice(from, 1)[0]);
+		}
+	}
+
 
 
 	var lastRoute = $route.current;

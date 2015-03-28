@@ -339,8 +339,8 @@ var checkUser = ['LoginFactory', '$location', function(LoginFactory, $location) 
 	init = function() {
 		
 		if($scope.restData.cordsInParams) {
-			var unregister = $scope.$watch('restData.map', function(newVal, oldVal) {
-				if (!$scope.restData.map.waitForRefresh) {
+			var unregister = $scope.$watch('restData.map.center', function(newVal, oldVal) {
+				if (!$scope.restData.waitForRefresh) {					
 					getRestaurantsOnMap(null);
 					unregister();
 					allowWatch = true;
@@ -354,7 +354,7 @@ var checkUser = ['LoginFactory', '$location', function(LoginFactory, $location) 
 
 	// Watch for map change and update restaurants when latitude or longitude change enoufh relative to zoom.
 	centerWatcher = function(newVal, oldVal) {
-		updateRadio = getUpdateRadio(newVal.zoom);				
+		updateRadio = getUpdateRatio(newVal.zoom);				
 
 		if (!$scope.restData.loading && (
 			(newVal.center.latitude > $scope.restData.lastLatitude && newVal.center.latitude - (10 - updateRadio ) > $scope.restData.lastLatitude) ||
@@ -385,13 +385,12 @@ var checkUser = ['LoginFactory', '$location', function(LoginFactory, $location) 
 
 	getRestaurantsOnMap = function(serverParamsString, firstTimeCalled) {
 		RestaurantDataFactory.loading();
-		params = serverParamsString ? serverParamsString : {};
 
+		params = serverParamsString ? serverParamsString : {};
 		params.lat_top = $scope.restData.map.bounds.northeast.latitude;
 		params.lat_bottom = $scope.restData.map.bounds.southwest.latitude;
 		params.lng_right = $scope.restData.map.bounds.northeast.longitude;
 		params.lng_left = $scope.restData.map.bounds.southwest.longitude;
-
 
 		promise = PositionFactory.get(params);
 		$q.all([promise.$promise, $scope.restData.uiGmapApiPromise]).then(function(data){
@@ -412,7 +411,7 @@ var checkUser = ['LoginFactory', '$location', function(LoginFactory, $location) 
 	}
 
 
-	getUpdateRadio = function(zoom) {
+	getUpdateRatio = function(zoom) {
 		var x = 9
 		if (zoom < 10) {
 			x = zoom;
@@ -486,6 +485,15 @@ var checkUser = ['LoginFactory', '$location', function(LoginFactory, $location) 
 		}
 
 		$scope.$broadcast('paginate', params);
+	}
+
+	$scope.showRestaurantInfo = function(marker) {
+		if (!marker.showMoreInfo) {
+			marker.showMoreInfo = true;
+			document.getElementById('restaurantList').scrollTop = 0;
+			from = $scope.restData.restaurants.indexOf(marker);
+			$scope.restData.restaurants.splice(0, 0, $scope.restData.restaurants.splice(from, 1)[0]);
+		}
 	}
 
 
@@ -680,16 +688,15 @@ var checkUser = ['LoginFactory', '$location', function(LoginFactory, $location) 
 		errorMessage: null,
 		loading: false,
 		restaurants: [],
-		restaurantmarkers: [],
 		selectmarker: {},
 		watchMap: true,
 		uiGmapPromise: uiGmapDeferred.promise,
 		uiGmapApiPromise: uiGmapApiDeferred.promise,
+		waitForRefresh: true,
 		map: {  control: {}, 
 				center: { latitude: lastLatitude, longitude: lastLongitude }, 
 				zoom: 3,
-				changer: false,
-				waitForRefresh: true,  
+				changer: false,				  
 				bounds: {	northeast: { latitude: 68, longitude: 100 },	
 							southwest: { latitude: -29,	longitude: -91 }}
 		},
@@ -711,7 +718,7 @@ var checkUser = ['LoginFactory', '$location', function(LoginFactory, $location) 
 
 
 			restaurantsData.uiGmapPromise.then(function(data){
-				restaurantsData.map.waitForRefresh = false;
+				restaurantsData.waitForRefresh = false;
 				restaurantsData.map.control.refresh({latitude: parseFloat($routeParams.latitude), 
 													 longitude: parseFloat($routeParams.longitude)});
 			});
@@ -730,20 +737,25 @@ var checkUser = ['LoginFactory', '$location', function(LoginFactory, $location) 
 			restaurantsData.prevUrl = data.links.prev ? data.links.prev.split('?')[1] : "";
 			restaurantsData.lastUrl = data.links.last ? data.links.last.split('?')[1] : "";
 
-			restaurantsData.restaurants = data.restaurants;
-			restaurantsData.restaurantmarkers = [];
+			var openRestaurants = [];
+			var openRestaurantsIds = [];
+
+			for (var key in restaurantsData.restaurants) {
+				restaurant = restaurantsData.restaurants[key]
+				if(restaurant.showMoreInfo) {
+					openRestaurants.push(restaurant);
+					openRestaurantsIds.push(restaurant.id);
+				}
+			}
 
 			for (var key in data.restaurants) {
-				restaurant = data.restaurants[key]
-
-				restaurantsData.restaurantmarkers.push({
-					title: restaurant.name,
-					id: parseInt(restaurant.id),
-					latitude: restaurant.latitude,
-					longitude: restaurant.longitude
-			    });
+				restaurant = data.restaurants[key];
+				if (openRestaurantsIds.indexOf(restaurant.id) < 0) {
+					openRestaurants.push(restaurant);
+				}
 			}
-			
+						
+			restaurantsData.restaurants = openRestaurants;				
 		},
 		resolveGmap: function() {
 			uiGmapDeferred.resolve();
@@ -774,7 +786,6 @@ var checkUser = ['LoginFactory', '$location', function(LoginFactory, $location) 
 		},
 		removeRestaurants: function() {
 			restaurantsData.restaurants = [];
-			restaurantsData.restaurantmarkers = [];
 			restaurantsData.selectmarker.show = false;
 			restaurantsData.ownRestaurants = false;
 		},
@@ -797,13 +808,6 @@ var checkUser = ['LoginFactory', '$location', function(LoginFactory, $location) 
 			for(var i=0; i<restaurantsData.restaurants.length; i++){
 				if(restaurantsData.restaurants[i].id == id){
 					restaurantsData.restaurants.splice(i, 1);
-					break;
-				}
-			}
-
-			for(var i=0; i<restaurantsData.restaurantmarkers.length; i++){
-				if(restaurantsData.restaurantmarkers[i].id == id){
-					restaurantsData.restaurantmarkers.splice(i, 1);
 					break;
 				}
 			}
@@ -840,11 +844,10 @@ angular.module("../views/restaurants.html", []).run(["$templateCache", function(
     "\n" +
     "		<div class=\"sideContent\">\n" +
     "			<div class=\"restaurantForms\" app-view-segment=\"1\"></div>\n" +
-    "			<!--<p data-ng-show=\"!restData.restaurants.length && !restData.selectmarker.show\">Inga restauranger</p>-->\n" +
-    "			<ul data-ng-if=\"restData.restaurants.length\" class=\"restaurantList list-unstyled\">\n" +
-    "				<li data-ng-repeat=\"restaurant in restData.restaurants\" >\n" +
-    "					<div data-ng-click=\"showMoreInfo = !showMoreInfo\">\n" +
-    "						<p data-ng-class=\"{shortWithMoreInfo: showMoreInfo}\" class=\"restaurantName\" >{{restaurant.name}}</p>\n" +
+    "			<ul data-ng-if=\"restData.restaurants.length\" id=\"restaurantList\" class=\"restaurantList list-unstyled\">\n" +
+    "				<li data-ng-repeat=\"restaurant in restData.restaurants\" id=\"restaurant{{restaurant.id}}\">\n" +
+    "					<div class=\"restaurantHeader\" data-ng-click=\"restaurant.showMoreInfo = !restaurant.showMoreInfo\">\n" +
+    "						<p data-ng-class=\"{shortWithMoreInfo: restaurant.showMoreInfo}\" class=\"restaurantName\" >{{restaurant.name}}</p>\n" +
     "						<div data-ng-if=\"restData.ownRestaurants\" class=\"btn-group restaurantEditBtns\" role=\"group\" aria-label=\"...\">\n" +
     "							<a href=\"#{{ 's1.edit' | routeSegmentUrl: {id: restaurant.id} }}\" type=\"button\" class=\"btn btn-success btn-xs\">\n" +
     "								<span class=\"glyphicon glyphicon-edit\" aria-hidden=\"true\"></span>\n" +
@@ -854,7 +857,7 @@ angular.module("../views/restaurants.html", []).run(["$templateCache", function(
     "							</button>\n" +
     "						</div>\n" +
     "					</div>\n" +
-    "					<div class=\"restaurantMoreInfo\" data-ng-show=\"showMoreInfo\">\n" +
+    "					<div class=\"restaurantMoreInfo\" data-ng-show=\"restaurant.showMoreInfo\">\n" +
     "						<div class=\"row\">\n" +
     "							<div class=\"col-sm-4 attributeDescription\">Phone:</div>\n" +
     "							<div class=\"col-sm-8\"><p>{{restaurant.phone}}</p></div>\n" +
@@ -897,14 +900,17 @@ angular.module("../views/restaurants.html", []).run(["$templateCache", function(
     "	</div>\n" +
     "	<div class=\"col-md-9 fullheight\">\n" +
     "		<ui-gmap-google-map center='restData.map.center' zoom='restData.map.zoom' bounds=\"restData.map.bounds\" draggable=\"true\" control=\"restData.map.control\">\n" +
-    "			<ui-gmap-markers models=\"restData.restaurantmarkers\" coords=\"'self'\" dra icon=\"'icon'\">\n" +
-    "				<ui-gmap-windows show=\"'showWindow'\" closeClick=\"'closeClick'\" ng-cloak>\n" +
-    "				 	<div>\n" +
-    "				 		<h4>{{self}}</h4>\n" +
-    "				 	</div>\n" +
-    "            	</ui-gmap-windows>\n" +
-    "			</ui-gmap-markers>\n" +
-    "			<ui-gmap-marker data-ng-if=\"restData.selectmarker.show\" coords=\"restData.selectmarker.coords\" options=\"restData.selectmarker.options\" events=\"restData.selectmarker.events\" idkey=\"restData.selectmarker.id\">\n" +
+    "	        <ui-gmap-marker data-ng-repeat=\"m in restData.restaurants\" coords=\"m\" icon=\"m.icon\" click=\"showRestaurantInfo(m);\" idKey=\"m.id\">\n" +
+    "	            <ui-gmap-window data-ng-cloak  coords=\"map.infoWindowWithCustomClass.coords\" show=\"m.showMoreInfo\" closeClick=\"m.showMoreInfo = false\" \n" +
+    "	            	options=\"map.infoWindowWithCustomClass.options\">\n" +
+    "	            	<div>\n" +
+    "		            	<p>{{m.name}}</p>\n" +
+    "		            	<p>{{m.address}}</p>\n" +
+    "		            </div>\n" +
+    "	            </ui-gmap-window>\n" +
+    "	        </ui-gmap-marker>\n" +
+    "			<ui-gmap-marker data-ng-if=\"restData.selectmarker.show\" coords=\"restData.selectmarker.coords\" options=\"restData.selectmarker.options\" \n" +
+    "				events=\"restData.selectmarker.events\" idkey=\"restData.selectmarker.id\">\n" +
     "		</ui-gmap-google-map>	\n" +
     "		\n" +
     "	</div>\n" +
