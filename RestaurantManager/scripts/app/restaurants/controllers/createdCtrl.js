@@ -6,14 +6,17 @@ angular.module('RestaurantManager.Restaurants').controller('CreatedCtrl', ['$sco
 	RestaurantDataFactory.removeRestaurants();
 	RestaurantDataFactory.setOwnRestaurants();
 
-	ownRestaurants = RestaurantFactory.getOwn();
-	ownRestaurants.$promise.then(function(data) {
-		RestaurantDataFactory.setRestaurantData(data);			
-	}, function(reason) {
-		if (reason && reason.hasOwnProperty('data') && reason.data.hasOwnProperty('userMessage')) {
-			RestaurantDataFactory.setErrorMessage(reason.data.userMessage);
-		} 
-	});
+	var getOwnRestaurants = function(params) {
+		ownRestaurants = RestaurantFactory.getOwn(params);
+		ownRestaurants.$promise.then(function(data) {
+			RestaurantDataFactory.setRestaurantData(data);			
+		}, function(reason) {
+			if (reason && reason.hasOwnProperty('data') && reason.data.hasOwnProperty('userMessage')) {
+				RestaurantDataFactory.setErrorMessage(reason.data.userMessage);
+			} 
+		});
+	}
+	getOwnRestaurants();
 
 	$scope.$on('removeRestaurant', function(event, restaurant) {
 		
@@ -32,5 +35,10 @@ angular.module('RestaurantManager.Restaurants').controller('CreatedCtrl', ['$sco
 		});
 	});
 
+	$scope.$on('paginate', function(event, args) {
+		if (!$scope.restData.loading ) {
+			getOwnRestaurants(args);
+		}
+	});
 
 }]);															

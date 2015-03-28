@@ -13,54 +13,60 @@
 
 		<div class="sideContent">
 			<div class="restaurantForms" app-view-segment="1"></div>
-			<ul data-ng-if="restData.restaurants.length" id="restaurantList" class="restaurantList list-unstyled">
-				<li data-ng-repeat="restaurant in restData.restaurants" id="restaurant{{restaurant.id}}">
-					<div class="restaurantHeader" data-ng-click="restaurant.showMoreInfo = !restaurant.showMoreInfo">
-						<p data-ng-class="{shortWithMoreInfo: restaurant.showMoreInfo}" class="restaurantName" >{{restaurant.name}}</p>
-						<div data-ng-if="restData.ownRestaurants" class="btn-group restaurantEditBtns" role="group" aria-label="...">
-							<a href="#{{ 's1.edit' | routeSegmentUrl: {id: restaurant.id} }}" type="button" class="btn btn-success btn-xs">
-								<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
-							</a>
-							<button data-ng-click="remove(restaurant.id, $event)" type="button" class="btn btn-danger btn-xs">
-								<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
-							</button>
-						</div>
-					</div>
-					<div class="restaurantMoreInfo" data-ng-show="restaurant.showMoreInfo">
-						<div class="row">
-							<div class="col-sm-4 attributeDescription">Phone:</div>
-							<div class="col-sm-8"><p>{{restaurant.phone}}</p></div>
-						</div>
-						<div class="row">
-							<div class="col-sm-4 attributeDescription">Address:</div>
-							<div class="col-sm-8"><p>{{restaurant.address}}</p></div>
-						</div>						
-						<div class="row">
-							<div class="col-sm-4 attributeDescription">Description:</div>
-							<div class="col-sm-8"><p>{{restaurant.description}}</p></div>
-						</div>
-						<div class="row">
-							<div class="col-sm-4 attributeDescription">Publisher:</div>
-							<div class="col-sm-8">
-								<p><a class="restaurantUser" data-ng-click="userSearch(restaurant.apiuser)">
-									{{restaurant.apiuser.name}}
-								</a></p>
-							</div>
-						</div>
-						<div class="row">
-							<div class="col-sm-4 attributeDescription">Tags:</div>
-							<div class="col-sm-8">
-								<a class="restaurantTags" data-ng-repeat="tag in restaurant.tags"  data-ng-click="tagSearch(tag)">
-									{{tag.name}}
+			<div data-ng-if="!restData.selectmarker.show" class="restaurantList">
+				<div class="form-group has-feedback filterInput">
+					<input data-ng-model="filterText" class="form-control" placeholder="Filter" />
+					<i class="glyphicon glyphicon-search form-control-feedback"></i>
+				</div>
+				<ul data-ng-if="restData.restaurants.length" id="restaurantList" class="list-unstyled">
+					<li data-ng-repeat="restaurant in restData.restaurants | filter:filterText" id="restaurant{{restaurant.id}}">
+						<div class="restaurantHeader" data-ng-click="restaurant.showMoreInfo = !restaurant.showMoreInfo">
+							<p data-ng-class="{shortWithMoreInfo: restaurant.showMoreInfo}" class="restaurantName" >{{restaurant.name}}</p>
+							<div data-ng-if="restData.ownRestaurants" class="btn-group restaurantEditBtns" role="group" aria-label="...">
+								<a href="#{{ 's1.edit' | routeSegmentUrl: {id: restaurant.id} }}" type="button" class="btn btn-success btn-xs">
+									<span class="glyphicon glyphicon-edit" aria-hidden="true"></span>
 								</a>
+								<button data-ng-click="remove(restaurant.id, $event)" type="button" class="btn btn-danger btn-xs">
+									<span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+								</button>
 							</div>
 						</div>
-					</div>
+						<div class="restaurantMoreInfo" data-ng-show="restaurant.showMoreInfo">
+							<div class="row">
+								<div class="col-sm-4 attributeDescription">Phone:</div>
+								<div class="col-sm-8"><p>{{restaurant.phone}}</p></div>
+							</div>
+							<div class="row">
+								<div class="col-sm-4 attributeDescription">Address:</div>
+								<div class="col-sm-8"><p>{{restaurant.address}}</p></div>
+							</div>						
+							<div class="row">
+								<div class="col-sm-4 attributeDescription">Description:</div>
+								<div class="col-sm-8"><p>{{restaurant.description}}</p></div>
+							</div>
+							<div class="row">
+								<div class="col-sm-4 attributeDescription">Publisher:</div>
+								<div class="col-sm-8">
+									<p><a class="restaurantUser" data-ng-click="userSearch(restaurant.apiuser)">
+										{{restaurant.apiuser.name}}
+									</a></p>
+								</div>
+							</div>
+							<div class="row">
+								<div class="col-sm-4 attributeDescription">Tags:</div>
+								<div class="col-sm-8">
+									<a class="restaurantTags" data-ng-repeat="tag in restaurant.tags"  data-ng-click="tagSearch(tag)">
+										{{tag.name}}
+									</a>
+								</div>
+							</div>
+						</div>
 
-				</li>
-			</ul>
+					</li>
+				</ul>
+			</div>
 		</div>
-		<div class="paginationBtns">
+		<div data-ng-if="!restData.selectmarker.show" class="paginationBtns">
 			<button class="btn btn-link" data-ng-disabled="restData.firstUrl.length < 1 || restData.prevUrl.length < 1" data-ng-click="paginate(restData.firstUrl)">&lt;&lt;</button>
 			<button class="btn btn-link" data-ng-disabled="restData.prevUrl.length < 1" data-ng-click="paginate(restData.prevUrl)">&lt;</button>
 			<button class="btn btn-link" data-ng-disabled="restData.nextUrl.length < 1" data-ng-click="paginate(restData.nextUrl)">&gt;</button>

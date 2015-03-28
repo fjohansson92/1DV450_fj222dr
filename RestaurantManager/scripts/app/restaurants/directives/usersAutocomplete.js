@@ -7,7 +7,7 @@ angular.module('RestaurantManager.Restaurants').directive('usersAutocomplete', [
 				return promise;
 			}
 		}],
-		template: '<input type="text" data-ng-model="userAutocomplete" placeholder="Ange användare"' +
+		template: '<input type="text" data-ng-model="userAutocomplete" placeholder="Search by user"' +
 						 'typeahead="user as user.name for user in getUsers($viewValue)" typeahead-loading="userloadingLocations" class="form-control">' +
     				'<i ng-show="userloadingLocations" class="glyphicon glyphicon-refresh"></i>' +
     				'<p>{{ userAutocompleteError }}</p>'

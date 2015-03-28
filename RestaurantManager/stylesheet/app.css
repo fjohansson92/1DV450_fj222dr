@@ -48,6 +48,7 @@ html, body, .fullscreen {
 	position: absolute;
 	bottom: 0;
 	width: 100%;
+	border-top: 1px solid #fff;
 }
 .paginationBtns .btn {
 	width: 25%;
@@ -55,6 +56,11 @@ html, body, .fullscreen {
 	float: left;
 	height: 70px;
 	padding: 0;
+	background-color: #393F4F;
+	color: #fff;
+}
+.paginationBtns .btn:enabled {
+	text-decoration: underline;
 }
 .sideContent {
 	height: calc(100% - 112px);
@@ -126,7 +132,13 @@ html, body, .fullscreen {
 	cursor: pointer;
 	text-decoration: underline;
 }
-
+.filterInput {
+	width: 50%;
+	margin: 5px auto;
+}
+.filterInput input {
+	border-radius: 30px;
+}
 
 
 

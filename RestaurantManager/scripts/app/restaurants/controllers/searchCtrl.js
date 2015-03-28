@@ -4,7 +4,7 @@ angular.module('RestaurantManager.Restaurants').controller('SearchCtrl', ['$scop
 	$scope.restData = RestaurantDataFactory.restaurantsData;
 	RestaurantDataFactory.updateMapFromRoutes();
 	RestaurantDataFactory.removeRestaurants();
-
+	var latestParams = {};
 
 	var init = function() {
 		if ($routeParams.search) {
@@ -29,6 +29,7 @@ angular.module('RestaurantManager.Restaurants').controller('SearchCtrl', ['$scop
 
 		promise = RestaurantFactory.get(params);
 		promise.$promise.then(function(data) {
+			latestParams = params;
 			RestaurantDataFactory.setRestaurantData(data);			
 		}, function(reason) {
 			if (reason && reason.hasOwnProperty('data') && reason.data.hasOwnProperty('userMessage')) {
@@ -36,6 +37,14 @@ angular.module('RestaurantManager.Restaurants').controller('SearchCtrl', ['$scop
 			} 
 		});
 	}
+
+	$scope.$on('paginate', function(event, args) {
+		if (!$scope.restData.loading ) {
+			latestParams.limit = args.limit;
+			latestParams.offset = args.offset;
+			restaurantsSearch(latestParams);
+		}
+	});
 
 
 	$scope.tagSearch = function(tag) {

@@ -301,14 +301,17 @@ var checkUser = ['LoginFactory', '$location', function(LoginFactory, $location) 
 	RestaurantDataFactory.removeRestaurants();
 	RestaurantDataFactory.setOwnRestaurants();
 
-	ownRestaurants = RestaurantFactory.getOwn();
-	ownRestaurants.$promise.then(function(data) {
-		RestaurantDataFactory.setRestaurantData(data);			
-	}, function(reason) {
-		if (reason && reason.hasOwnProperty('data') && reason.data.hasOwnProperty('userMessage')) {
-			RestaurantDataFactory.setErrorMessage(reason.data.userMessage);
-		} 
-	});
+	var getOwnRestaurants = function(params) {
+		ownRestaurants = RestaurantFactory.getOwn(params);
+		ownRestaurants.$promise.then(function(data) {
+			RestaurantDataFactory.setRestaurantData(data);			
+		}, function(reason) {
+			if (reason && reason.hasOwnProperty('data') && reason.data.hasOwnProperty('userMessage')) {
+				RestaurantDataFactory.setErrorMessage(reason.data.userMessage);
+			} 
+		});
+	}
+	getOwnRestaurants();
 
 	$scope.$on('removeRestaurant', function(event, restaurant) {
 		
@@ -327,6 +330,11 @@ var checkUser = ['LoginFactory', '$location', function(LoginFactory, $location) 
 		});
 	});
 
+	$scope.$on('paginate', function(event, args) {
+		if (!$scope.restData.loading ) {
+			getOwnRestaurants(args);
+		}
+	});
 
 }]);															;angular.module('RestaurantManager.Restaurants').controller('PositionCtrl', ['$scope', '$q', '$timeout', 'PositionFactory', 'RestaurantDataFactory',
 																	  function ($scope, $q, $timeout, PositionFactory, RestaurantDataFactory) {
@@ -513,7 +521,7 @@ var checkUser = ['LoginFactory', '$location', function(LoginFactory, $location) 
 	$scope.restData = RestaurantDataFactory.restaurantsData;
 	RestaurantDataFactory.updateMapFromRoutes();
 	RestaurantDataFactory.removeRestaurants();
-
+	var latestParams = {};
 
 	var init = function() {
 		if ($routeParams.search) {
@@ -538,6 +546,7 @@ var checkUser = ['LoginFactory', '$location', function(LoginFactory, $location) 
 
 		promise = RestaurantFactory.get(params);
 		promise.$promise.then(function(data) {
+			latestParams = params;
 			RestaurantDataFactory.setRestaurantData(data);			
 		}, function(reason) {
 			if (reason && reason.hasOwnProperty('data') && reason.data.hasOwnProperty('userMessage')) {
@@ -545,6 +554,14 @@ var checkUser = ['LoginFactory', '$location', function(LoginFactory, $location) 
 			} 
 		});
 	}
+
+	$scope.$on('paginate', function(event, args) {
+		if (!$scope.restData.loading ) {
+			latestParams.limit = args.limit;
+			latestParams.offset = args.offset;
+			restaurantsSearch(latestParams);
+		}
+	});
 
 
 	$scope.tagSearch = function(tag) {
@@ -622,7 +639,7 @@ var checkUser = ['LoginFactory', '$location', function(LoginFactory, $location) 
 				return promise;
 			}
 		}],
-		template: '<input type="text" data-ng-model="tagAutocomplete" placeholder="Ange tag"' +
+		template: '<input type="text" data-ng-model="tagAutocomplete" placeholder="Search by tag"' +
 						 'typeahead="tag as tag.name for tag in getTags($viewValue)" typeahead-loading="tagloadingLocations" class="form-control">' +
     				'<i ng-show="tagloadingLocations" class="glyphicon glyphicon-refresh"></i>' +
     				'<p>{{ tagAutocompleteError }}</p>'
@@ -637,7 +654,7 @@ var checkUser = ['LoginFactory', '$location', function(LoginFactory, $location) 
 				return promise;
 			}
 		}],
-		template: '<input type="text" data-ng-model="userAutocomplete" placeholder="Ange användare"' +
+		template: '<input type="text" data-ng-model="userAutocomplete" placeholder="Search by user"' +
 						 'typeahead="user as user.name for user in getUsers($viewValue)" typeahead-loading="userloadingLocations" class="form-control">' +
     				'<i ng-show="userloadingLocations" class="glyphicon glyphicon-refresh"></i>' +
     				'<p>{{ userAutocompleteError }}</p>'
@@ -844,54 +861,60 @@ angular.module("../views/restaurants.html", []).run(["$templateCache", function(
     "\n" +
     "		<div class=\"sideContent\">\n" +
     "			<div class=\"restaurantForms\" app-view-segment=\"1\"></div>\n" +
-    "			<ul data-ng-if=\"restData.restaurants.length\" id=\"restaurantList\" class=\"restaurantList list-unstyled\">\n" +
-    "				<li data-ng-repeat=\"restaurant in restData.restaurants\" id=\"restaurant{{restaurant.id}}\">\n" +
-    "					<div class=\"restaurantHeader\" data-ng-click=\"restaurant.showMoreInfo = !restaurant.showMoreInfo\">\n" +
-    "						<p data-ng-class=\"{shortWithMoreInfo: restaurant.showMoreInfo}\" class=\"restaurantName\" >{{restaurant.name}}</p>\n" +
-    "						<div data-ng-if=\"restData.ownRestaurants\" class=\"btn-group restaurantEditBtns\" role=\"group\" aria-label=\"...\">\n" +
-    "							<a href=\"#{{ 's1.edit' | routeSegmentUrl: {id: restaurant.id} }}\" type=\"button\" class=\"btn btn-success btn-xs\">\n" +
-    "								<span class=\"glyphicon glyphicon-edit\" aria-hidden=\"true\"></span>\n" +
-    "							</a>\n" +
-    "							<button data-ng-click=\"remove(restaurant.id, $event)\" type=\"button\" class=\"btn btn-danger btn-xs\">\n" +
-    "								<span class=\"glyphicon glyphicon-remove\" aria-hidden=\"true\"></span>\n" +
-    "							</button>\n" +
-    "						</div>\n" +
-    "					</div>\n" +
-    "					<div class=\"restaurantMoreInfo\" data-ng-show=\"restaurant.showMoreInfo\">\n" +
-    "						<div class=\"row\">\n" +
-    "							<div class=\"col-sm-4 attributeDescription\">Phone:</div>\n" +
-    "							<div class=\"col-sm-8\"><p>{{restaurant.phone}}</p></div>\n" +
-    "						</div>\n" +
-    "						<div class=\"row\">\n" +
-    "							<div class=\"col-sm-4 attributeDescription\">Address:</div>\n" +
-    "							<div class=\"col-sm-8\"><p>{{restaurant.address}}</p></div>\n" +
-    "						</div>						\n" +
-    "						<div class=\"row\">\n" +
-    "							<div class=\"col-sm-4 attributeDescription\">Description:</div>\n" +
-    "							<div class=\"col-sm-8\"><p>{{restaurant.description}}</p></div>\n" +
-    "						</div>\n" +
-    "						<div class=\"row\">\n" +
-    "							<div class=\"col-sm-4 attributeDescription\">Publisher:</div>\n" +
-    "							<div class=\"col-sm-8\">\n" +
-    "								<p><a class=\"restaurantUser\" data-ng-click=\"userSearch(restaurant.apiuser)\">\n" +
-    "									{{restaurant.apiuser.name}}\n" +
-    "								</a></p>\n" +
-    "							</div>\n" +
-    "						</div>\n" +
-    "						<div class=\"row\">\n" +
-    "							<div class=\"col-sm-4 attributeDescription\">Tags:</div>\n" +
-    "							<div class=\"col-sm-8\">\n" +
-    "								<a class=\"restaurantTags\" data-ng-repeat=\"tag in restaurant.tags\"  data-ng-click=\"tagSearch(tag)\">\n" +
-    "									{{tag.name}}\n" +
+    "			<div data-ng-if=\"!restData.selectmarker.show\" class=\"restaurantList\">\n" +
+    "				<div class=\"form-group has-feedback filterInput\">\n" +
+    "					<input data-ng-model=\"filterText\" class=\"form-control\" placeholder=\"Filter\" />\n" +
+    "					<i class=\"glyphicon glyphicon-search form-control-feedback\"></i>\n" +
+    "				</div>\n" +
+    "				<ul data-ng-if=\"restData.restaurants.length\" id=\"restaurantList\" class=\"list-unstyled\">\n" +
+    "					<li data-ng-repeat=\"restaurant in restData.restaurants | filter:filterText\" id=\"restaurant{{restaurant.id}}\">\n" +
+    "						<div class=\"restaurantHeader\" data-ng-click=\"restaurant.showMoreInfo = !restaurant.showMoreInfo\">\n" +
+    "							<p data-ng-class=\"{shortWithMoreInfo: restaurant.showMoreInfo}\" class=\"restaurantName\" >{{restaurant.name}}</p>\n" +
+    "							<div data-ng-if=\"restData.ownRestaurants\" class=\"btn-group restaurantEditBtns\" role=\"group\" aria-label=\"...\">\n" +
+    "								<a href=\"#{{ 's1.edit' | routeSegmentUrl: {id: restaurant.id} }}\" type=\"button\" class=\"btn btn-success btn-xs\">\n" +
+    "									<span class=\"glyphicon glyphicon-edit\" aria-hidden=\"true\"></span>\n" +
     "								</a>\n" +
+    "								<button data-ng-click=\"remove(restaurant.id, $event)\" type=\"button\" class=\"btn btn-danger btn-xs\">\n" +
+    "									<span class=\"glyphicon glyphicon-remove\" aria-hidden=\"true\"></span>\n" +
+    "								</button>\n" +
     "							</div>\n" +
     "						</div>\n" +
-    "					</div>\n" +
+    "						<div class=\"restaurantMoreInfo\" data-ng-show=\"restaurant.showMoreInfo\">\n" +
+    "							<div class=\"row\">\n" +
+    "								<div class=\"col-sm-4 attributeDescription\">Phone:</div>\n" +
+    "								<div class=\"col-sm-8\"><p>{{restaurant.phone}}</p></div>\n" +
+    "							</div>\n" +
+    "							<div class=\"row\">\n" +
+    "								<div class=\"col-sm-4 attributeDescription\">Address:</div>\n" +
+    "								<div class=\"col-sm-8\"><p>{{restaurant.address}}</p></div>\n" +
+    "							</div>						\n" +
+    "							<div class=\"row\">\n" +
+    "								<div class=\"col-sm-4 attributeDescription\">Description:</div>\n" +
+    "								<div class=\"col-sm-8\"><p>{{restaurant.description}}</p></div>\n" +
+    "							</div>\n" +
+    "							<div class=\"row\">\n" +
+    "								<div class=\"col-sm-4 attributeDescription\">Publisher:</div>\n" +
+    "								<div class=\"col-sm-8\">\n" +
+    "									<p><a class=\"restaurantUser\" data-ng-click=\"userSearch(restaurant.apiuser)\">\n" +
+    "										{{restaurant.apiuser.name}}\n" +
+    "									</a></p>\n" +
+    "								</div>\n" +
+    "							</div>\n" +
+    "							<div class=\"row\">\n" +
+    "								<div class=\"col-sm-4 attributeDescription\">Tags:</div>\n" +
+    "								<div class=\"col-sm-8\">\n" +
+    "									<a class=\"restaurantTags\" data-ng-repeat=\"tag in restaurant.tags\"  data-ng-click=\"tagSearch(tag)\">\n" +
+    "										{{tag.name}}\n" +
+    "									</a>\n" +
+    "								</div>\n" +
+    "							</div>\n" +
+    "						</div>\n" +
     "\n" +
-    "				</li>\n" +
-    "			</ul>\n" +
+    "					</li>\n" +
+    "				</ul>\n" +
+    "			</div>\n" +
     "		</div>\n" +
-    "		<div class=\"paginationBtns\">\n" +
+    "		<div data-ng-if=\"!restData.selectmarker.show\" class=\"paginationBtns\">\n" +
     "			<button class=\"btn btn-link\" data-ng-disabled=\"restData.firstUrl.length < 1 || restData.prevUrl.length < 1\" data-ng-click=\"paginate(restData.firstUrl)\">&lt;&lt;</button>\n" +
     "			<button class=\"btn btn-link\" data-ng-disabled=\"restData.prevUrl.length < 1\" data-ng-click=\"paginate(restData.prevUrl)\">&lt;</button>\n" +
     "			<button class=\"btn btn-link\" data-ng-disabled=\"restData.nextUrl.length < 1\" data-ng-click=\"paginate(restData.nextUrl)\">&gt;</button>\n" +
@@ -1020,7 +1043,7 @@ angular.module("../views/restaurants/search.html", []).run(["$templateCache", fu
     "	<div class=\"freeSearchForm\">\n" +
     "		<form class=\"form-inline\" data-ng-submit=\"freeSearch(searchWords)\">\n" +
     "			<div class=\"form-group has-feedback\">\n" +
-    "				<input class=\"form-control\" id=\"searchWords\" data-ng-model=\"searchWords\" />\n" +
+    "				<input class=\"form-control\" id=\"searchWords\" data-ng-model=\"searchWords\" placeholder=\"Search for restaurants\" />\n" +
     "				<i class=\"glyphicon glyphicon-search form-control-feedback\"></i>\n" +
     "			</div>\n" +
     "		</form>   \n" +
