@@ -10,11 +10,11 @@ textarea {
 
 html, body, .fullscreen {
 	height: 100%;
-    min-height: 100%;
+    min-height: 700px;
 }
 .container-fluid, .fullheight, .angular-google-map-container, .angular-google-map {    
 	height: 100%;
-    min-height: 100%; 
+    min-height: 700px; 
 }
 .fullheight {
 	padding: 0;
@@ -66,7 +66,7 @@ html, body, .fullscreen {
 	height: calc(100% - 112px);
 }
 .restaurantForms {
-	height: 25%;
+	height: 204px;
 }
 
 
@@ -74,7 +74,7 @@ html, body, .fullscreen {
 
 
 .restaurantList {
-	height: 75%;
+	height: calc( 100% - 204px);
 	overflow-y: scroll;
 	width: 100%;
 	left: 0px;
@@ -86,6 +86,12 @@ html, body, .fullscreen {
 	border-radius: 4px;
 	padding: 5px;
 }
+.restaurantList li.noRestaurants {
+	color: #fff;
+	margin-top: 50%;
+	text-align: center;
+}
+
 .restaurantHeader {
 	cursor: pointer;
 }
@@ -176,17 +182,19 @@ html, body, .fullscreen {
 	height: 100%;
 }
 .freeSearchForm .form-group{ 
-	width: 75%;
+	width: 100%;
+	display: inline-block;
 }
 .searchForms .freeSearchForm input {
 	width: 100%;
 }
 .tagSearchForm .btn, .userSearchForm .btn{
-	margin-top: -23px; 
+	margin-top: -26px; 
 }
 .tagSearchForm .form-group, .userSearchForm .form-group{
 	width: 58%;
 	height: 100%;
+	display: inline-block;
 }
 .tagSearchForm .form-group input, .userSearchForm .form-group input{
 	width: 100%;
@@ -229,4 +237,113 @@ html, body, .fullscreen {
 }
 .creatRestaurant .btn-success {
 	margin-right: 20px;
+}
+.tagAdder .form-group {
+  width: 58%;
+  margin: 0;
+  display: inline-block;
+}
+
+
+
+
+
+
+
+
+
+
+
+/* --- Style --- */
+.navbar-default {
+    background-color: #2ecc71;
+    border-color: #27ae60;
+    .navbar-brand {
+        color: #ecf0f1;
+        &:hover, &:focus {
+            color: #d1ffed; }}
+    .navbar-nav {
+        > li {
+            > a {
+                color: #ecf0f1;
+                &:hover, &:focus {
+                    color: #d1ffed;   }}}
+        .active {
+            > a, > a:hover, > a:focus {
+                color: #d1ffed;
+                background-color: #27ae60; }}
+        .open {
+            > a, > a:hover, > a:focus {
+                color: #d1ffed;
+                background-color: #27ae60;
+                .caret {
+                    border-top-color: #d1ffed;
+                    border-bottom-color: #d1ffed; }}}
+        > .dropdown {
+            > a {
+                .caret {
+                    border-top-color: #ecf0f1;
+                    border-bottom-color: #ecf0f1; }
+                &:hover, &:focus {
+                    .caret {
+                        border-top-color: #d1ffed;
+                        border-bottom-color: #d1ffed; }}}}}
+    .navbar-toggle {
+        border-color: #27ae60;
+        &:hover, &:focus {
+            background-color: #27ae60; }
+        .icon-bar {
+            background-color: #ecf0f1; }}}
+@media (max-width: 767px) {
+    .navbar-default .navbar-nav .open .dropdown-menu > li > a {
+        color: #ecf0f1;
+        &:hover, &:focus {
+            color: #d1ffed;
+            background-color: #27ae60; }}
+}
+.navbar-default .navbar-brand {
+  color: #fff;
+}
+
+@media (max-width: 380px) {
+    .nav-tabs > li > a {
+        padding: 10px 2px;
+		font-size: 0.9em;
+	}
+	.autoCompleteError {
+		font-size: 0.8em;
+	}
+}
+@media (min-width: 970px) and (max-width: 1430px) { 
+	.nav-tabs > li > a {
+        padding: 10px 2px;
+	}
+	.autoCompleteError {
+		font-size: 0.8em;
+	}
+}
+@media (max-width: 768px) {
+	.restaurantMoreInfo .attributeDescription {
+		float: left;
+		width:40%;
+	}
+	.restaurantMoreInfo .attributeData {
+		display: inline;
+	} 
+	.restaurantMoreInfo .attributeData p {
+		width: 40%;
+  		display: inline-block;
+	}
+
+	.tagSearchForm .btn, .userSearchForm .btn {
+  		margin-top: -3px;
+	}
+	.searchForms {
+	  padding: 20px 5px 0;
+	}
+}
+@media (min-width: 768px) and (max-width: 992px) {
+	.tagAdder, .form-group.tagListFormGroup, .createCoordsInfo{
+		margin-left:25%;
+	}
 }

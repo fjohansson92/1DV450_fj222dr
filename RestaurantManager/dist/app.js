@@ -719,7 +719,10 @@ var checkUser = ['LoginFactory', '$location', function(LoginFactory, $location) 
 		},
 		lastLatitude: lastLatitude,
 		lastLongitude: lastLongitude,
-		cordsInParams: false
+		cordsInParams: false,
+		options: {
+			styles: [{"featureType":"administrative","elementType":"labels.text.fill","stylers":[{"color":"#444444"}]},{"featureType":"landscape","elementType":"all","stylers":[{"color":"#f2f2f2"}]},{"featureType":"poi","elementType":"all","stylers":[{"visibility":"off"}]},{"featureType":"road","elementType":"all","stylers":[{"saturation":-100},{"lightness":45}]},{"featureType":"road.highway","elementType":"all","stylers":[{"visibility":"simplified"}]},{"featureType":"road.arterial","elementType":"labels.icon","stylers":[{"visibility":"off"}]},{"featureType":"transit","elementType":"all","stylers":[{"visibility":"off"}]},{"featureType":"water","elementType":"all","stylers":[{"color":"#647ea4"},{"visibility":"on"}]}]
+		}
 	}
 
 	var updateMapFromRoutes = function() { 
@@ -772,7 +775,7 @@ var checkUser = ['LoginFactory', '$location', function(LoginFactory, $location) 
 				}
 			}
 						
-			restaurantsData.restaurants = openRestaurants;				
+			restaurantsData.restaurants = openRestaurants;	
 		},
 		resolveGmap: function() {
 			uiGmapDeferred.resolve();
@@ -922,8 +925,8 @@ angular.module("../views/restaurants.html", []).run(["$templateCache", function(
     "		</div>\n" +
     "	</div>\n" +
     "	<div class=\"col-md-9 fullheight\">\n" +
-    "		<ui-gmap-google-map center='restData.map.center' zoom='restData.map.zoom' bounds=\"restData.map.bounds\" draggable=\"true\" control=\"restData.map.control\">\n" +
-    "	        <ui-gmap-marker data-ng-repeat=\"m in restData.restaurants\" coords=\"m\" icon=\"m.icon\" click=\"showRestaurantInfo(m);\" idKey=\"m.id\">\n" +
+    "		<ui-gmap-google-map center='restData.map.center' zoom='restData.map.zoom' bounds=\"restData.map.bounds\" draggable=\"true\" control=\"restData.map.control\" options=\"restData.options\">\n" +
+    "	        <ui-gmap-marker data-ng-repeat=\"m in restData.restaurants\" coords=\"m\" icon=\"markerIcon\" click=\"showRestaurantInfo(m);\" idKey=\"m.id\">\n" +
     "	            <ui-gmap-window data-ng-cloak  coords=\"map.infoWindowWithCustomClass.coords\" show=\"m.showMoreInfo\" closeClick=\"m.showMoreInfo = false\" \n" +
     "	            	options=\"map.infoWindowWithCustomClass.options\">\n" +
     "	            	<div>\n" +

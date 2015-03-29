@@ -18,7 +18,8 @@
 					<input data-ng-model="filterText" class="form-control" placeholder="Filter" />
 					<i class="glyphicon glyphicon-search form-control-feedback"></i>
 				</div>
-				<ul data-ng-if="restData.restaurants.length" id="restaurantList" class="list-unstyled">
+				<ul id="restaurantList" class="list-unstyled">
+					<li class="noRestaurants" data-ng-show="!restData.restaurants.length">No restaurants found</li>
 					<li data-ng-repeat="restaurant in restData.restaurants | filter:filterText" id="restaurant{{restaurant.id}}">
 						<div class="restaurantHeader" data-ng-click="restaurant.showMoreInfo = !restaurant.showMoreInfo">
 							<p data-ng-class="{shortWithMoreInfo: restaurant.showMoreInfo}" class="restaurantName" >{{restaurant.name}}</p>
@@ -34,19 +35,19 @@
 						<div class="restaurantMoreInfo" data-ng-show="restaurant.showMoreInfo">
 							<div class="row">
 								<div class="col-sm-4 attributeDescription">Phone:</div>
-								<div class="col-sm-8"><p>{{restaurant.phone}}</p></div>
+								<div class="col-sm-8 attributeData"><p>{{restaurant.phone}}</p></div>
 							</div>
 							<div class="row">
 								<div class="col-sm-4 attributeDescription">Address:</div>
-								<div class="col-sm-8"><p>{{restaurant.address}}</p></div>
+								<div class="col-sm-8 attributeData"><p>{{restaurant.address}}</p></div>
 							</div>						
 							<div class="row">
 								<div class="col-sm-4 attributeDescription">Description:</div>
-								<div class="col-sm-8"><p>{{restaurant.description}}</p></div>
+								<div class="col-sm-8 attributeData"><p>{{restaurant.description}}</p></div>
 							</div>
 							<div class="row">
 								<div class="col-sm-4 attributeDescription">Publisher:</div>
-								<div class="col-sm-8">
+								<div class="col-sm-8 attributeData">
 									<p><a class="restaurantUser" data-ng-click="userSearch(restaurant.apiuser)">
 										{{restaurant.apiuser.name}}
 									</a></p>
@@ -54,10 +55,10 @@
 							</div>
 							<div class="row">
 								<div class="col-sm-4 attributeDescription">Tags:</div>
-								<div class="col-sm-8">
-									<a class="restaurantTags" data-ng-repeat="tag in restaurant.tags"  data-ng-click="tagSearch(tag)">
+								<div class="col-sm-8 attributeData">
+									<p><a class="restaurantTags" data-ng-repeat="tag in restaurant.tags"  data-ng-click="tagSearch(tag)">
 										{{tag.name}}
-									</a>
+									</a></p>
 								</div>
 							</div>
 						</div>
@@ -74,8 +75,8 @@
 		</div>
 	</div>
 	<div class="col-md-9 fullheight">
-		<ui-gmap-google-map center='restData.map.center' zoom='restData.map.zoom' bounds="restData.map.bounds" draggable="true" control="restData.map.control">
-	        <ui-gmap-marker data-ng-repeat="m in restData.restaurants" coords="m" icon="m.icon" click="showRestaurantInfo(m);" idKey="m.id">
+		<ui-gmap-google-map center='restData.map.center' zoom='restData.map.zoom' bounds="restData.map.bounds" draggable="true" control="restData.map.control" options="restData.options">
+	        <ui-gmap-marker data-ng-if="!restData.selectmarker.show" data-ng-repeat="m in restData.restaurants" coords="m" icon="markerIcon" click="showRestaurantInfo(m);" idKey="m.id">
 	            <ui-gmap-window data-ng-cloak  coords="map.infoWindowWithCustomClass.coords" show="m.showMoreInfo" closeClick="m.showMoreInfo = false" 
 	            	options="map.infoWindowWithCustomClass.options">
 	            	<div>

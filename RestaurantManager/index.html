@@ -9,25 +9,17 @@
     </head>
     <body>
         <div class="fullscreen" data-ng-controller="LoginCtrl">
-            <nav class="navbar navbar-inverse navbar-fixed-top">
+            <nav class="navbar navbar-default navbar-fixed-top">
                 <div class="container">
-                    <div class="navbar-header">
-                        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                            <span class="sr-only">Toggle navigation</span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                            <span class="icon-bar"></span>
-                        </button>
-                        <a class="navbar-brand" href="#">Restaurant finder</a>
+                    <div class="navbar-header pull-left">
+                        <a class="navbar-brand" href="#{{ 's1' | routeSegmentUrl}}" >Restaurant finder</a>
                     </div>
-                    <div id="navbar" class="navbar-collapse collapse">
-                        <div class="navbar-right">
-                            <div login-menu login="login()" logout="logout()"></div>
-                        </div>
+                    <div class="navbar-header pull-right">
+                        <div login-menu login="login()" logout="logout()"></div>
                     </div>
                 </div>
             </nav>
-            <div class="loginMessage" data-ng-if="user.showMessage">
+            <div class="loginMessage" data-ng-if="user.showMessage" data-ng-cloak>
                 <button type="button" class="btn btn-default closeBtn" data-ng-click="user.showMessage = false;">
                     <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
                 </button>

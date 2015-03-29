@@ -36,6 +36,9 @@
 				required id="description" placeholder="Tell us about your restaurant!"></textarea>		
 		</div>
 	</div>
+	<div class="createCoordsInfo">
+		<p>Move the marker on the map to set coordinates</p>
+	</div>
 	<div class="form-group">
 		<label for="longitude" class="col-sm-3 control-label">Longitude</label>
 		<div class="col-sm-9">
@@ -48,13 +51,13 @@
 			<input type="text" class="form-control" id="latitude" readonly data-ng-model="restData.selectmarker.coords.latitude">				
 		</div>
 	</div>
-	<div class="form-group">
-		<div class="col-sm-9">
+	<div class="tagAdder">
+		<div class="form-group">
 			<tags-autocomplete></tags-autocomplete>
 		</div>
 		<button type="submit" data-ng-click="addTag(tagAutocomplete)" class="btn btn-default addTagBtn">Add</button>
 	</div>
-	<div class="form-group">
+	<div class="form-group tagListFormGroup">
 		<div class="col-sm-9">
 			<ul class="tagList" data-ng-if="newTags.length">
 				<li data-ng-repeat="tag in newTags">
