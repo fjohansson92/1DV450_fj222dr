@@ -41,8 +41,8 @@ class RateLimit
 			time_till_reset = (time_now + time_to_live.to_i).to_s
 
 			{
-				"X-Rate-Limit-Limit" => "60",
-				"X-Rate-Limit-Remaining" => (60 - count.to_i).to_s,
+				"X-Rate-Limit-Limit" => "10000",
+				"X-Rate-Limit-Remaining" => (10000 - count.to_i).to_s,
 				"X-Rate-Limit-Reset" => time_till_reset
 			}
 		end

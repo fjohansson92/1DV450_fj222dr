@@ -24,9 +24,22 @@ Adminkonto
 Användarnamn: admin@mail.com
 Lösenord: password
 
-
 Backend tester
 - Kör med rake test
 
 
+
+
+
+
+
+
+
+Changes of API:
+- Fixed pagination last limit amount bugg
+- Changed get restaurants by position to within coordinates instead of close to a coordinate. 
+- Increased throttle limit
+- Added put and delete to Cors
+- Fixed login callback to work with parameters
+- Fixed bugg when checking client url matching API-key
 

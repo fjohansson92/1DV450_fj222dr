@@ -194,7 +194,7 @@ var checkUser = ['LoginFactory', '$location', function(LoginFactory, $location) 
 	RestaurantDataFactory.addSelectMarker();
 	$scope.newTags = [];
 	$scope.restaurant = {};
-	var original = $scope.restaurant;
+	var original = {};
 
 	var ownRestaurant;
 	var edit = false;
@@ -241,44 +241,49 @@ var checkUser = ['LoginFactory', '$location', function(LoginFactory, $location) 
 	}
 
 	var saveRestaurant = function() {
-		$scope.successMessage = false;
-		delete $scope.errorMessage; 
-		restaurant = $scope.restaurant;
-		restaurant.latitude = $scope.restData.selectmarker.coords.latitude;
-		restaurant.longitude = $scope.restData.selectmarker.coords.longitude;
-		restaurant.tags_attributes = [];
-		for (var key in $scope.newTags) {
-			tag = $scope.newTags[key]
+		if (!$scope.restData.loading) {
+			RestaurantDataFactory.loading();
+			$scope.successMessage = false;
+			delete $scope.errorMessage; 
+			restaurant = $scope.restaurant;
+			restaurant.latitude = $scope.restData.selectmarker.coords.latitude;
+			restaurant.longitude = $scope.restData.selectmarker.coords.longitude;
+			restaurant.tags_attributes = [];
+			for (var key in $scope.newTags) {
+				tag = $scope.newTags[key]
 
-			restaurant.tags_attributes.push({
-				name: tag				
+				restaurant.tags_attributes.push({
+					name: tag				
+				});
+			}
+
+			var restaurantPost;
+			if (edit) {
+				restaurantPost = RestaurantFactory.put({ id: restaurant.id},{ restaurant: restaurant });
+				
+			} else {
+				restaurantPost = RestaurantFactory.save({ restaurant: restaurant });
+			}
+
+			restaurantPost.$promise.then(function(data) {
+				if (!edit) {
+					$scope.newTags = [];
+					$scope.restaurant = angular.copy(original);
+					$scope.restForm.$setUntouched();
+				}
+				$scope.successMessage = true;
+				RestaurantDataFactory.stopLoading();
+			}, function(reason) {
+				if (reason && reason.hasOwnProperty('data') && reason.data.hasOwnProperty('userMessage')) {
+					$scope.errorMessage = reason.data.userMessage;
+
+					if (reason.data.errorCode == '1401') {
+						$scope.$emit('userNotValid');
+					}
+				} 
+				RestaurantDataFactory.stopLoading();
 			});
 		}
-
-		var restaurantPost;
-		if (edit) {
-			restaurantPost = RestaurantFactory.put({ id: restaurant.id},{ restaurant: restaurant });
-			
-		} else {
-			restaurantPost = RestaurantFactory.save({ restaurant: restaurant });
-		}
-
-		restaurantPost.$promise.then(function(data) {
-			if (!edit) {
-				$scope.newTags = [];
-				$scope.restaurant = angular.copy(original);
-				$scope.restForm.$setUntouched();
-			}
-			$scope.successMessage = true;
-		}, function(reason) {
-			if (reason && reason.hasOwnProperty('data') && reason.data.hasOwnProperty('userMessage')) {
-				$scope.errorMessage = reason.data.userMessage;
-
-				if (reason.data.errorCode == '1401') {
-					$scope.$emit('userNotValid');
-				}
-			} 
-		});
 	}
 
 
@@ -302,31 +307,36 @@ var checkUser = ['LoginFactory', '$location', function(LoginFactory, $location) 
 	RestaurantDataFactory.setOwnRestaurants();
 
 	var getOwnRestaurants = function(params) {
+		RestaurantDataFactory.loading();
 		ownRestaurants = RestaurantFactory.getOwn(params);
 		ownRestaurants.$promise.then(function(data) {
-			RestaurantDataFactory.setRestaurantData(data);			
+			RestaurantDataFactory.setRestaurantData(data);
+			RestaurantDataFactory.stopLoading();
 		}, function(reason) {
 			if (reason && reason.hasOwnProperty('data') && reason.data.hasOwnProperty('userMessage')) {
-				RestaurantDataFactory.setErrorMessage(reason.data.userMessage);
+				$scope.errorMessage = reason.data.userMessage;
 			} 
+			RestaurantDataFactory.stopLoading();
 		});
 	}
 	getOwnRestaurants();
 
 	$scope.$on('removeRestaurant', function(event, restaurant) {
-		
+		RestaurantDataFactory.loading();
 		ownRestaurant = RestaurantFactory.remove({id: restaurant.id});
 		ownRestaurant.$promise.then(function(data) {
 
 			RestaurantDataFactory.removeRestaurant(restaurant.id)
+			RestaurantDataFactory.stopLoading();
 		}, function(reason) {
 			if (reason && reason.hasOwnProperty('data') && reason.data.hasOwnProperty('userMessage')) {
-				RestaurantDataFactory.setErrorMessage(reason.data.userMessage);
+				$scope.errorMessage = reason.data.userMessage;
 
 				if (reason.data.errorCode == '1401') {
 					$scope.$emit('userNotValid');
 				}
-			} 
+			}
+			RestaurantDataFactory.stopLoading(); 
 		});
 	});
 
@@ -413,11 +423,11 @@ var checkUser = ['LoginFactory', '$location', function(LoginFactory, $location) 
 			}, 1000);
 		}, function(reason) {
 			if (reason && reason.hasOwnProperty('data') && reason.data.hasOwnProperty('userMessage')) {
-				RestaurantDataFactory.setErrorMessage(reason.data.userMessage);
+				$scope.errorMessage = reason.data.userMessage;
 			}
+			RestaurantDataFactory.stopLoading();
 		});
 	}
-
 
 	getUpdateRatio = function(zoom) {
 		var x = 9
@@ -535,6 +545,7 @@ var checkUser = ['LoginFactory', '$location', function(LoginFactory, $location) 
 
 
 	var restaurantsSearch = function(params) {
+		RestaurantDataFactory.loading();
 		$scope.tagError = "";
 		$scope.userError = "";
 
@@ -547,11 +558,13 @@ var checkUser = ['LoginFactory', '$location', function(LoginFactory, $location) 
 		promise = RestaurantFactory.get(params);
 		promise.$promise.then(function(data) {
 			latestParams = params;
-			RestaurantDataFactory.setRestaurantData(data);			
+			RestaurantDataFactory.setRestaurantData(data);
+			RestaurantDataFactory.stopLoading();			
 		}, function(reason) {
 			if (reason && reason.hasOwnProperty('data') && reason.data.hasOwnProperty('userMessage')) {
-				RestaurantDataFactory.setErrorMessage(reason.data.userMessage);
+				$scope.errorMessage = reason.data.userMessage;
 			} 
+			RestaurantDataFactory.stopLoading();
 		});
 	}
 
@@ -595,15 +608,17 @@ var checkUser = ['LoginFactory', '$location', function(LoginFactory, $location) 
 
 	$scope.freeSearch = function(searchWords) {
 		params = {}
-		if (searchWords) {
-			$scope.latestSearch = searchWords;
-			params.q = searchWords.replace(/\s/g, ' ');
-			restaurantsSearch(params);
+		if (!$scope.restData.loading) {
+			if (searchWords) {
+				$scope.latestSearch = searchWords;
+				params.q = searchWords.replace(/\s/g, ' ');
+				restaurantsSearch(params);
 
-			$location.search('search', searchWords).replace();
-		} else {
-			$scope.tagError = "";
-			$scope.userError = "";
+				$location.search('search', searchWords).replace();
+			} else {
+				$scope.tagError = "";
+				$scope.userError = "";
+			}
 		}
 	}
 
@@ -666,12 +681,13 @@ var checkUser = ['LoginFactory', '$location', function(LoginFactory, $location) 
 	
 	var timeout = 0;
 
-	var autocomplete = function(factory, attr) {
+	var autocomplete = function(factory, term, attr) {
 		$timeout.cancel(timeout);
 		defer = $q.defer()
 
 		timeout = $timeout(function() {
-			factory.$promise.then(function(data) {	
+			data = factory.get({ term: term, limit: 8 });
+			data.$promise.then(function(data) {	
 				defer.resolve(data[attr].map(function(item) {
 					return item;
 				}));
@@ -684,10 +700,10 @@ var checkUser = ['LoginFactory', '$location', function(LoginFactory, $location) 
 
 	return {
 		tags: function(term) {
-			return autocomplete(TagFactory.get({ term: term, limit: 8 }), 'tags');
+			return autocomplete(TagFactory, term, 'tags');
 		},
 		users: function(term) {
-			return autocomplete(UserFactory.get({ term: term, limit: 8 }), 'apiusers');	
+			return autocomplete(UserFactory, term, 'apiusers');	
 		}
 
 	}	
@@ -869,7 +885,8 @@ angular.module("../views/restaurants.html", []).run(["$templateCache", function(
     "					<input data-ng-model=\"filterText\" class=\"form-control\" placeholder=\"Filter\" />\n" +
     "					<i class=\"glyphicon glyphicon-search form-control-feedback\"></i>\n" +
     "				</div>\n" +
-    "				<ul data-ng-if=\"restData.restaurants.length\" id=\"restaurantList\" class=\"list-unstyled\">\n" +
+    "				<ul id=\"restaurantList\" class=\"list-unstyled\">\n" +
+    "					<li class=\"noRestaurants\" data-ng-show=\"!restData.restaurants.length\">No restaurants found</li>\n" +
     "					<li data-ng-repeat=\"restaurant in restData.restaurants | filter:filterText\" id=\"restaurant{{restaurant.id}}\">\n" +
     "						<div class=\"restaurantHeader\" data-ng-click=\"restaurant.showMoreInfo = !restaurant.showMoreInfo\">\n" +
     "							<p data-ng-class=\"{shortWithMoreInfo: restaurant.showMoreInfo}\" class=\"restaurantName\" >{{restaurant.name}}</p>\n" +
@@ -885,19 +902,19 @@ angular.module("../views/restaurants.html", []).run(["$templateCache", function(
     "						<div class=\"restaurantMoreInfo\" data-ng-show=\"restaurant.showMoreInfo\">\n" +
     "							<div class=\"row\">\n" +
     "								<div class=\"col-sm-4 attributeDescription\">Phone:</div>\n" +
-    "								<div class=\"col-sm-8\"><p>{{restaurant.phone}}</p></div>\n" +
+    "								<div class=\"col-sm-8 attributeData\"><p>{{restaurant.phone}}</p></div>\n" +
     "							</div>\n" +
     "							<div class=\"row\">\n" +
     "								<div class=\"col-sm-4 attributeDescription\">Address:</div>\n" +
-    "								<div class=\"col-sm-8\"><p>{{restaurant.address}}</p></div>\n" +
+    "								<div class=\"col-sm-8 attributeData\"><p>{{restaurant.address}}</p></div>\n" +
     "							</div>						\n" +
     "							<div class=\"row\">\n" +
     "								<div class=\"col-sm-4 attributeDescription\">Description:</div>\n" +
-    "								<div class=\"col-sm-8\"><p>{{restaurant.description}}</p></div>\n" +
+    "								<div class=\"col-sm-8 attributeData\"><p>{{restaurant.description}}</p></div>\n" +
     "							</div>\n" +
     "							<div class=\"row\">\n" +
     "								<div class=\"col-sm-4 attributeDescription\">Publisher:</div>\n" +
-    "								<div class=\"col-sm-8\">\n" +
+    "								<div class=\"col-sm-8 attributeData\">\n" +
     "									<p><a class=\"restaurantUser\" data-ng-click=\"userSearch(restaurant.apiuser)\">\n" +
     "										{{restaurant.apiuser.name}}\n" +
     "									</a></p>\n" +
@@ -905,10 +922,10 @@ angular.module("../views/restaurants.html", []).run(["$templateCache", function(
     "							</div>\n" +
     "							<div class=\"row\">\n" +
     "								<div class=\"col-sm-4 attributeDescription\">Tags:</div>\n" +
-    "								<div class=\"col-sm-8\">\n" +
-    "									<a class=\"restaurantTags\" data-ng-repeat=\"tag in restaurant.tags\"  data-ng-click=\"tagSearch(tag)\">\n" +
+    "								<div class=\"col-sm-8 attributeData\">\n" +
+    "									<p><a class=\"restaurantTags\" data-ng-repeat=\"tag in restaurant.tags\"  data-ng-click=\"tagSearch(tag)\">\n" +
     "										{{tag.name}}\n" +
-    "									</a>\n" +
+    "									</a></p>\n" +
     "								</div>\n" +
     "							</div>\n" +
     "						</div>\n" +
@@ -926,7 +943,7 @@ angular.module("../views/restaurants.html", []).run(["$templateCache", function(
     "	</div>\n" +
     "	<div class=\"col-md-9 fullheight\">\n" +
     "		<ui-gmap-google-map center='restData.map.center' zoom='restData.map.zoom' bounds=\"restData.map.bounds\" draggable=\"true\" control=\"restData.map.control\" options=\"restData.options\">\n" +
-    "	        <ui-gmap-marker data-ng-repeat=\"m in restData.restaurants\" coords=\"m\" icon=\"markerIcon\" click=\"showRestaurantInfo(m);\" idKey=\"m.id\">\n" +
+    "	        <ui-gmap-marker data-ng-if=\"!restData.selectmarker.show\" data-ng-repeat=\"m in restData.restaurants\" coords=\"m\" icon=\"markerIcon\" click=\"showRestaurantInfo(m);\" idKey=\"m.id\">\n" +
     "	            <ui-gmap-window data-ng-cloak  coords=\"map.infoWindowWithCustomClass.coords\" show=\"m.showMoreInfo\" closeClick=\"m.showMoreInfo = false\" \n" +
     "	            	options=\"map.infoWindowWithCustomClass.options\">\n" +
     "	            	<div>\n" +
@@ -984,6 +1001,9 @@ angular.module("../views/restaurants/create.html", []).run(["$templateCache", fu
     "				required id=\"description\" placeholder=\"Tell us about your restaurant!\"></textarea>		\n" +
     "		</div>\n" +
     "	</div>\n" +
+    "	<div class=\"createCoordsInfo\">\n" +
+    "		<p>Move the marker on the map to set coordinates</p>\n" +
+    "	</div>\n" +
     "	<div class=\"form-group\">\n" +
     "		<label for=\"longitude\" class=\"col-sm-3 control-label\">Longitude</label>\n" +
     "		<div class=\"col-sm-9\">\n" +
@@ -996,13 +1016,13 @@ angular.module("../views/restaurants/create.html", []).run(["$templateCache", fu
     "			<input type=\"text\" class=\"form-control\" id=\"latitude\" readonly data-ng-model=\"restData.selectmarker.coords.latitude\">				\n" +
     "		</div>\n" +
     "	</div>\n" +
-    "	<div class=\"form-group\">\n" +
-    "		<div class=\"col-sm-9\">\n" +
+    "	<div class=\"tagAdder\">\n" +
+    "		<div class=\"form-group\">\n" +
     "			<tags-autocomplete></tags-autocomplete>\n" +
     "		</div>\n" +
     "		<button type=\"submit\" data-ng-click=\"addTag(tagAutocomplete)\" class=\"btn btn-default addTagBtn\">Add</button>\n" +
     "	</div>\n" +
-    "	<div class=\"form-group\">\n" +
+    "	<div class=\"form-group tagListFormGroup\">\n" +
     "		<div class=\"col-sm-9\">\n" +
     "			<ul class=\"tagList\" data-ng-if=\"newTags.length\">\n" +
     "				<li data-ng-repeat=\"tag in newTags\">\n" +
@@ -1021,6 +1041,10 @@ angular.module("../views/restaurants/create.html", []).run(["$templateCache", fu
     "			</div>\n" +
     "		</div>\n" +
     "		<button type=\"submit\" data-ng-click=\"submit()\" data-ng-disabled=\"restForm.$invalid\" class=\"btn btn-success pull-right\">Submit</button>\n" +
+    "\n" +
+    "	</div>\n" +
+    "	<div class=\"createLoading\" data-ng-if=\"restData.loading\">\n" +
+    "		<div></div>\n" +
     "	</div>\n" +
     "</form>\n" +
     "");
@@ -1029,20 +1053,33 @@ angular.module("../views/restaurants/create.html", []).run(["$templateCache", fu
 angular.module("../views/restaurants/created.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("../views/restaurants/created.html",
     "<div class=\"createdInfo\">\n" +
-    "	<p>Edit or remove the restaurants you created.</p>\n" +
+    "	<p data-ng-if=\"!errorMessage\">Edit or remove the restaurants you created.</p>\n" +
+    "	<p data-ng-if=\"errorMessage\" class=\"errorMessage\">{{errorMessage}}</p>\n" +
+    "	<div class=\"createdLoading\" data-ng-if=\"restData.loading\">\n" +
+    "		<div></div>\n" +
+    "	</div>\n" +
     "</div>");
 }]);
 
 angular.module("../views/restaurants/positions.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("../views/restaurants/positions.html",
     "<div class=\"positionsInfo\">\n" +
-    "	<p>Please navigate the map and restaurants will load relevant to your position!</p>\n" +
-    "</div>");
+    "	<p data-ng-if=\"!errorMessage\">Please navigate the map and restaurants will load relevant to your position!</p>\n" +
+    "	<p data-ng-if=\"errorMessage\" class=\"errorMessage\">{{errorMessage}}</p>\n" +
+    "	<div class=\"positionLoading\" data-ng-if=\"restData.loading\">\n" +
+    "		<div></div>\n" +
+    "	</div>\n" +
+    "</div>\n" +
+    "\n" +
+    "");
 }]);
 
 angular.module("../views/restaurants/search.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("../views/restaurants/search.html",
-    "<div class=\"searchForms\" >\n" +
+    "<div class=\"searchLoading\" data-ng-if=\"restData.loading\">\n" +
+    "	<div></div>\n" +
+    "</div>\n" +
+    "<div data-ng-if=\"!errorMessage\" class=\"searchForms\" >\n" +
     "	<div class=\"freeSearchForm\">\n" +
     "		<form class=\"form-inline\" data-ng-submit=\"freeSearch(searchWords)\">\n" +
     "			<div class=\"form-group has-feedback\">\n" +
@@ -1056,7 +1093,7 @@ angular.module("../views/restaurants/search.html", []).run(["$templateCache", fu
     "			<div class=\"form-group\">\n" +
     "				<tags-autocomplete></tags-autocomplete>\n" +
     "			</div>\n" +
-    "			<button type=\"submit\" data-ng-click=\"tagSearch(tagAutocomplete)\" class=\"btn btn-default\">Search</button>\n" +
+    "			<button type=\"submit\" data-ng-disabled=\"restData.loading\" data-ng-click=\"tagSearch(tagAutocomplete)\" class=\"btn btn-default\">Search</button>\n" +
     "		</form>\n" +
     "		<div data-ng-if=\"tagError\" >\n" +
     "			<p class=\"autoCompleteError\">{{tagError}}</p>\n" +
@@ -1067,12 +1104,16 @@ angular.module("../views/restaurants/search.html", []).run(["$templateCache", fu
     "			<div class=\"form-group\">\n" +
     "				<users-autocomplete></users-autocomplete>\n" +
     "			</div>\n" +
-    "			<button type=\"submit\" data-ng-click=\"userSearch(userAutocomplete)\" class=\"btn btn-default\">Search</button>\n" +
+    "			<button type=\"submit\" data-ng-disabled=\"restData.loading\" data-ng-click=\"userSearch(userAutocomplete)\" class=\"btn btn-default\">Search</button>\n" +
     "		</form>\n" +
     "		<div data-ng-if=\"userError\" >\n" +
     "			<p class=\"autoCompleteError\">{{userError}}</p>\n" +
     "		</div>\n" +
     "	</div>\n" +
     "		\n" +
-    "</div>");
+    "</div>\n" +
+    "<div data-ng-if=\"errorMessage\" class=\"errorInfo errorMessage\">\n" +
+    "	<p>{{errorMessage}}</p>\n" +
+    "</div>\n" +
+    "");
 }]);

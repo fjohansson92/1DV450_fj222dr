@@ -18,6 +18,7 @@ angular.module('RestaurantManager.Restaurants').controller('SearchCtrl', ['$scop
 
 
 	var restaurantsSearch = function(params) {
+		RestaurantDataFactory.loading();
 		$scope.tagError = "";
 		$scope.userError = "";
 
@@ -30,11 +31,13 @@ angular.module('RestaurantManager.Restaurants').controller('SearchCtrl', ['$scop
 		promise = RestaurantFactory.get(params);
 		promise.$promise.then(function(data) {
 			latestParams = params;
-			RestaurantDataFactory.setRestaurantData(data);			
+			RestaurantDataFactory.setRestaurantData(data);
+			RestaurantDataFactory.stopLoading();			
 		}, function(reason) {
 			if (reason && reason.hasOwnProperty('data') && reason.data.hasOwnProperty('userMessage')) {
-				RestaurantDataFactory.setErrorMessage(reason.data.userMessage);
+				$scope.errorMessage = reason.data.userMessage;
 			} 
+			RestaurantDataFactory.stopLoading();
 		});
 	}
 
@@ -78,15 +81,17 @@ angular.module('RestaurantManager.Restaurants').controller('SearchCtrl', ['$scop
 
 	$scope.freeSearch = function(searchWords) {
 		params = {}
-		if (searchWords) {
-			$scope.latestSearch = searchWords;
-			params.q = searchWords.replace(/\s/g, ' ');
-			restaurantsSearch(params);
+		if (!$scope.restData.loading) {
+			if (searchWords) {
+				$scope.latestSearch = searchWords;
+				params.q = searchWords.replace(/\s/g, ' ');
+				restaurantsSearch(params);
 
-			$location.search('search', searchWords).replace();
-		} else {
-			$scope.tagError = "";
-			$scope.userError = "";
+				$location.search('search', searchWords).replace();
+			} else {
+				$scope.tagError = "";
+				$scope.userError = "";
+			}
 		}
 	}
 

@@ -25,18 +25,10 @@ Domain.create(domain: "http://api.lvh.me:3001/", apikey_id: apikey.id)
 	ApiStatistic.create(call: n * (500 + 1), apikey_id: apikey.id, created_at: Time.now - n.day)
 end
 
-tag1 = nil
-tag2 = nil
 ["Pizzeria", "Café", "Restaurang", "Bar", "Hamburgerrestaurang", "SushiRestaurang", "McDonald's", "Burger King", "Pizza Hut", "Taco Bell", "Glasskiosk", 
  "A&W Restaurants","Arby's","Arctic Circle Restaurants","Arthur Treacher's","Atlanta Bread Company","Au Bon Pain","Auntie Anne's","Baja Fresh","Baskin-Robbins","Ben & Jerry's","Big Boy","Blimpies","Bojangles' Famous Chicken 'n Biscuits","Boston Market","Braum's","Burger Chef","Burger King","Burger Street","Burgerville","Captain D's Seafood Kitchen","Carino's Italian Grill","Carl's Jr.","Carrows","Carvel Ice Cream","Charley's Grilled Subs","Checkers / Rally's","Cheeburger Cheeburger","Chevys Fresh Mex","Chicken Express","Chick-fil-A","Chronic Tacos","Chuck-A-Rama","Church's / Texas Chicken","CiCi's Pizza","Cinnabon","Claim Jumper","Coco's Bakery","Cold Stone Creamery","Copeland's","Country Buffet","Culver's","Dairy Mart","Dairy Queen","Del Taco","Dinosaur Bar-B-Que","Dixie Chili and Deli","Domino's Pizza","Don Pablo's","Donatos Pizza","Druther's","Dunkin' Donuts","East of Chicago Pizza","EatZi's","Eat'n Park","Eegee's","El Chico","El Pollo Loco","Elephant Bar","Elevation Burger","El Taco Tote","Famous Dave's","Farmer Boys","Fatburger","Five Guys Famous Burgers and Fries","Fox's Pizza Den","Freddy's Frozen Custard & Steakburgers","Gino's Pizza and Spaghetti","Godfather's Pizza","Golden Chick","Green Burrito / Red Burrito","The Halal Guys","Hardee's","Huddle House","Hungry Howie's Pizza","In-N-Out Burger","Jack in the Box","Jack's","Jamba Juice","Jerry's Subs & Pizza","Jersey Mike's Subs","Jimmy John's","Jim's Restaurants","Johnny Rockets","Kewpee","KFC","Krispy Kreme","L&L Hawaiian Barbecue","Ledo Pizza","Lee Roy Selmon's","Lee's Famous Recipe Chicken","Little Caesars Pizza","Long John Silver's","Luby's","McDonald's","Milo's Hamburgers","Moe's Southwest Grill","Mr. Hero","Mrs. Fields","Mrs. Winner's Chicken & Biscuits","Naugles","Panda Express","Papa John's Pizza","Papa Murphy's Take 'N' Bake pizza","Penn Station East Coast Subs","Pita Pit","Pizza Hut","Pizza Inn","Popeyes Chicken & Biscuits","Port of Subs","Potbelly Sandwich Works","Quizno's Classic Subs","Raising Cane's Chicken Fingers","Rax","Robeks","Roy Rogers Restaurants","Runza","Saladworks","Sbarro","Schlotzsky's","Seattle's Best Coffee","Shake Shack","Skyline Chili","Smoothie King","Sneaky Pete's","Sonic Drive-In","Spangles","Starbucks Coffee","Steak 'n Shake","Stir Crazy","Sub Station II","Subway","Swensen's","Swensons","Taco Bell","Taco Bueno","Taco John's","Taco Mayo","Taco Tico","Taco Time","ThunderCloud Subs","Twin Peaks","Umami Burger","Uncle Maddio's Pizza Joint","Wendy's","Wetzel's Pretzels","Whataburger","White Castle","Wienerschnitzel","Zero's Subs","Zippy's","Zpizza",
 ].each do |n, index|
-	if index == 1
-		tag1 = Tag.create(name: n)
-	elsif index == 2
-		tag2 = Tag.create(name: n)
-	else
- 		Tag.create(name: n)
-	end
+ 	Tag.create(name: n)
 end
 
 Apiuser.create(provider: "Github",
@@ -61,11 +53,11 @@ apiuser = Apiuser.first
 					  apiuser_id: apiuser.id 
 		)
 	if n < 150
-		restaurant.tags << Tag.find(n)
 		restaurant.tags << Tag.find(n+1)
+		restaurant.tags << Tag.find(n+2)
 	else
-		restaurant.tags << Tag.find(n - 150)
-		restaurant.tags << Tag.find(n+1 - 150)
+		restaurant.tags << Tag.find(n - 149)
+		restaurant.tags << Tag.find(n - 148)
 	end
 end
 

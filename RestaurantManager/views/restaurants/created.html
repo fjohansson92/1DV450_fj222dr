@@ -1,3 +1,7 @@
 <div class="createdInfo">
-	<p>Edit or remove the restaurants you created.</p>
+	<p data-ng-if="!errorMessage">Edit or remove the restaurants you created.</p>
+	<p data-ng-if="errorMessage" class="errorMessage">{{errorMessage}}</p>
+	<div class="createdLoading" data-ng-if="restData.loading">
+		<div></div>
+	</div>
 </div>

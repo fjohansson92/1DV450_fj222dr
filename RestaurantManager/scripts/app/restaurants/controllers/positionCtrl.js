@@ -75,11 +75,11 @@ angular.module('RestaurantManager.Restaurants').controller('PositionCtrl', ['$sc
 			}, 1000);
 		}, function(reason) {
 			if (reason && reason.hasOwnProperty('data') && reason.data.hasOwnProperty('userMessage')) {
-				RestaurantDataFactory.setErrorMessage(reason.data.userMessage);
+				$scope.errorMessage = reason.data.userMessage;
 			}
+			RestaurantDataFactory.stopLoading();
 		});
 	}
-
 
 	getUpdateRatio = function(zoom) {
 		var x = 9

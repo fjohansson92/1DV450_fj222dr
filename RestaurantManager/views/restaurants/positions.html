@@ -1,3 +1,8 @@
 <div class="positionsInfo">
-	<p>Please navigate the map and restaurants will load relevant to your position!</p>
+	<p data-ng-if="!errorMessage">Please navigate the map and restaurants will load relevant to your position!</p>
+	<p data-ng-if="errorMessage" class="errorMessage">{{errorMessage}}</p>
+	<div class="positionLoading" data-ng-if="restData.loading">
+		<div></div>
+	</div>
 </div>
+

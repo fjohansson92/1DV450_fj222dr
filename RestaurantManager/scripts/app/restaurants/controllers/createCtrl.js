@@ -6,7 +6,7 @@ angular.module('RestaurantManager.Restaurants').controller('CreateCtrl', ['$scop
 	RestaurantDataFactory.addSelectMarker();
 	$scope.newTags = [];
 	$scope.restaurant = {};
-	var original = $scope.restaurant;
+	var original = {};
 
 	var ownRestaurant;
 	var edit = false;
@@ -53,44 +53,49 @@ angular.module('RestaurantManager.Restaurants').controller('CreateCtrl', ['$scop
 	}
 
 	var saveRestaurant = function() {
-		$scope.successMessage = false;
-		delete $scope.errorMessage; 
-		restaurant = $scope.restaurant;
-		restaurant.latitude = $scope.restData.selectmarker.coords.latitude;
-		restaurant.longitude = $scope.restData.selectmarker.coords.longitude;
-		restaurant.tags_attributes = [];
-		for (var key in $scope.newTags) {
-			tag = $scope.newTags[key]
+		if (!$scope.restData.loading) {
+			RestaurantDataFactory.loading();
+			$scope.successMessage = false;
+			delete $scope.errorMessage; 
+			restaurant = $scope.restaurant;
+			restaurant.latitude = $scope.restData.selectmarker.coords.latitude;
+			restaurant.longitude = $scope.restData.selectmarker.coords.longitude;
+			restaurant.tags_attributes = [];
+			for (var key in $scope.newTags) {
+				tag = $scope.newTags[key]
 
-			restaurant.tags_attributes.push({
-				name: tag				
+				restaurant.tags_attributes.push({
+					name: tag				
+				});
+			}
+
+			var restaurantPost;
+			if (edit) {
+				restaurantPost = RestaurantFactory.put({ id: restaurant.id},{ restaurant: restaurant });
+				
+			} else {
+				restaurantPost = RestaurantFactory.save({ restaurant: restaurant });
+			}
+
+			restaurantPost.$promise.then(function(data) {
+				if (!edit) {
+					$scope.newTags = [];
+					$scope.restaurant = angular.copy(original);
+					$scope.restForm.$setUntouched();
+				}
+				$scope.successMessage = true;
+				RestaurantDataFactory.stopLoading();
+			}, function(reason) {
+				if (reason && reason.hasOwnProperty('data') && reason.data.hasOwnProperty('userMessage')) {
+					$scope.errorMessage = reason.data.userMessage;
+
+					if (reason.data.errorCode == '1401') {
+						$scope.$emit('userNotValid');
+					}
+				} 
+				RestaurantDataFactory.stopLoading();
 			});
 		}
-
-		var restaurantPost;
-		if (edit) {
-			restaurantPost = RestaurantFactory.put({ id: restaurant.id},{ restaurant: restaurant });
-			
-		} else {
-			restaurantPost = RestaurantFactory.save({ restaurant: restaurant });
-		}
-
-		restaurantPost.$promise.then(function(data) {
-			if (!edit) {
-				$scope.newTags = [];
-				$scope.restaurant = angular.copy(original);
-				$scope.restForm.$setUntouched();
-			}
-			$scope.successMessage = true;
-		}, function(reason) {
-			if (reason && reason.hasOwnProperty('data') && reason.data.hasOwnProperty('userMessage')) {
-				$scope.errorMessage = reason.data.userMessage;
-
-				if (reason.data.errorCode == '1401') {
-					$scope.$emit('userNotValid');
-				}
-			} 
-		});
 	}
 
 

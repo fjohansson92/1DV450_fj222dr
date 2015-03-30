@@ -19,6 +19,41 @@ html, body, .fullscreen {
 .fullheight {
 	padding: 0;
 }
+.errorMessage {
+	color: red;
+}
+
+
+.positionLoading, .createdLoading, .createLoading {
+	position: relative;
+	background-color: rgba(255,255,255,0.9);
+	padding: 33px;
+}
+.positionLoading div, .createdLoading div, .searchLoading div, .createLoading div {
+	background-image: url("../images/395.GIF");
+    background-repeat: no-repeat;
+    height: 128px;
+	width: 128px;
+	margin: auto;
+}
+.searchLoading {
+  background-color: rgba(255,255,255,0.9);
+  padding: 33px;
+  position: absolute;
+  z-index: 100;
+  width: 100%;
+}
+.createLoading {
+	position: absolute;
+	background-color: rgba(255,255,255,0.9);
+	padding: 33px;
+	width: 100%;
+	height: 100%;
+	top: 0;
+	left: 0;
+	padding-top: 50%;
+}
+
 
 
 .loginMessage {
@@ -57,10 +92,10 @@ html, body, .fullscreen {
 	height: 70px;
 	padding: 0;
 	background-color: #393F4F;
-	color: #fff;
+	color: #626262;
 }
 .paginationBtns .btn:enabled {
-	text-decoration: underline;
+	color: rgb(46, 204, 113);
 }
 .sideContent {
 	height: calc(100% - 112px);
@@ -151,13 +186,13 @@ html, body, .fullscreen {
 
 
 
-.positionsInfo, .createdInfo {
+.positionsInfo, .createdInfo, .errorInfo {
 	height: 100%;
 	padding: 5px 30px;
 	text-align: center;
 	position: relative;
 }
-.positionsInfo p, .createdInfo p{ 
+.positionsInfo p, .createdInfo p, .errorInfo p{ 
 	position: absolute;
 	top: 0px;
 	bottom: 0px;

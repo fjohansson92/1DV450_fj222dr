@@ -1,4 +1,7 @@
-<div class="searchForms" >
+<div class="searchLoading" data-ng-if="restData.loading">
+	<div></div>
+</div>
+<div data-ng-if="!errorMessage" class="searchForms" >
 	<div class="freeSearchForm">
 		<form class="form-inline" data-ng-submit="freeSearch(searchWords)">
 			<div class="form-group has-feedback">
@@ -12,7 +15,7 @@
 			<div class="form-group">
 				<tags-autocomplete></tags-autocomplete>
 			</div>
-			<button type="submit" data-ng-click="tagSearch(tagAutocomplete)" class="btn btn-default">Search</button>
+			<button type="submit" data-ng-disabled="restData.loading" data-ng-click="tagSearch(tagAutocomplete)" class="btn btn-default">Search</button>
 		</form>
 		<div data-ng-if="tagError" >
 			<p class="autoCompleteError">{{tagError}}</p>
@@ -23,11 +26,14 @@
 			<div class="form-group">
 				<users-autocomplete></users-autocomplete>
 			</div>
-			<button type="submit" data-ng-click="userSearch(userAutocomplete)" class="btn btn-default">Search</button>
+			<button type="submit" data-ng-disabled="restData.loading" data-ng-click="userSearch(userAutocomplete)" class="btn btn-default">Search</button>
 		</form>
 		<div data-ng-if="userError" >
 			<p class="autoCompleteError">{{userError}}</p>
 		</div>
 	</div>
 		
+</div>
+<div data-ng-if="errorMessage" class="errorInfo errorMessage">
+	<p>{{errorMessage}}</p>
 </div>

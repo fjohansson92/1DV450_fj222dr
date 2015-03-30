@@ -2,12 +2,13 @@ angular.module('RestaurantManager.Restaurants').factory('AutocompleteFactory', [
 	
 	var timeout = 0;
 
-	var autocomplete = function(factory, attr) {
+	var autocomplete = function(factory, term, attr) {
 		$timeout.cancel(timeout);
 		defer = $q.defer()
 
 		timeout = $timeout(function() {
-			factory.$promise.then(function(data) {	
+			data = factory.get({ term: term, limit: 8 });
+			data.$promise.then(function(data) {	
 				defer.resolve(data[attr].map(function(item) {
 					return item;
 				}));
@@ -20,10 +21,10 @@ angular.module('RestaurantManager.Restaurants').factory('AutocompleteFactory', [
 
 	return {
 		tags: function(term) {
-			return autocomplete(TagFactory.get({ term: term, limit: 8 }), 'tags');
+			return autocomplete(TagFactory, term, 'tags');
 		},
 		users: function(term) {
-			return autocomplete(UserFactory.get({ term: term, limit: 8 }), 'apiusers');	
+			return autocomplete(UserFactory, term, 'apiusers');	
 		}
 
 	}	
