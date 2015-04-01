@@ -37,7 +37,7 @@ module.exports = function (grunt) {
     },
     html2js: {
       dist: {
-        src: [ 'views/**/*.html' ],
+        src: [ 'views/**/*.html', "views/*.html" ],
         dest: 'tmp/templates.js'
       }
     },
@@ -46,7 +46,7 @@ module.exports = function (grunt) {
         separator: ';'
       },
       dist: {
-        src: [ 'scripts/app/**/*.js', 'tmp/*.js' ],
+        src: [ 'tmp/*.js', 'scripts/app/**/*.js'],
         dest: 'dist/app.js'
       }
     },
@@ -75,7 +75,7 @@ module.exports = function (grunt) {
       },
       min: {
         files: [ 'Gruntfile.js', 'scripts/app/**/*.js', '*.html' ],
-        tasks: [ 'karma:unit', 'html2js:dist', 'concat:dist', 'clean:temp', 'uglify:dist' ],
+        tasks: [ 'html2js:dist', 'concat:dist', 'clean:temp', 'uglify:dist' ],
         options: {
           atBegin: true
         }
@@ -96,7 +96,7 @@ module.exports = function (grunt) {
   grunt.registerTask('dev', [ 'bower', 'connect:server', 'watch:dev' ]);
   grunt.registerTask('test', [ 'bower', 'karma:continuous' ]);
   grunt.registerTask('minified', [ 'bower', 'connect:server', 'watch:min' ]);
-  grunt.registerTask('package', [ 'bower', 'karma:unit', 'html2js:dist', 'concat:dist', 'uglify:dist', 'clean:temp' ]);
+  grunt.registerTask('package', [ 'bower', 'watch:min' ]);
 
 
 };

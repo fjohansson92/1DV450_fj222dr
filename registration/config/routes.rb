@@ -18,15 +18,12 @@ Rails.application.routes.draw do
     end
    end 
 
-  constraints :subdomain => /(www.)?api/ do
-    namespace :api,  path: nil do
+ # constraints :subdomain => /(www.)?api/ do
+    namespace :api do
       namespace :v1 do
         get   'authenticate'   => 'sessions#new'
         get   "/auth/:provider/callback" => "sessions#create"
         delete   "logout" => "sessions#destroy"
-
-        get   'test' => 'temp_for_developing#index'
-
 
         resources :positions, only: :index 
         resources :apikeys, only: [:index, :show ]
@@ -40,7 +37,7 @@ Rails.application.routes.draw do
 
       end
     end
-  end
+  #end
 
   
   get    'signup'  => 'users#new'

@@ -30,7 +30,7 @@ angular.module('RestaurantManager.Login').controller('LoginCtrl', ['$scope', '$l
 		LoginFactory.setUserToken(user_token);
 		
 		callback = encodeURIComponent($location.absUrl());
-		url = "http://www.api.lvh.me:3001/v1/authenticate?user_token=" + user_token + '&callback=' + callback;
+		url = "http://178.62.233.41/api/v1/authenticate?user_token=" + user_token + '&callback=' + callback;
 		window.location.href = url;
 	}
 

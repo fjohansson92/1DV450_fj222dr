@@ -1,2 +1,2 @@
 angular.module('RestaurantManager')
-	.constant('API', 'http://api.lvh.me:3001/v1/');
+	.constant('API', 'http://178.62.233.41/api/v1/');

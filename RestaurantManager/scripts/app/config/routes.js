@@ -9,25 +9,25 @@ $routeSegmentProvider
     .when('/restaurants/created', 's1.created')
 
     .segment('s1', {
-    	templateUrl: 'views/restaurants.html',
+    	templateUrl: '../views/restaurants.html',
     	controller: 'RestaurantCtrl'
     })
 
     .within()
     	.segment('search', {
     		controller: 'SearchCtrl',
-			templateUrl: 'views/restaurants/search.html'
+			templateUrl: '../views/restaurants/search.html'
     	})
         .segment('create', {
             controller: 'CreateCtrl',
-            templateUrl: 'views/restaurants/create.html',
+            templateUrl: '../views/restaurants/create.html',
             resolve: {
                 resolvedData: checkUser
             }
         })
         .segment('edit', {
             controller: 'CreateCtrl',
-            templateUrl: 'views/restaurants/create.html',
+            templateUrl: '../views/restaurants/create.html',
             dependencies: ['id'],
             resolve: {
                 resolvedData: checkUser
@@ -35,14 +35,14 @@ $routeSegmentProvider
         })
         .segment('created', {
             controller: 'CreatedCtrl',
-            templateUrl: 'views/restaurants/created.html',
+            templateUrl: '../views/restaurants/created.html',
             resolve: {
                 resolvedData: checkUser
             }
         })
     	.segment('home/:latitude?/:longitude?/:zoom?', {
     		controller: 'PositionCtrl',
-			templateUrl: 'views/restaurants/positions.html',
+			templateUrl: '../views/restaurants/positions.html',
 			'default': true
     	})
 

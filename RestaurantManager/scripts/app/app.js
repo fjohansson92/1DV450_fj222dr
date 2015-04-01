@@ -7,6 +7,7 @@ angular.module('RestaurantManager', [
 										'ngResource',
 										'uiGmapgoogle-maps',
 									 	'RestaurantManager.Restaurants',
-									 	'RestaurantManager.Login'
+									 	'RestaurantManager.Login',
+									 	'templates-dist'
 									]
 );

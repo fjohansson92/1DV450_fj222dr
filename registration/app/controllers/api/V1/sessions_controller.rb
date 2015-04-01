@@ -5,7 +5,7 @@ class Api::V1::SessionsController < Api::V1::ApplicationController
 	skip_before_filter :authenticate, :only => [:create, :new]
 
 	def new 
-		redirect_to "/v1/auth/github"
+		redirect_to "/api/v1/auth/github"
 	end
 
 
